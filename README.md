@@ -183,3 +183,10 @@ Unity에서 **File > Build Settings > PC, Mac & Linux Standalone > macOS**를 �
 선택 화면과 일시정지 메뉴의 HELP/CREDITS에서 조작 안내와 제작 리소스 정보를 볼 수 있도록 추가했습니다. 플레이 중 HUD의 HELP는 일시정지 후 안내를 엽니다. Esc는 안내를 먼저 닫고, 그다음 Esc로 게임을 재개합니다. 안내가 열린 동안 뒤쪽 버튼과 스테이지 선택 단축키는 비활성화합니다. 독립 실행판의 QUIT은 설정을 저장하고 앱을 종료하며 Unity 편집기에서는 표시하지 않습니다.
 
 Mac 빌드에는 제품 이름 `Magnet Escape`를 적용하고 종료 후 기존 프로젝트의 제품 이름을 복원하도록 했습니다. 실제 빌드 성공 시 앱 옆에 `PLAYING.txt`를 생성하여 조작·코스·랭크 기준 시간을 동봉합니다. 제출 파일 구성은 SUBMISSION.md, 리소스 출처는 CREDITS.md에 정리했습니다. 현재 앱 실행본을 만들거나 검수한 것은 아닙니다.
+
+
+## 원본 수정 후 새 편집본 만들기
+
+코스 데이터 변경을 기존 편집본과 비교하려면 **Create Fresh Course Revision** 메뉴 또는 코스 에셋의 **Generate Fresh Course Revision** 버튼을 사용합니다. `Scenes/Revisions/Revision_<UTC시각>_<고유값>/`에 Stage1~4를 생성하도록 구현했습니다. 기존 씬·편집본·이전 리비전과 Build Settings는 건드리지 않습니다.
+
+새 폴더 또는 그 안의 씬을 선택한 뒤 **Use Selected Revision in Build**를 실행하면 해당 4코스를 사용합니다. 네 씬이 모두 없으면 설정을 바꾸지 않습니다. 원본 생성 코스로 돌아가려면 **Use Generated Source Stages in Build**, 기존 기본 편집본을 사용하려면 **Use Editable Stages in Build**를 선택합니다. 새 리비전의 실제 생성·저장·전환은 Unity에서 미검증입니다.

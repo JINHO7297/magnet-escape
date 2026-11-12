@@ -15,21 +15,34 @@ namespace MagnetEscape.Editor
         private const string Generated = Root + "/Generated";
 
         [MenuItem("Tools/Magnet Escape/Create Editable Stage Copies")]
-        public static void CreateCopies()
+        public static void CreateCopies() => CreateCopiesAt(Editable);
+
+        [MenuItem("Tools/Magnet Escape/Create Fresh Course Revision")]
+        public static void CreateRevisionCopies()
+        {
+            string revision = "Revision_" + System.DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")
+                + "_UTC_" + System.Guid.NewGuid().ToString("N").Substring(0, 6);
+            string folder = Root + "/Scenes/Revisions/" + revision;
+            if (!CreateCopiesAt(folder)) return;
+            Selection.activeObject = AssetDatabase.LoadAssetAtPath<DefaultAsset>(folder);
+            EditorGUIUtility.PingObject(Selection.activeObject);
+        }
+
+        private static bool CreateCopiesAt(string folder)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
                 Debug.LogWarning("Stop Play mode before creating editable stages.");
-                return;
+                return false;
             }
-            Directory.CreateDirectory(Editable);
+            Directory.CreateDirectory(folder);
             Directory.CreateDirectory(Generated);
             AssetDatabase.Refresh();
             Scene previous = SceneManager.GetActiveScene();
             int created = 0;
             for (int stage = 1; stage <= 4; stage++)
             {
-                string path = Editable + "/Stage" + stage + ".unity";
+                string path = folder + "/Stage" + stage + ".unity";
                 if (File.Exists(path))
                 {
                     Debug.Log("Preserving existing editable scene: " + path);
@@ -58,8 +71,8 @@ namespace MagnetEscape.Editor
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("Created " + created + " editable Magnet Escape stages. Existing scenes were preserved. "
-                + "Open Scenes/Editable, then choose 'Use Editable Stages in Build' when ready.");
+            Debug.Log("Created " + created + " editable stages in " + folder + ". Existing scenes and Build Settings were preserved.");
+            return true;
         }
 
         private static void PersistGeneratedMaterials(Scene scene)
@@ -88,18 +101,39 @@ namespace MagnetEscape.Editor
         }
 
         [MenuItem("Tools/Magnet Escape/Use Editable Stages in Build")]
-        public static void UseEditableStages()
+        public static void UseEditableStages() => UseStageFolder(Editable);
+
+        [MenuItem("Tools/Magnet Escape/Use Selected Revision in Build")]
+        public static void UseSelectedRevision()
         {
-            string[] stages = Enumerable.Range(1, 4).Select(stage => Editable + "/Stage" + stage + ".unity").ToArray();
+            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (!AssetDatabase.IsValidFolder(path)) path = Path.GetDirectoryName(path);
+            path = path?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(path) || !path.StartsWith(Root + "/Scenes/Revisions/", System.StringComparison.Ordinal))
+            {
+                Debug.LogWarning("Select a generated course revision folder or a scene inside it. Build Settings were not changed.");
+                return;
+            }
+            UseStageFolder(path);
+        }
+
+        private static void UseStageFolder(string folder)
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogWarning("Stop Play mode before changing the course build set.");
+                return;
+            }
+            string[] stages = Enumerable.Range(1, 4).Select(stage => folder + "/Stage" + stage + ".unity").ToArray();
             if (stages.Any(path => !File.Exists(path)))
             {
-                Debug.LogWarning("Create all four editable stage copies first. Build Settings were not changed.");
+                Debug.LogWarning("The selected folder must contain Stage1-Stage4. Build Settings were not changed.");
                 return;
             }
             string selection = Root + "/Scenes/StageSelect.unity";
             EditorBuildSettings.scenes = new[] { selection }.Concat(stages)
                 .Select(path => new EditorBuildSettingsScene(path, true)).ToArray();
-            Debug.Log("Build Settings now use editable stage copies. Source scene GUIDs are unchanged.");
+            Debug.Log("Build Settings now use " + folder + ". Source scenes and previous revisions were preserved.");
         }
 
         [MenuItem("Tools/Magnet Escape/Use Generated Source Stages in Build")]
