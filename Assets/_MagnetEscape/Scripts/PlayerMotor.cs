@@ -72,7 +72,7 @@ namespace MagnetEscape
 
         private void Update()
         {
-            if (!CanMove || Time.timeScale == 0f) return;
+            if (!CanMove || Time.timeScale == 0f || (GameSession.Active != null && GameSession.Active.ChangingScene)) return;
             float horizontal = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
                 - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
             float vertical = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f)
@@ -90,7 +90,7 @@ namespace MagnetEscape
         {
             float dt = Time.fixedDeltaTime;
             cooldown = Mathf.Max(0f, cooldown - dt);
-            if (!CanMove)
+            if (!CanMove || (GameSession.Active != null && GameSession.Active.ChangingScene))
             {
                 body.velocity = Vector2.zero;
                 return;

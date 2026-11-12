@@ -12,6 +12,8 @@ namespace MagnetEscape
         public bool Paused { get; private set; }
         public bool Respawning { get; private set; }
         public bool Finished { get; private set; }
+        public bool ChangingScene { get; private set; }
+        public string CourseError { get; private set; }
         public float Elapsed { get; private set; }
         public int Deaths { get; private set; }
         public string Rank { get; private set; }
@@ -86,21 +88,28 @@ namespace MagnetEscape
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.M)) GameOptions.ToggleMute();
+            if (ChangingScene) return;
             if (Input.GetKeyDown(KeyCode.Escape) && hud.CloseOverlay()) return;
             if (hud.HasOverlay) return;
+            if (!string.IsNullOrEmpty(CourseError))
+            {
+                if (Input.GetKeyDown(KeyCode.Escape)) ShowSelection();
+                else if (Input.GetKeyDown(KeyCode.R)) LoadStage(Stage);
+                return;
+            }
             if (Stage == 0)
             {
                 for (int i = 1; i <= 4; i++)
                     if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) { LoadStage(i); return; }
                 return;
             }
-            if (Player == null) return;
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (Finished) ShowSelection();
                 else SetPaused(!Paused);
                 return;
             }
+            if (Player == null) return;
             if (Paused) return;
             if (Input.GetKeyDown(KeyCode.R)) { LoadStage(Stage); return; }
             if (!Finished && Input.GetKeyDown(KeyCode.Backspace)) { RetryCheckpoint(); return; }
@@ -120,7 +129,7 @@ namespace MagnetEscape
 
         private void LateUpdate()
         {
-            if (view == null || Player == null || Paused) return;
+            if (view == null || Player == null || Paused || ChangingScene) return;
             view.transform.position = Vector3.Lerp(view.transform.position, CameraTarget(), 1f - Mathf.Exp(-7f * Time.deltaTime));
         }
 
@@ -144,7 +153,7 @@ namespace MagnetEscape
 
         public void SetPaused(bool value)
         {
-            if (Stage == 0 || Finished) return;
+            if (Stage == 0 || Finished || ChangingScene || !string.IsNullOrEmpty(CourseError)) return;
             Paused = value;
             Time.timeScale = value ? 0f : 1f;
             Player?.ClearInput();
@@ -152,8 +161,41 @@ namespace MagnetEscape
 
         public void LoadStage(int stage)
         {
+            OpenScene("Stage" + Mathf.Clamp(stage, 1, 4));
+        }
+
+        public bool CanOpenStage(int stage) => stage >= 1 && stage <= 4 && Application.CanStreamedLevelBeLoaded("Stage" + stage);
+
+        private void OpenScene(string name)
+        {
+            if (ChangingScene) return;
+            if (!Application.CanStreamedLevelBeLoaded(name))
+            {
+                notice = "This course is not available in this build.";
+                noticeUntil = Time.unscaledTime + 4f;
+                Debug.LogError("Cannot open Magnet Escape scene: " + name);
+                return;
+            }
+            float previousScale = Time.timeScale;
+            ChangingScene = true;
             Time.timeScale = 1f;
-            SceneManager.LoadScene("Stage" + Mathf.Clamp(stage, 1, 4));
+            try { SceneManager.LoadScene(name); }
+            catch (System.Exception exception)
+            {
+                ChangingScene = false;
+                Time.timeScale = previousScale;
+                notice = "Could not open the course. Please try again.";
+                noticeUntil = Time.unscaledTime + 4f;
+                Debug.LogException(exception);
+            }
+        }
+
+        public void ReportCourseError(string message)
+        {
+            CourseError = message;
+            Paused = true;
+            Time.timeScale = 0f;
+            Player?.SetFrozen(true);
         }
 
         public void ConfigureCourse(float end, float deathHeight, float delay, float parTime = 0f)
@@ -166,8 +208,7 @@ namespace MagnetEscape
 
         public void ShowSelection()
         {
-            Time.timeScale = 1f;
-            SceneManager.LoadScene("StageSelect");
+            OpenScene("StageSelect");
         }
 
         public void QuitGame()
@@ -179,7 +220,7 @@ namespace MagnetEscape
 
         public void Die()
         {
-            if (Finished || Respawning || Paused || Player == null) return;
+            if (Finished || Respawning || Paused || ChangingScene || Player == null) return;
             Respawning = true;
             Deaths++;
             Player.SetFrozen(true);
@@ -189,7 +230,7 @@ namespace MagnetEscape
 
         public void RetryCheckpoint()
         {
-            if (Finished || Respawning || Player == null) return;
+            if (Finished || Respawning || ChangingScene || Player == null) return;
             if (Paused) SetPaused(false);
             Die();
         }
@@ -205,7 +246,7 @@ namespace MagnetEscape
 
         public void SetCheckpoint(Checkpoint checkpoint)
         {
-            if (Finished || Respawning || (currentCheckpoint != null && checkpoint.Order <= currentCheckpoint.Order)) return;
+            if (Finished || Respawning || ChangingScene || (currentCheckpoint != null && checkpoint.Order <= currentCheckpoint.Order)) return;
             currentCheckpoint = checkpoint;
             spawn = checkpoint.SpawnPoint;
             checkpoint.Activate();
@@ -216,7 +257,7 @@ namespace MagnetEscape
 
         public void Complete()
         {
-            if (Finished || Respawning || Paused) return;
+            if (Finished || Respawning || Paused || ChangingScene || Player == null) return;
             Finished = true;
             Player.SetFrozen(true);
             Rank = RankAtTarget(Elapsed, Deaths, RankTarget);

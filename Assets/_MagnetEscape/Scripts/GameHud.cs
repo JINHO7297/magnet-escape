@@ -90,18 +90,25 @@ namespace MagnetEscape
             GUI.matrix = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one * scale);
             try
             {
-                GUI.enabled = previousEnabled && !HasOverlay;
+                GUI.enabled = previousEnabled && !HasOverlay && !session.ChangingScene;
                 if (session.Stage == 0) Selection();
+                else if (!string.IsNullOrEmpty(session.CourseError)) CourseFailure();
                 else
                 {
-                    GUI.enabled = previousEnabled && !HasOverlay && !session.Paused && !session.Finished;
+                    GUI.enabled = previousEnabled && !HasOverlay && !session.ChangingScene && !session.Paused && !session.Finished;
                     Hud();
-                    GUI.enabled = previousEnabled && !HasOverlay;
+                    GUI.enabled = previousEnabled && !HasOverlay && !session.ChangingScene;
                     if (session.Paused) Pause();
                     else if (session.Finished) Results();
                 }
-                GUI.enabled = previousEnabled;
+                GUI.enabled = previousEnabled && !session.ChangingScene;
                 if (HasOverlay) InformationOverlay();
+                if (session.ChangingScene)
+                {
+                    Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.7f));
+                    Panel(new Rect(300, 225, 360, 80));
+                    Label(new Rect(328, 250, 320, 35), "OPENING COURSE...", heading, Mint);
+                }
             }
             finally { GUI.matrix = previous; GUI.enabled = previousEnabled; }
         }
@@ -111,6 +118,7 @@ namespace MagnetEscape
             Fill(new Rect(0, 0, 960, 540), new Color(0.02f, 0.04f, 0.06f, 0.72f));
             Label(new Rect(48, 24, 870, 55), "MAGNET ESCAPE", title, Mint);
             Label(new Rect(51, 82, 860, 30), "A small robot. An abandoned factory. Four routes to freedom.", text);
+            if (!string.IsNullOrEmpty(session.Notice)) Label(new Rect(52, 112, 860, 20), session.Notice, small, Gold);
             int completed = 0;
             for (int stage = 1; stage <= 4; stage++)
                 if (StageRecords.ForBuildStage(stage).HasTime) completed++;
@@ -177,6 +185,17 @@ namespace MagnetEscape
             Fill(new Rect(20, 489, 920, 31), new Color(0.025f, 0.05f, 0.07f, 0.9f));
             Label(new Rect(34, 497, 895, 22), "A/D: Move   Space: Jump   WASD + Shift: Dash   Q/E: Magnet   Backspace: Retry   R: Restart   Esc: Pause", small);
             if (session.Respawning) Label(new Rect(370, 245, 250, 40), "REBOOTING...", heading, Gold);
+        }
+
+        private void CourseFailure()
+        {
+            Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.7f));
+            Panel(new Rect(170, 135, 620, 270));
+            Label(new Rect(200, 160, 560, 40), "COURSE UNAVAILABLE", heading, Gold);
+            Label(new Rect(200, 218, 560, 70), session.CourseError, text);
+            if (!string.IsNullOrEmpty(session.Notice)) Label(new Rect(200, 290, 560, 32), session.Notice, small, Gold);
+            if (GUI.Button(new Rect(200, 337, 265, 40), "STAGE SELECT  /  Esc", button)) session.ShowSelection();
+            if (GUI.Button(new Rect(485, 337, 275, 40), "TRY AGAIN  /  R", button)) session.LoadStage(session.Stage);
         }
 
         private void Pause()

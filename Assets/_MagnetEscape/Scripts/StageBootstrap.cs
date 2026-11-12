@@ -45,7 +45,13 @@ namespace MagnetEscape
 
             StageDefinition layout = StageInfo.Definition(stage);
             if (layout == null || layout.Number != stage)
-                throw new System.InvalidOperationException("Missing or mismatched stage definition: Resources/Stages/Stage" + stage);
+            {
+                string detail = "Missing or mismatched stage definition: Resources/Stages/Stage" + stage;
+                if (!Application.isPlaying) throw new System.InvalidOperationException(detail);
+                Debug.LogError(detail);
+                session.ReportCourseError("This course could not be prepared. Return to stage selection or try again.");
+                return;
+            }
             GameObject player = Box("Magnet robot", layout.StartPosition, new Vector2(0.7f, 0.9f), Color.cyan, false);
             GameArt.Apply(player, "robot_idle", 10);
             Rigidbody2D body = player.AddComponent<Rigidbody2D>();
