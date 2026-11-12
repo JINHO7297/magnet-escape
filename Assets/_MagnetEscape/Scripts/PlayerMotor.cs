@@ -34,6 +34,9 @@ namespace MagnetEscape
         public bool MagnetEnabled { get; set; }
         public float Cooldown => cooldown;
         public int MagnetMode => magnetMode;
+        public bool IsDashing => dashRemaining > 0f;
+        public bool Grounded { get; private set; }
+        public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / dashCooldown);
 
         private void Awake()
         {
@@ -74,6 +77,7 @@ namespace MagnetEscape
                 return;
             }
             bool grounded = IsGrounded();
+            Grounded = grounded;
             coyote = grounded ? 0.1f : Mathf.Max(0f, coyote - dt);
             jumpBuffer = jumpQueued ? 0.12f : Mathf.Max(0f, jumpBuffer - dt);
             jumpQueued = false;

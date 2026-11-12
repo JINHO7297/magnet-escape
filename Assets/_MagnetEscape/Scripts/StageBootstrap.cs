@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace MagnetEscape
 {
-    // A small reproducible graybox. All five scenes keep a serialized bootstrap reference.
-    // Replace primitives with authored prefabs after movement has been play-tested.
+    // All five scenes keep a serialized bootstrap reference. Visuals share authored sprites.
     public sealed class StageBootstrap : MonoBehaviour
     {
         [SerializeField, Range(0, 4)] private int stage;
@@ -32,7 +31,11 @@ namespace MagnetEscape
 
             GameSession session = gameObject.AddComponent<GameSession>();
             session.Stage = stage;
-            if (stage == 0) return;
+            if (stage == 0)
+            {
+                GameArt.Backdrop(24f);
+                return;
+            }
 
             GameObject player = Box("Magnet robot", new Vector2(0f, 1f), new Vector2(0.7f, 0.9f), Color.cyan, false);
             Rigidbody2D body = player.AddComponent<Rigidbody2D>();
@@ -89,7 +92,10 @@ namespace MagnetEscape
                 Saw(38f, 1.8f);
                 exit = 41f;
             }
-            Box("Exit", new Vector2(exit, 1.2f), new Vector2(0.6f, 2f), Color.green, true).AddComponent<ExitGate>();
+            GameObject gate = Box("Exit", new Vector2(exit, 1.2f), new Vector2(0.6f, 2f), Color.green, true);
+            GameArt.Apply(gate, "exit", 3);
+            gate.AddComponent<ExitGate>();
+            GameArt.Backdrop(exit);
         }
 
         private static GameObject Box(string name, Vector2 position, Vector2 size, Color color, bool trigger)
@@ -118,6 +124,7 @@ namespace MagnetEscape
         {
             GameObject platform = Box("Factory platform", new Vector2(x, y), new Vector2(width, 0.6f), new Color(0.28f, 0.34f, 0.43f), false);
             platform.layer = LayerMask.NameToLayer("Ground");
+            GameArt.Apply(platform, "platform", 0, true);
             return platform;
         }
 
@@ -132,17 +139,27 @@ namespace MagnetEscape
 
         private static void CheckpointAt(float x, float y)
         {
-            Box("Checkpoint", new Vector2(x, y), new Vector2(0.5f, 1.2f), Color.yellow, true).AddComponent<Checkpoint>();
+            GameObject flag = Box("Checkpoint", new Vector2(x, y), new Vector2(0.5f, 1.2f), Color.yellow, true);
+            GameArt.Apply(flag, "checkpoint_off", 3);
+            flag.AddComponent<Checkpoint>();
         }
 
         private static void Spikes(float x, float y, float width)
         {
-            Box("Spikes (placeholder)", new Vector2(x, y), new Vector2(width, 0.7f), Color.red, true).AddComponent<Hazard>();
+            GameObject spikes = Box("Spikes", new Vector2(x, y - 0.1f), new Vector2(width, 0.5f), Color.red, true);
+            GameArt.Apply(spikes, "spike", 5, true);
+            spikes.AddComponent<Hazard>();
         }
 
         private static void Saw(float x, float y)
         {
-            GameObject saw = Box("Rotating saw (placeholder)", new Vector2(x, y), Vector2.one * 0.85f, new Color(1f, 0.4f, 0.25f), true);
+            GameObject saw = Box("Rotating saw", new Vector2(x, y), Vector2.one, Color.white, true);
+            // Keep the invisible box disabled immediately; use a matching circular trigger.
+            saw.GetComponent<BoxCollider2D>().enabled = false;
+            CircleCollider2D circle = saw.AddComponent<CircleCollider2D>();
+            circle.radius = 0.45f;
+            circle.isTrigger = true;
+            GameArt.Apply(saw, "saw", 5);
             saw.AddComponent<Hazard>();
             saw.AddComponent<RotatingSaw>();
         }
@@ -150,6 +167,7 @@ namespace MagnetEscape
         private static void Anchor(float x, float y)
         {
             GameObject anchor = Box("Magnet anchor (range 7)", new Vector2(x, y), Vector2.one, Color.magenta, true);
+            GameArt.Apply(anchor, "anchor", 4);
             anchor.AddComponent<MagnetAnchor>();
             LineRenderer ring = anchor.AddComponent<LineRenderer>();
             ring.sharedMaterial = ParticleMaterial;
