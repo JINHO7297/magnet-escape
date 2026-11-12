@@ -27,9 +27,11 @@ namespace MagnetEscape
         public float RespawnProgress => Mathf.InverseLerp(startX, courseEnd, spawn.x);
         public string Notice => Time.unscaledTime < noticeUntil ? notice : string.Empty;
         [SerializeField] private float courseEnd;
+        [SerializeField, Min(0f)] private float courseParTime;
         [SerializeField] private float fallDeathHeight = -7f;
         [SerializeField, Range(0f, 1f)] private float respawnDelay = 0.2f;
         public float CourseEnd { get => courseEnd; set => courseEnd = value; }
+        public float RankTarget => courseParTime > 0f ? courseParTime : StageInfo.ParTime(Stage);
         private Vector2 spawn = new Vector2(0f, 1f);
         private float startX;
         private float startY;
@@ -154,11 +156,12 @@ namespace MagnetEscape
             SceneManager.LoadScene("Stage" + Mathf.Clamp(stage, 1, 4));
         }
 
-        public void ConfigureCourse(float end, float deathHeight, float delay)
+        public void ConfigureCourse(float end, float deathHeight, float delay, float parTime = 0f)
         {
             courseEnd = end;
             fallDeathHeight = deathHeight;
             respawnDelay = Mathf.Clamp(delay, 0f, 1f);
+            courseParTime = Mathf.Max(0f, parTime);
         }
 
         public void ShowSelection()
@@ -216,7 +219,7 @@ namespace MagnetEscape
             if (Finished || Respawning || Paused) return;
             Finished = true;
             Player.SetFrozen(true);
-            Rank = EvaluateRank(Elapsed, Deaths, Stage);
+            Rank = RankAtTarget(Elapsed, Deaths, RankTarget);
             string key = "MagnetEscape.Stage" + Stage;
             PreviousBestTime = PlayerPrefs.HasKey(key + ".Time") ? PlayerPrefs.GetFloat(key + ".Time") : -1f;
             NewBestTime = PreviousBestTime < 0f || Elapsed < PreviousBestTime;
@@ -234,7 +237,12 @@ namespace MagnetEscape
 
         public static string EvaluateRank(float seconds, int deathCount, int stage)
         {
-            float par = StageInfo.ParTime(stage);
+            return RankAtTarget(seconds, deathCount, StageInfo.ParTime(stage));
+        }
+
+        private static string RankAtTarget(float seconds, int deathCount, float target)
+        {
+            float par = Mathf.Max(1f, target);
             if (deathCount == 0 && seconds <= par) return "S";
             if (deathCount <= 2 && seconds <= par * 1.5f) return "A";
             if (deathCount <= 5 && seconds <= par * 2f) return "B";

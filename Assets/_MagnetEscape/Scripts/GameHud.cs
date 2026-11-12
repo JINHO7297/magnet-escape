@@ -78,7 +78,7 @@ namespace MagnetEscape
 
         private void OnGUI()
         {
-            if (session == null) return;
+            if (session == null || Screen.width <= 0 || Screen.height <= 0) return;
             if (title == null) InitializeStyles();
             Matrix4x4 previous = GUI.matrix;
             bool previousEnabled = GUI.enabled;
@@ -217,7 +217,7 @@ namespace MagnetEscape
                     + (session.Elapsed - session.PreviousBestTime).ToString("+0.00;-0.00;0.00") + "s)";
             Label(new Rect(270, 260, 420, 24), record, small, session.NewBestTime ? Gold : Mint);
             Label(new Rect(270, 286, 420, 22), session.NewBestRank ? "NEW BEST RANK  /  " + session.Rank
-                : "S TARGET  /  no deaths and under " + StageInfo.ParTime(session.Stage).ToString("F1") + "s", small);
+                : "S TARGET  /  no deaths and under " + session.RankTarget.ToString("F1") + "s", small);
             if (GUI.Button(new Rect(266, 308, 428, 40), session.Stage < 4 ? "NEXT STAGE  /  Enter" : "BACK TO STAGE SELECT  /  Enter", button))
             {
                 if (session.Stage < 4) session.LoadStage(session.Stage + 1);

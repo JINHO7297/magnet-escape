@@ -74,7 +74,7 @@ namespace MagnetEscape
             GameObject gate = Box("Exit", layout.ExitPosition, new Vector2(0.6f, 2f), Color.green, true);
             GameArt.Apply(gate, "exit", 3);
             gate.AddComponent<ExitGate>().PrepareVisuals();
-            session.ConfigureCourse(layout.ExitPosition.x, layout.FallDeathHeight, layout.RespawnDelay);
+            session.ConfigureCourse(layout.ExitPosition.x, layout.FallDeathHeight, layout.RespawnDelay, layout.ParTime);
             GameArt.Backdrop(layout.ExitPosition.x);
         }
 

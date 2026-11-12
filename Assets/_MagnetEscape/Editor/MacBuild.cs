@@ -84,7 +84,8 @@ namespace MagnetEscape.Editor
                 + "All four stages can be selected from the start. Dash begins in stage 2; magnet controls in stage 3.\n"
                 + "Gold rails show platforms. Red rails show saws. Green gates are exits.\n\n"
                 + "Best time, deaths on that run, and best rank are saved separately.\n"
-                + "Rank S requires no deaths and a clear time at or below the stage target.\n";
+                + "Rank S requires no deaths and a clear time at or below the stage target.\n"
+                + "Source course targets below may differ from edited revisions; follow the in-game S target.\n";
             for (int stage = 1; stage <= 4; stage++)
                 guide += "Stage " + stage + " - " + StageInfo.Title(stage) + ": " + StageInfo.ParTime(stage) + "s\n";
             guide += "\nBuilt with Unity " + Application.unityVersion + ". Version " + PlayerSettings.bundleVersion + ".\n";
