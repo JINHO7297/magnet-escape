@@ -1,5 +1,14 @@
 # Magnet Escape 개발 이력
 
+## 현재 상태 요약
+
+- 개발 브랜치: develop. 이전 게임 기능은 유지하고 자동 검증·실행 도구를 보강했다.
+- 실제 통과: Python 회귀 테스트 21건(에셋 무결성 10건 + 실행 도구 결과 처리 11건), 에셋·GUID 정적 검사, C# 구문 파싱. C# 의미 분석 컴파일은 아니다.
+- 원격 CI: 7bcbb12의 run 43145623736, 3f0b23e의 run 43145844120은 success로 확인했다. 이후 커밋 CI 결과는 별도 확인해야 한다.
+- 미실행: Unity EditMode 16건, PlayMode 8건, 실제 코스 완주, 편집 도구 실행, macOS 앱 빌드·실행. Unity 실행 파일이 없어 차단되며 통과로 표시하지 않는다.
+- Mac에서 실행할 명령: `python3 Tools/unity_tasks.py test`, `python3 Tools/unity_tasks.py build-mac`.
+- 전체 게임은 아직 검증 완료가 아니다. 아래 기록은 이력이며 최신 내용이 이전 상태를 대체한다.
+
 ## 2026-11-12 — 환경 조사, 새 프로젝트와 첫 그레이박스 구현
 
 ### 저장소와 환경
@@ -163,3 +172,16 @@
 - 원격 GitHub Actions run 43145623736이 7bcbb12에서 success임을 확인했다: https://github.com/JINHO7297/magnet-escape/actions/runs/43145623736
 - 별도 보류: Unity EditMode 16건과 이번 PlayMode 8건은 Unity가 없어 모두 미실행. 통과했다고 표시하지 않았다.
 - 다음 작업: macOS 빌드 진입점과 테스트 실행 스크립트를 구현한다.
+
+
+## 2026-11-12 — Mac 테스트·빌드 자동화
+
+- Editor/MacBuild.cs: macOS 지원 모듈·빌드 대상·5개 씬 순서·씬 파일·Ground 레이어를 확인하고 .app을 빌드하는 메뉴/CLI 진입점을 추가했다. Unity BuildReport 실패는 예외로 반환하고 결과 요약을 .build.txt로 저장한다.
+- Tools/unity_tasks.py: 프로젝트 버전에 맞는 Mac Editor 경로, 공백 포함 인수, EditMode/PlayMode 순차 실행, 고유 실행별 산출물, 테스트 XML 판정, macOS 빌드 호출과 dry-run을 구현했다.
+- Unity 종료 코드가 0이어도 결과 누락·0건·실패·모두 건너뜀은 통과로 처리하지 않는다. dry-run도 실행 성공으로 표시하지 않는다.
+- Tools/tests/test_unity_tasks.py: 가짜 Unity 실행 파일로 프로세스 실패·누락/빈 XML·스킵·공백 경로·빌드 출력 누락·dry-run을 검사하는 11건을 추가했다. 실제 Unity나 macOS 앱을 검증한 테스트가 아니다.
+- 실행 결과: Python 전체 21/21 PASS, 에셋 정적 검사 PASS(55개 식별자), C# 구문 파싱 PASS(21개 파일), 테스트·빌드 dry-run 명령 생성 PASS, git diff 공백 검사 PASS.
+- 실제 Unity 실행도 `python Tools/unity_tasks.py test --suite EditMode`로 시도했으나 기본 경로의 Editor가 없어 종료 코드 1과 Unity executable unavailable을 반환했다. Unity 테스트가 실행된 것으로 표시하지 않았다.
+- README.md, GOAL.md, TASKS.md와 현재 상태 요약을 갱신하고 artifacts/를 Git에서 제외했다. README·기록 존재 조건만 확인 완료로 변경했으며 게임 실행 조건은 모두 미완료다.
+- 별도 미검증: MacBuild C# 의미 분석·모듈 감지·실제 .app 생성, 테스트 24건, 에디터 씬 생성, 플랫폼 아키텍처·서명·공증·코스 완주. 현재 환경에서는 Unity가 없어 해당 실행이 불가능하다.
+- 다음 우선순위: Unity 실행 환경에서 컴파일/24건 실행, 발견된 실제 실패 수정, Stage 1부터 코스 난이도 조정. 그동안 코드로 확인 가능한 결함은 계속 수정할 수 있다.

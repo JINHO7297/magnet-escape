@@ -94,7 +94,7 @@ python3 -m unittest discover -s Tools/tests -v
 git diff --check
 ```
 
-이 검사는 `.meta` 누락·중복 GUID·씬 참조·빌드 순서·어셈블리 참조, PNG 체크섬과 스프라이트 임포트 설정을 확인합니다. 검사기 회귀 테스트 10건은 임시 복사본에 결함을 주입하여 잘못된 설정이 실제로 차단되는지 확인합니다. `.github/workflows/static-checks.yml`은 같은 검사를 GitHub Actions에서 수행하며 Unity 라이선스나 토큰 입력은 필요하지 않습니다. Unity 역직렬화나 C# 컴파일을 대신하지 않습니다.
+이 검사는 `.meta` 누락·중복 GUID·씬 참조·빌드 순서·어셈블리 참조, PNG 체크섬과 스프라이트 임포트 설정을 확인합니다. 프로젝트 검사기 회귀 테스트 10건은 임시 복사본에 결함을 주입하여 잘못된 설정이 실제로 차단되는지 확인합니다. `.github/workflows/static-checks.yml`은 같은 검사를 GitHub Actions에서 수행하며 Unity 라이선스나 토큰 입력은 필요하지 않습니다. Unity 역직렬화나 C# 컴파일을 대신하지 않습니다. 테스트·빌드 실행 도구의 결과 판정과 공백 포함 경로 처리는 추가 Python 테스트 11건으로 확인합니다(전체 21건).
 
 Mac Unity에서는 **Window > General > Test Runner > EditMode > Run All**로 랭크 경계값 10건, 씬 역직렬화 5건, 빌드 순서 1건을 실행합니다. **PlayMode > Run All**에는 코스 로딩·능력 설정, 중복 사망 방지, 체크포인트 순서, 일시정지, 클리어 후 상태, 재시작, 선택 화면 전환, 속도 초기화 테스트 8건을 추가했습니다. 이 테스트는 실제 키보드 입력을 합성하지 않으므로 이동·점프·대시·자력의 조작감과 코스 완주를 대신하지 않습니다. 변경한 Stage 1 기록은 테스트 후 복원합니다.
 
@@ -116,8 +116,36 @@ EditMode 16건과 PlayMode 8건 모두 현재 환경에서 실행하지 못했�
 - 스테이지 4개 완주, 선택/재시작/다음 코스/최종 클리어, 클리어 후 시간 정지.
 - 앱 재실행 후 최고 기록, 창 크기 변경 시 UI, 소리와 파티클 표시.
 
+## Mac 테스트·빌드 자동 실행
+
+Unity Hub에서 프로젝트 버전 Editor를 설치·활성화하고, 같은 프로젝트를 열어 둔 Unity 창을 닫은 뒤 저장소 루트에서 실행합니다. Python 3 표준 라이브러리만 사용합니다.
+
+```bash
+# EditMode 16건과 PlayMode 8건 순서대로 실행
+python3 Tools/unity_tasks.py test
+
+# 한 종류만 실행
+python3 Tools/unity_tasks.py test --suite PlayMode
+
+# macOS 앱과 빌드 요약 생성
+python3 Tools/unity_tasks.py build-mac
+python3 Tools/unity_tasks.py build-mac --development
+
+# 실행하지 않고 명령만 확인
+python3 Tools/unity_tasks.py test --dry-run
+python3 Tools/unity_tasks.py build-mac --dry-run
+```
+
+기본 Editor 경로는 `ProjectSettings/ProjectVersion.txt`의 버전을 읽어 Unity Hub의 macOS 설치 경로를 사용합니다. 다른 위치라면 `--unity "/실제 경로/Unity"` 또는 `UNITY_EDITOR`로 **동일한 Unity 버전**의 실행 파일을 지정하세요. 경로에 공백이 있어도 처리합니다.
+
+테스트 XML·로그는 `artifacts/tests/<실행 ID>/`, 빌드 앱·로그·요약은 `Builds/<실행 ID>/`에 저장합니다. `--output`으로 상위 출력 폴더를 바꿀 수 있습니다. 매 실행은 고유 폴더를 사용하여 이전 성공 결과를 재사용하지 않습니다. 이 경로는 Git에서 제외됩니다.
+
+테스트 프로세스 실패, XML 누락, 테스트 0건, 실패 결과는 명령 실패로 처리합니다. `--dry-run`은 Unity를 실행하지 않으며 성공 검증으로 간주하지 않습니다. Linux에서의 CLI 회귀 테스트는 **가짜 실행 파일**로 인수·결과 처리를 검사할 뿐 Unity 테스트나 Mac 빌드 성공을 의미하지 않습니다.
+
+`Editor/MacBuild.cs`는 빌드 씬 5개와 순서, 씬 존재, Ground 레이어, macOS 지원 모듈을 확인하고 빌드 결과를 `.build.txt`로 저장합니다. 코드 서명·공증·다른 Mac에서의 실행 검증은 포함하지 않습니다. 선택한 macOS 아키텍처는 Unity 프로젝트의 빌드 설정을 따릅니다.
+
 ## macOS 빌드
 
-Unity에서 **File > Build Settings > PC, Mac & Linux Standalone > macOS**를 선택합니다. 모듈이 없다면 Unity Hub에서 지원 모듈을 설치합니다. 기본 내장 렌더 파이프라인을 사용합니다. Build Settings에 StageSelect, Stage1, Stage2, Stage3, Stage4가 순서대로 활성화되어 있는지 확인하고 빌드합니다. Mac 빌드·실행·배포 서명은 현재 미검증입니다.
+Unity에서 **File > Build Settings > PC, Mac & Linux Standalone > macOS**를 선택합니다. 모듈이 없다면 Unity Hub에서 지원 모듈을 설치합니다. 기본 내장 렌더 파이프라인을 사용합니다. Build Settings에 StageSelect, Stage1, Stage2, Stage3, Stage4가 순서대로 활성화되어 있는지 확인하고 빌드합니다. **Tools > Magnet Escape > Build macOS App** 메뉴도 추가했으며, 메뉴 출력은 `Builds/MagnetEscape.app`입니다. Mac 빌드·실행·배포 서명은 현재 미검증입니다.
 
 현재 클라우드 환경은 Debian Linux이고 Unity Editor가 없어 실제 컴파일, 물리 동작, 음향과 코스 난이도를 검증하지 못했습니다. 구체적인 다음 작업은 `TASKS.md`, 실행한 검사와 알려진 문제는 `PROGRESS.md`를 확인하세요.
