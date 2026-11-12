@@ -15,6 +15,12 @@ namespace MagnetEscape
         [SerializeField, Min(1f)] private float magneticAirControl = 24f;
         [SerializeField] private bool dashEnabled = true;
         [SerializeField] private bool magnetEnabled;
+        [Header("Jump responsiveness")]
+        [SerializeField, Min(0f)] private float coyoteTime = 0.1f;
+        [SerializeField, Min(0f)] private float jumpBufferDuration = 0.12f;
+        [SerializeField, Range(0.1f, 1f)] private float jumpReleaseMultiplier = 0.45f;
+        [SerializeField, Range(0.1f, 1f)] private float shortJumpMultiplier = 0.5f;
+        [SerializeField, Min(0.01f)] private float groundProbeDistance = 0.08f;
         private Rigidbody2D body;
         private BoxCollider2D shape;
         private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
@@ -34,6 +40,7 @@ namespace MagnetEscape
         private Vector2 supportVelocity;
         private MagnetAnchor targetAnchor;
         private bool magneticMomentum;
+        private float previousVerticalSpeed;
         public bool CanMove { get; set; } = true;
         public bool DashEnabled { get => dashEnabled; set => dashEnabled = value; }
         public bool MagnetEnabled { get => magnetEnabled; set => magnetEnabled = value; }
@@ -41,7 +48,7 @@ namespace MagnetEscape
         public int MagnetMode => magnetMode;
         public bool IsDashing => dashRemaining > 0f;
         public bool Grounded { get; private set; }
-        public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / dashCooldown);
+        public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / Mathf.Max(0.001f, dashCooldown));
         public Transform MagnetTarget => targetAnchor != null ? targetAnchor.transform : null;
         public float MagnetReach => magnetRange;
 
@@ -84,10 +91,13 @@ namespace MagnetEscape
                 return;
             }
             bool grounded = IsGrounded();
+            if (grounded && !Grounded && previousVerticalSpeed - supportVelocity.y < -2f)
+                GameSession.Active?.Feedback((Vector2)transform.position + Vector2.down * 0.45f,
+                    new Color(0.7f, 0.8f, 0.85f), GameAudio.Cue.Land);
             Grounded = grounded;
             if (grounded) magneticMomentum = false;
-            coyote = grounded ? 0.1f : Mathf.Max(0f, coyote - dt);
-            jumpBuffer = jumpQueued ? 0.12f : Mathf.Max(0f, jumpBuffer - dt);
+            coyote = grounded ? Mathf.Max(coyoteTime, dt) : Mathf.Max(0f, coyote - dt);
+            jumpBuffer = jumpQueued ? Mathf.Max(jumpBufferDuration, dt) : Mathf.Max(0f, jumpBuffer - dt);
             jumpQueued = false;
             if (dashQueued && DashEnabled && cooldown <= 0f)
             {
@@ -95,7 +105,7 @@ namespace MagnetEscape
                 dashRemaining = dashDuration;
                 magneticMomentum = false;
                 cooldown = dashCooldown;
-                GameSession.Active?.Feedback(transform.position, Color.cyan, 700f);
+                GameSession.Active?.Feedback(transform.position, Color.cyan, GameAudio.Cue.Dash);
             }
             dashQueued = false;
             if (dashRemaining > 0f)
@@ -103,6 +113,7 @@ namespace MagnetEscape
                 dashRemaining -= dt;
                 body.gravityScale = 0f;
                 body.velocity = dashDirection * dashSpeed;
+                previousVerticalSpeed = body.velocity.y;
                 cutJump = false;
                 return;
             }
@@ -115,13 +126,13 @@ namespace MagnetEscape
             if (grounded && velocity.y <= supportVelocity.y + 0.1f) velocity.y = supportVelocity.y;
             if (jumpBuffer > 0f && coyote > 0f)
             {
-                velocity.y = (jumpHeld ? jumpSpeed : jumpSpeed * 0.5f) + supportVelocity.y;
+                velocity.y = (jumpHeld ? jumpSpeed : jumpSpeed * shortJumpMultiplier) + supportVelocity.y;
                 jumpBuffer = 0f;
                 coyote = 0f;
                 if (!jumpHeld) cutJump = false;
-                GameSession.Active?.Feedback(transform.position, Color.white, 500f);
+                GameSession.Active?.Feedback(transform.position, Color.white, GameAudio.Cue.Jump);
             }
-            if (cutJump && velocity.y > 0f) velocity.y *= 0.45f;
+            if (cutJump && velocity.y > 0f) velocity.y *= jumpReleaseMultiplier;
             cutJump = false;
             bool keepTarget = MagnetEnabled && magnetMode != 0 && targetAnchor != null
                 && targetAnchor.isActiveAndEnabled && targetAnchor.Contains(body.position, magnetRange);
@@ -153,12 +164,13 @@ namespace MagnetEscape
             velocity.x = Mathf.Clamp(velocity.x, -18f, 18f);
             velocity.y = Mathf.Clamp(velocity.y, -22f, 20f);
             body.velocity = velocity;
+            previousVerticalSpeed = velocity.y;
         }
 
         private bool IsGrounded()
         {
             supportVelocity = Vector2.zero;
-            int count = shape.Cast(Vector2.down, groundFilter, hits, 0.08f);
+            int count = shape.Cast(Vector2.down, groundFilter, hits, groundProbeDistance);
             for (int i = 0; i < count; i++)
                 if (hits[i].normal.y > 0.6f)
                 {
@@ -183,6 +195,9 @@ namespace MagnetEscape
             Grounded = false;
             targetAnchor = null;
             magneticMomentum = false;
+            supportVelocity = Vector2.zero;
+            facing = 1f;
+            previousVerticalSpeed = 0f;
             GetComponent<PlayerVisual>()?.ResetTrail();
         }
 
@@ -204,7 +219,27 @@ namespace MagnetEscape
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (collision.collider.GetComponent<Hazard>() != null) GameSession.Active.Die();
+            if (collision.collider.GetComponent<Hazard>() != null)
+            {
+                GameSession.Active?.Die();
+                return;
+            }
+            StopBlockedDash(collision);
+        }
+
+        private void OnCollisionStay2D(Collision2D collision) => StopBlockedDash(collision);
+
+        private void StopBlockedDash(Collision2D collision)
+        {
+            if (!CanMove || dashRemaining <= 0f) return;
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                if (Vector2.Dot(collision.GetContact(i).normal, dashDirection) > -0.6f) continue;
+                dashRemaining = 0f;
+                body.gravityScale = 3f;
+                // Collision response resolves velocity. Keep the existing cooldown.
+                break;
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)

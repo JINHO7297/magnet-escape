@@ -22,6 +22,7 @@
 - 현재 구조: Assets/_MagnetEscape/{Scripts,Scenes,Resources/Art,Editor,Tests/Editor}, Packages, ProjectSettings, Tools.
 - 기본 스테이지는 각 씬의 StageBootstrap이 런타임에 생성한다. Editor 메뉴로 별도의 편집용 복사본을 만들 수 있으나, 실행 전에는 편집본·프리팹이 생성되었다고 표시하지 않는다.
 - 편집본 생성기는 원본 씬·기존 편집본·기존 프리팹을 덮어쓰지 않는다. 생성 후에는 Unity가 만든 .meta를 함께 추적한다.
+- 사용자는 별도 지시를 기다리지 않고 남은 게임 구현을 계속 진행하도록 승인했다. 각 단계 후 다음 미완료 작업을 선택하며 계속할지 묻지 않는다.
 - 사용자 최신 지시는 실행 검증을 나중으로 남기고 게임 구현을 우선하는 것이다. 검증 항목은 TASKS.md/PROGRESS.md에 기록하되, 검증 도구 작업을 반복하며 기능 개발을 미루지 않는다.
 - 게임 동작을 검증하지 않았다면 미검증으로 표시한다. 파일 문법·공백 정리는 실행 검증과 구분한다.
 - Python 3 정적 검사는 python3 Tools/validate_project.py로 실행한다.

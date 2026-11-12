@@ -135,7 +135,7 @@ namespace MagnetEscape
             Respawning = true;
             Deaths++;
             Player.SetFrozen(true);
-            Feedback(Player.transform.position, Color.red, 220f);
+            Feedback(Player.transform.position, Color.red, GameAudio.Cue.Death);
             StartCoroutine(Respawn());
         }
 
@@ -163,7 +163,7 @@ namespace MagnetEscape
             checkpoint.Activate();
             notice = "CHECKPOINT SAVED  /  " + checkpoint.Order;
             noticeUntil = Time.unscaledTime + 2.5f;
-            Feedback(spawn, Color.green, 880f);
+            Feedback(spawn, Color.green, GameAudio.Cue.Checkpoint);
         }
 
         public void Complete()
@@ -184,7 +184,7 @@ namespace MagnetEscape
             NewBestRank = score > PlayerPrefs.GetInt(key + ".Rank", 0);
             if (NewBestRank) PlayerPrefs.SetInt(key + ".Rank", score);
             PlayerPrefs.Save();
-            Feedback(Player.transform.position, Color.yellow, 1100f);
+            Feedback(Player.transform.position, Color.yellow, GameAudio.Cue.Clear);
         }
 
         public static string EvaluateRank(float seconds, int deathCount, int stage)
@@ -196,9 +196,9 @@ namespace MagnetEscape
             return "C";
         }
 
-        public void Feedback(Vector3 position, Color color, float pitch)
+        public void Feedback(Vector3 position, Color color, GameAudio.Cue cue)
         {
-            audioFeedback.Play(pitch);
+            audioFeedback.Play(cue);
             GameObject effect = new GameObject("Feedback");
             effect.transform.position = position;
             ParticleSystem particles = effect.AddComponent<ParticleSystem>();

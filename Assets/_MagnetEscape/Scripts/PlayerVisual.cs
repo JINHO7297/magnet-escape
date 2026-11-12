@@ -65,6 +65,11 @@ namespace MagnetEscape
             }
         }
 
-        public void ResetTrail() => trail.Clear();
+        public void ResetTrail()
+        {
+            trail.Clear();
+            tether.enabled = false;
+            visual.flipX = false;
+        }
     }
 }
