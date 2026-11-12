@@ -175,3 +175,6 @@ Unity에서 **File > Build Settings > PC, Mac & Linux Standalone > macOS**를 �
 `Assets/_MagnetEscape/Resources/Stages/Stage1.asset`부터 `Stage4.asset`까지 네 개의 실제 코스 데이터 에셋을 추가했습니다. 기존 배치와 기본 수치는 옮겨 두었으며, Unity에서 에셋을 선택해 시작점·출구·고정/이동 발판·가시·톱날·자석·체크포인트·안내를 편집할 수 있습니다. ParTime은 랭크 기준, Moving Platforms의 Period/Width와 Saws의 Phase는 이동 설정입니다. Checkpoints 배열 순서가 체크포인트 순번이며 SpawnOffset은 마커 초기 위치입니다.
 
 원본 생성 씬은 다음 실행 때 데이터 변경을 반영합니다. 이미 만든 `Scenes/Editable` 복사본은 별도 편집물이므로 자동 변경하지 않습니다. 코스 데이터를 수정하더라도 기존 씬·프리팹·GUID를 덮어쓰지 않습니다. 네 데이터 파일의 Resources 경로와 Number는 유지해야 합니다. 데이터 임포트와 실제 게임 생성은 아직 Unity에서 검증하지 않았습니다.
+
+
+코스 데이터 에셋을 선택하면 **Scene preview**로 시작점·출구·발판·톱날 경로·자력 범위·체크포인트를 Scene 뷰에 그리도록 구현했습니다. **Frame Entire Course**로 전체 코스를 보고, **Move in Scene**에서 종류와 Element 번호를 선택한 뒤 위치 핸들을 움직이면 데이터 좌표를 수정합니다. Hint ranges는 안내 범위를 표시합니다. 변경은 에셋에 기록하며 Undo 대상이고, 열려 있는 씬을 생성·삭제하지 않습니다. 이 미리보기는 물리 시뮬레이션이나 실제 플레이 화면이 아닙니다. 자력의 실제 영향 범위에는 플레이어 도달 거리 상한도 적용됩니다. 도구의 실행·Undo·에셋 저장은 미검증입니다.
