@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MagnetEscape
@@ -77,13 +78,13 @@ namespace MagnetEscape
                 Moving(8f, -0.5f, new Vector2(3f, 1f));
                 Platform(15f, 0f, 6f);
                 CheckpointAt(14f, 0.9f);
-                Saw(17f, 1.7f);
+                Saw(17f, 1.7f, new Vector2(0f, 0.8f), 3.6f);
                 Platform(23f, 0f, 6f);
                 Spikes(22f, 0.65f, 1.2f);
                 Moving(31f, 0f, new Vector2(2f, 2f));
                 Platform(37f, 0.8f, 5f);
                 CheckpointAt(36f, 1.7f);
-                Saw(38f, 2.4f);
+                Saw(38f, 2.4f, new Vector2(0f, 0.9f), 4.2f);
                 Platform(44f, 0f, 6f);
                 Spikes(43f, 0.65f, 1.5f);
                 Moving(51f, 0f, new Vector2(2f, 0f));
@@ -91,7 +92,7 @@ namespace MagnetEscape
                 Sign(1f, 1f, "Stand on moving platforms and wait for the right moment to jump.");
                 Sign(14f, 1f, "Hold a direction and press SHIFT to dash. A diagonal dash works too.");
                 Sign(25f, 1f, "The cyan bar shows dash cooldown. Wait for it to refill before dashing again.");
-                Sign(36f, 2f, "Jump over the saw. Touching any tooth sends you to your last checkpoint.");
+                Sign(36f, 2f, "The red rail shows the saw's patrol. Wait for an opening, then jump or dash.");
                 Sign(47f, 1f, "Ride the last platform, then dash to safety. Watch its direction.");
                 exit = 60f;
             }
@@ -121,26 +122,26 @@ namespace MagnetEscape
                 CheckpointAt(13f, 0.9f);
                 Spikes(15f, 0.65f, 0.8f);
                 Anchor(20f, 4f);
-                Saw(20f, 1f);
+                Saw(20f, 1f, new Vector2(1.2f, 0.5f), 4f);
                 Platform(26f, 0f, 6f);
                 CheckpointAt(25f, 0.9f);
                 Spikes(27f, 0.65f, 1f);
                 Moving(32f, 0f, new Vector2(1f, 2f));
                 Anchor(34f, 5f);
                 Platform(39f, 0f, 6f);
-                Saw(38f, 1.8f);
+                Saw(38f, 1.8f, new Vector2(0f, 0.9f), 3.8f);
                 Platform(47f, 1f, 4f);
                 CheckpointAt(46f, 1.9f);
                 Moving(53f, 0.5f, new Vector2(3f, 1f));
                 Anchor(55f, 5f);
                 Platform(62f, 0f, 6f);
-                Saw(61f, 1.5f);
+                Saw(61f, 1.5f, new Vector2(0f, 0.9f), 4.5f);
                 CheckpointAt(63f, 0.9f);
                 Platform(69f, 1f, 3f);
                 Spikes(69f, 1.65f, 0.8f);
                 Anchor(73f, 5f);
                 Platform(79f, 0f, 6f);
-                Saw(78f, 2.1f);
+                Saw(78f, 2.1f, new Vector2(1f, 0f), 3.6f);
                 Sign(1f, 1f, "Final route: combine moving platforms, jumps, dash and magnetic momentum.");
                 Sign(13f, 1f, "Save the checkpoint before crossing the magnetic gap.");
                 Sign(26f, 1f, "Your dash is reusable after cooldown. Plan one safe landing at a time.");
@@ -212,10 +213,31 @@ namespace MagnetEscape
         {
             GameObject spikes = Box("Spikes", new Vector2(x, y - 0.1f), new Vector2(width, 0.5f), Color.red, true);
             GameArt.Apply(spikes, "spike", 5, true);
+            spikes.GetComponent<BoxCollider2D>().enabled = false;
+            PolygonCollider2D polygon = spikes.AddComponent<PolygonCollider2D>();
+            polygon.isTrigger = true;
+            polygon.pathCount = 1;
+            // Follow the visible teeth, including a clipped final tile, rather than
+            // killing the player inside the transparent corners of a bounding box.
+            float left = -width * 0.5f;
+            float right = width * 0.5f;
+            var points = new List<Vector2> { new Vector2(left, -0.24f), new Vector2(left, -0.15f) };
+            for (int i = 0; i < Mathf.CeilToInt(width / 0.5f); i++)
+            {
+                float start = left + i * 0.5f;
+                float peak = start + 0.25f;
+                float end = Mathf.Min(start + 0.5f, right);
+                if (peak < end) points.Add(new Vector2(peak, 0.2f));
+                float height = end <= peak ? Mathf.Lerp(-0.15f, 0.2f, (end - start) / 0.25f)
+                    : Mathf.Lerp(0.2f, -0.15f, (end - peak) / 0.25f);
+                points.Add(new Vector2(end, height));
+            }
+            points.Add(new Vector2(right, -0.24f));
+            polygon.SetPath(0, points.ToArray());
             spikes.AddComponent<Hazard>();
         }
 
-        private static void Saw(float x, float y)
+        private static void Saw(float x, float y, Vector2 travel, float period)
         {
             GameObject saw = Box("Rotating saw", new Vector2(x, y), Vector2.one, Color.white, true);
             // Keep the invisible box disabled immediately; use a matching circular trigger.
@@ -225,7 +247,7 @@ namespace MagnetEscape
             circle.isTrigger = true;
             GameArt.Apply(saw, "saw", 5);
             saw.AddComponent<Hazard>();
-            saw.AddComponent<RotatingSaw>();
+            saw.AddComponent<RotatingSaw>().Configure(travel, period, 0f);
         }
 
         private static void Anchor(float x, float y)
