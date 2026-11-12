@@ -85,8 +85,11 @@ namespace MagnetEscape
             if (title == null) InitializeStyles();
             Matrix4x4 previous = GUI.matrix;
             bool previousEnabled = GUI.enabled;
-            float scale = Mathf.Min(Screen.width / 960f, Screen.height / 540f);
-            Vector3 offset = new Vector3((Screen.width - 960f * scale) * 0.5f, (Screen.height - 540f * scale) * 0.5f, 0f);
+            Rect safe = Screen.safeArea;
+            if (safe.width <= 0f || safe.height <= 0f) safe = new Rect(0f, 0f, Screen.width, Screen.height);
+            float scale = Mathf.Min(safe.width / 960f, safe.height / 540f);
+            Vector3 offset = new Vector3(safe.xMin + (safe.width - 960f * scale) * 0.5f,
+                Screen.height - safe.yMax + (safe.height - 540f * scale) * 0.5f, 0f);
             uiScale = scale;
             uiOffset = offset;
             GUI.matrix = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one * scale);
@@ -152,6 +155,7 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(610, 474, 90, 32), "HELP", button)) overlay = Overlay.Controls;
             if (GUI.Button(new Rect(710, 474, 90, 32), "CREDITS", button)) overlay = Overlay.Credits;
             if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "QUIT", button)) session.QuitGame();
+            DisplayModeButton(new Rect(52, 510, 230, 26));
             Label(new Rect(530, 516, 380, 20), "1 - 4: Select stage   |   M: Mute", small);
         }
 
@@ -207,7 +211,7 @@ namespace MagnetEscape
         private void Pause()
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.65f));
-            Panel(new Rect(260, 90, 440, 365));
+            Panel(new Rect(260, 90, 440, 400));
             Label(new Rect(292, 113, 380, 55), "PAUSED", title, Mint);
             if (GUI.Button(new Rect(292, 174, 376, 38), "RESUME  /  Esc", button)) session.SetPaused(false);
             if (GUI.Button(new Rect(292, 222, 376, 38), "RETRY CHECKPOINT  /  +1 DEATH", button)) session.RetryCheckpoint();
@@ -217,6 +221,14 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(420, 365, 118, 30), "RECORDS", button)) overlay = Overlay.Records;
             if (GUI.Button(new Rect(548, 365, 120, 30), "CREDITS", button)) overlay = Overlay.Credits;
             Volume(292, 414);
+            DisplayModeButton(new Rect(292, 448, 376, 30));
+        }
+
+        private void DisplayModeButton(Rect rect)
+        {
+            if (Application.isEditor) return;
+            if (GUI.Button(rect, Screen.fullScreen ? "SWITCH TO WINDOWED" : "SWITCH TO FULLSCREEN", button))
+                GameOptions.ToggleFullscreen();
         }
 
         private void ExitIndicator()

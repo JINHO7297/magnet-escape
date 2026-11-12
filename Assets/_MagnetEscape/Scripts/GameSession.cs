@@ -52,6 +52,7 @@ namespace MagnetEscape
             audioFeedback = gameObject.AddComponent<GameAudio>();
             hud = gameObject.AddComponent<GameHud>();
             AudioListener.volume = GameOptions.Volume;
+            GameOptions.ApplyDisplayPreferences();
         }
 
         private void Start()
