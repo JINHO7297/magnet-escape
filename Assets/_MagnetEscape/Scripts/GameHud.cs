@@ -90,6 +90,10 @@ namespace MagnetEscape
             Fill(new Rect(0, 0, 960, 540), new Color(0.02f, 0.04f, 0.06f, 0.72f));
             Label(new Rect(48, 24, 870, 55), "MAGNET ESCAPE", title, Mint);
             Label(new Rect(51, 82, 860, 30), "A small robot. An abandoned factory. Four routes to freedom.", text);
+            int completed = 0;
+            for (int stage = 1; stage <= 4; stage++)
+                if (PlayerPrefs.HasKey("MagnetEscape.Stage" + stage + ".Time")) completed++;
+            Label(new Rect(740, 45, 180, 30), "CLEARED  " + completed + " / 4", text, Gold);
             for (int stage = 1; stage <= 4; stage++)
             {
                 float x = stage % 2 == 1 ? 48 : 494;
@@ -102,8 +106,8 @@ namespace MagnetEscape
                 if (PlayerPrefs.HasKey(key + ".Time"))
                 {
                     int score = Mathf.Clamp(PlayerPrefs.GetInt(key + ".Rank", 1), 1, 4);
-                    best = "BEST " + PlayerPrefs.GetFloat(key + ".Time").ToString("F2") + "s / "
-                        + PlayerPrefs.GetInt(key + ".TimeDeaths", 0) + " deaths / Rank " + " CBAS"[score];
+                    best = "FASTEST " + PlayerPrefs.GetFloat(key + ".Time").ToString("F2") + "s / "
+                        + PlayerPrefs.GetInt(key + ".TimeDeaths", 0) + " deaths | TOP RANK " + " CBAS"[score];
                 }
                 Label(new Rect(x + 18, y + 77, 380, 22), best, small, Gold);
                 if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "START  /  " + stage, button)) session.LoadStage(stage);
@@ -139,7 +143,7 @@ namespace MagnetEscape
                 Label(new Rect(138, 425, 685, 44), session.Hint, text);
             }
             Fill(new Rect(20, 489, 920, 31), new Color(0.025f, 0.05f, 0.07f, 0.9f));
-            Label(new Rect(34, 497, 895, 22), "A/D: Move    Space: Jump    WASD + Shift: Dash    Q/E: Magnet    R: Restart    Esc: Pause", small);
+            Label(new Rect(34, 497, 895, 22), "A/D: Move   Space: Jump   WASD + Shift: Dash   Q/E: Magnet   Backspace: Retry   R: Restart   Esc: Pause", small);
             if (session.Respawning) Label(new Rect(370, 245, 250, 40), "REBOOTING...", heading, Gold);
         }
 
@@ -148,10 +152,11 @@ namespace MagnetEscape
             Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.65f));
             Panel(new Rect(260, 90, 440, 365));
             Label(new Rect(292, 113, 380, 55), "PAUSED", title, Mint);
-            if (GUI.Button(new Rect(292, 183, 376, 42), "RESUME  /  Esc", button)) session.SetPaused(false);
-            if (GUI.Button(new Rect(292, 237, 376, 42), "RESTART STAGE", button)) session.LoadStage(session.Stage);
-            if (GUI.Button(new Rect(292, 291, 376, 42), "STAGE SELECT", button)) session.ShowSelection();
-            Volume(292, 365);
+            if (GUI.Button(new Rect(292, 174, 376, 38), "RESUME  /  Esc", button)) session.SetPaused(false);
+            if (GUI.Button(new Rect(292, 222, 376, 38), "RETRY CHECKPOINT  /  +1 DEATH", button)) session.RetryCheckpoint();
+            if (GUI.Button(new Rect(292, 270, 376, 38), "RESTART STAGE", button)) session.LoadStage(session.Stage);
+            if (GUI.Button(new Rect(292, 318, 376, 38), "STAGE SELECT", button)) session.ShowSelection();
+            Volume(292, 385);
         }
 
         private void Results()
@@ -161,7 +166,13 @@ namespace MagnetEscape
             Label(new Rect(263, 108, 450, 36), session.Stage == 4 ? "FACTORY ESCAPED" : "STAGE CLEAR", heading, Mint);
             Label(new Rect(267, 154, 410, 70), "RANK  " + session.Rank, title, Gold);
             Label(new Rect(270, 226, 420, 30), "TIME " + session.Elapsed.ToString("F2") + "s     /     DEATHS " + session.Deaths, text);
-            Label(new Rect(270, 260, 420, 35), "S: no deaths and under " + (25 + session.Stage * 10) + "s. Try again for a cleaner run.", small);
+            string record = session.PreviousBestTime < 0f ? "FIRST CLEAR / NEW TIME RECORD"
+                : (session.NewBestTime ? "NEW TIME RECORD / " : "PREVIOUS BEST / ")
+                    + session.PreviousBestTime.ToString("F2") + "s  ("
+                    + (session.Elapsed - session.PreviousBestTime).ToString("+0.00;-0.00;0.00") + "s)";
+            Label(new Rect(270, 260, 420, 24), record, small, session.NewBestTime ? Gold : Mint);
+            Label(new Rect(270, 286, 420, 22), session.NewBestRank ? "NEW BEST RANK  /  " + session.Rank
+                : "S TARGET  /  no deaths and under " + (25 + session.Stage * 10) + "s", small);
             if (GUI.Button(new Rect(266, 308, 428, 40), session.Stage < 4 ? "NEXT STAGE  /  Enter" : "BACK TO STAGE SELECT  /  Enter", button))
             {
                 if (session.Stage < 4) session.LoadStage(session.Stage + 1);

@@ -68,7 +68,7 @@ namespace MagnetEscape
                 Spikes(35f, 0.65f, 1.3f);
                 Sign(1f, 1f, "A / D or arrows: move. Reach the green exit at the end of the course.");
                 Sign(8f, 1f, "Tap SPACE for a low jump. Hold SPACE to jump higher.");
-                Sign(15f, 2f, "Yellow flags save your checkpoint. Falling sends you back here.");
+                Sign(15f, 2f, "Flags save progress. Backspace retries here (+1 death). R restarts the full stage.");
                 Sign(23f, 1f, "Keep moving through your jump. Release SPACE early for a precise landing.");
                 Sign(34f, 1f, "Jump over the spikes. R restarts the whole stage; Esc opens pause.");
                 exit = 38f;

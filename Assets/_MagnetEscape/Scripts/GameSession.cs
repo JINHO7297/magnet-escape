@@ -15,6 +15,9 @@ namespace MagnetEscape
         public float Elapsed { get; private set; }
         public int Deaths { get; private set; }
         public string Rank { get; private set; }
+        public bool NewBestTime { get; private set; }
+        public bool NewBestRank { get; private set; }
+        public float PreviousBestTime { get; private set; } = -1f;
         public string Hint { get; private set; }
         public string Notice => Time.unscaledTime < noticeUntil ? notice : string.Empty;
         [SerializeField] private float courseEnd;
@@ -73,6 +76,7 @@ namespace MagnetEscape
             }
             if (Paused) return;
             if (Input.GetKeyDown(KeyCode.R)) { LoadStage(Stage); return; }
+            if (!Finished && Input.GetKeyDown(KeyCode.Backspace)) { RetryCheckpoint(); return; }
             if (Finished)
             {
                 if (Input.GetKeyDown(KeyCode.Return))
@@ -135,6 +139,13 @@ namespace MagnetEscape
             StartCoroutine(Respawn());
         }
 
+        public void RetryCheckpoint()
+        {
+            if (Finished || Respawning || Player == null) return;
+            if (Paused) SetPaused(false);
+            Die();
+        }
+
         private IEnumerator Respawn()
         {
             yield return new WaitForSeconds(0.2f);
@@ -162,13 +173,16 @@ namespace MagnetEscape
             Player.SetFrozen(true);
             Rank = EvaluateRank(Elapsed, Deaths, Stage);
             string key = "MagnetEscape.Stage" + Stage;
-            if (Elapsed < PlayerPrefs.GetFloat(key + ".Time", float.MaxValue))
+            PreviousBestTime = PlayerPrefs.HasKey(key + ".Time") ? PlayerPrefs.GetFloat(key + ".Time") : -1f;
+            NewBestTime = PreviousBestTime < 0f || Elapsed < PreviousBestTime;
+            if (NewBestTime)
             {
                 PlayerPrefs.SetFloat(key + ".Time", Elapsed);
                 PlayerPrefs.SetInt(key + ".TimeDeaths", Deaths);
             }
             int score = Rank == "S" ? 4 : Rank == "A" ? 3 : Rank == "B" ? 2 : 1;
-            if (score > PlayerPrefs.GetInt(key + ".Rank", 0)) PlayerPrefs.SetInt(key + ".Rank", score);
+            NewBestRank = score > PlayerPrefs.GetInt(key + ".Rank", 0);
+            if (NewBestRank) PlayerPrefs.SetInt(key + ".Rank", score);
             PlayerPrefs.Save();
             Feedback(Player.transform.position, Color.yellow, 1100f);
         }
