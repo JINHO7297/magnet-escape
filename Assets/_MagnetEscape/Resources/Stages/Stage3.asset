@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a765b69993606097f5eae548e6335a77, type: 3}
+  m_Name: Stage3
+  m_EditorClassIdentifier: ''
+  Number: 3
+  DisplayName: MAGNETIC SHAFT
+  Lesson: Attract, release, then repel.
+  ParTime: 55
+  StartPosition: {x: 0.0, y: 1.0}
+  ExitPosition: {x: 52.0, y: 2.2}
+  DashEnabled: 1
+  MagnetEnabled: 1
+  FallDeathHeight: -7
+  RespawnDelay: 0.2
+  Platforms:
+  - Position: {x: 1.0, y: -0.5}
+    Width: 8.0
+  - Position: {x: 14.0, y: -0.5}
+    Width: 6.0
+  - Position: {x: 26.0, y: 0.0}
+    Width: 6.0
+  - Position: {x: 38.0, y: 0.5}
+    Width: 6.0
+  - Position: {x: 50.0, y: 1.0}
+    Width: 6.0
+  MovingPlatforms: []
+  Spikes: []
+  Saws: []
+  Magnets:
+  - Position: {x: 8.0, y: 3.5}
+    Range: 7.0
+    Strength: 1.05
+  - Position: {x: 20.0, y: 4.0}
+    Range: 7.0
+    Strength: 1.0
+  - Position: {x: 27.0, y: 0.0}
+    Range: 4.5
+    Strength: 1.2
+  - Position: {x: 44.0, y: 5.5}
+    Range: 7.0
+    Strength: 1.15
+  Checkpoints:
+  - Position: {x: 14.0, y: 0.4}
+    SpawnOffset: {x: 0.0, y: 1.0}
+  - Position: {x: 37.0, y: 1.4}
+    SpawnOffset: {x: 0.0, y: 1.0}
+  Hints:
+  - Position: {x: 2.0, y: 1.0}
+    Message: Jump toward the magnet, then hold Q to attract yourself toward it.
+    Range: 4.5
+  - Position: {x: 14.0, y: 1.0}
+    Message: Magnet range is marked by a circle. Your tether shows the selected magnet.
+    Range: 4.5
+  - Position: {x: 25.0, y: 1.0}
+    Message: Stand right of the low magnet, jump and hold E to launch right. Release to coast.
+    Range: 4.5
+  - Position: {x: 38.0, y: 2.0}
+    Message: Release Q or E to leave the field. Combine a high jump, attraction and dash.
+    Range: 4.5
+  - Position: {x: 49.0, y: 2.0}
+    Message: 'Opposite controls: Q pulls you closer; E pushes you away. Reach the exit.'
+    Range: 4.5

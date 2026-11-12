@@ -43,117 +43,39 @@ namespace MagnetEscape
                 return;
             }
 
-            GameObject player = Box("Magnet robot", new Vector2(0f, 1f), new Vector2(0.7f, 0.9f), Color.cyan, false);
+            StageDefinition layout = StageInfo.Definition(stage);
+            if (layout == null || layout.Number != stage)
+                throw new System.InvalidOperationException("Missing or mismatched stage definition: Resources/Stages/Stage" + stage);
+            GameObject player = Box("Magnet robot", layout.StartPosition, new Vector2(0.7f, 0.9f), Color.cyan, false);
             GameArt.Apply(player, "robot_idle", 10);
             Rigidbody2D body = player.AddComponent<Rigidbody2D>();
             if (robotMaterial == null) robotMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
             body.sharedMaterial = robotMaterial;
             session.Player = player.AddComponent<PlayerMotor>();
-            session.Player.DashEnabled = stage >= 2;
-            session.Player.MagnetEnabled = stage >= 3;
+            session.Player.DashEnabled = layout.DashEnabled;
+            session.Player.MagnetEnabled = layout.MagnetEnabled;
             player.AddComponent<PlayerVisual>();
 
-            Platform(1f, -0.5f, 8f);
-            float exit;
-            if (stage == 1)
-            {
-                Platform(9f, 0f, 4f);
-                Platform(15f, 0.7f, 4f);
-                Platform(22f, 0f, 6f);
-                CheckpointAt(15f, 1.6f);
-                Spikes(22f, 0.65f, 0.7f);
-                Platform(29f, 0.8f, 4f);
-                CheckpointAt(29f, 1.7f);
-                Platform(36f, 0f, 6f);
-                Spikes(35f, 0.65f, 1.3f);
-                Sign(1f, 1f, "A / D or arrows: move. Reach the green exit at the end of the course.");
-                Sign(8f, 1f, "Tap SPACE for a low jump. Hold SPACE to jump higher.");
-                Sign(15f, 2f, "Flags save progress. Backspace retries here (+1 death). R restarts the full stage.");
-                Sign(23f, 1f, "Keep moving through your jump. Release SPACE early for a precise landing.");
-                Sign(34f, 1f, "Jump over the spikes. R restarts the whole stage; Esc opens pause.");
-                exit = 38f;
-            }
-            else if (stage == 2)
-            {
-                Moving(8f, -0.5f, new Vector2(3f, 1f));
-                Platform(15f, 0f, 6f);
-                CheckpointAt(14f, 0.9f);
-                Saw(17f, 1.7f, new Vector2(0f, 0.8f), 3.6f);
-                Platform(23f, 0f, 6f);
-                Spikes(22f, 0.65f, 1.2f);
-                Moving(31f, 0f, new Vector2(2f, 2f));
-                Platform(37f, 0.8f, 5f);
-                CheckpointAt(36f, 1.7f);
-                Saw(38f, 2.4f, new Vector2(0f, 0.9f), 4.2f);
-                Platform(44f, 0f, 6f);
-                Spikes(43f, 0.65f, 1.5f);
-                Moving(51f, 0f, new Vector2(2f, 0f));
-                Platform(58f, 0f, 6f);
-                Sign(1f, 1f, "Gold rails show platform travel. Ride the platform and time your next jump.");
-                Sign(14f, 1f, "Hold a direction and press SHIFT to dash. A diagonal dash works too.");
-                Sign(25f, 1f, "The cyan bar shows dash cooldown. Wait for it to refill before dashing again.");
-                Sign(36f, 2f, "The red rail shows the saw's patrol. Wait for an opening, then jump or dash.");
-                Sign(47f, 1f, "Ride the last platform, then dash to safety. Watch its direction.");
-                exit = 60f;
-            }
-            else if (stage == 3)
-            {
-                Anchor(8f, 3.5f, 7f, 1.05f);
-                Platform(14f, -0.5f, 6f);
-                CheckpointAt(14f, 0.4f);
-                Anchor(20f, 4f);
-                Platform(26f, 0f, 6f);
-                Anchor(27f, 0f, 4.5f, 1.2f);
-                Platform(38f, 0.5f, 6f);
-                CheckpointAt(37f, 1.4f);
-                Anchor(44f, 5.5f, 7f, 1.15f);
-                Platform(50f, 1f, 6f);
-                Sign(2f, 1f, "Jump toward the magnet, then hold Q to attract yourself toward it.");
-                Sign(14f, 1f, "Magnet range is marked by a circle. Your tether shows the selected magnet.");
-                Sign(25f, 1f, "Stand right of the low magnet, jump and hold E to launch right. Release to coast.");
-                Sign(38f, 2f, "Release Q or E to leave the field. Combine a high jump, attraction and dash.");
-                Sign(49f, 2f, "Opposite controls: Q pulls you closer; E pushes you away. Reach the exit.");
-                exit = 52f;
-            }
-            else
-            {
-                Moving(8f, -0.5f, new Vector2(2f, 1.5f));
-                Platform(14f, 0f, 5f);
-                CheckpointAt(13f, 0.9f);
-                Spikes(15f, 0.65f, 0.8f);
-                Anchor(20f, 4f);
-                Saw(20f, 1f, new Vector2(1.2f, 0.5f), 4f);
-                Platform(26f, 0f, 6f);
-                CheckpointAt(25f, 0.9f);
-                Spikes(27f, 0.65f, 1f);
-                Moving(32f, 0f, new Vector2(1f, 2f));
-                Anchor(34f, 5f);
-                Platform(39f, 0f, 6f);
-                Saw(38f, 1.8f, new Vector2(0f, 0.9f), 3.8f);
-                Platform(47f, 1f, 4f);
-                CheckpointAt(46f, 1.9f);
-                Moving(53f, 0.5f, new Vector2(3f, 1f));
-                Anchor(55f, 5f, 7f, 1.1f);
-                Platform(62f, 0f, 6f);
-                Saw(61f, 1.5f, new Vector2(0f, 0.9f), 4.5f);
-                CheckpointAt(63f, 0.9f);
-                Platform(69f, 1f, 3f);
-                Spikes(69f, 1.65f, 0.8f);
-                Anchor(73f, 5f);
-                Platform(79f, 0f, 6f);
-                Saw(78f, 2.1f, new Vector2(1f, 0f), 3.6f);
-                Sign(1f, 1f, "Final route: combine moving platforms, jumps, dash and magnetic momentum.");
-                Sign(13f, 1f, "Save the checkpoint before crossing the magnetic gap.");
-                Sign(26f, 1f, "Your dash is reusable after cooldown. Plan one safe landing at a time.");
-                Sign(46f, 2f, "The last machinery section is ahead. Use the high magnet to stay above the saw.");
-                Sign(64f, 1f, "Final stretch. Jump over the spikes, then use the last magnet to escape.");
-                exit = 81f;
-            }
-            GameObject gate = Box("Exit", new Vector2(exit, stage == 3 ? 2.2f : 1.2f), new Vector2(0.6f, 2f), Color.green, true);
+            foreach (StageDefinition.RectPlacement item in layout.Platforms)
+                Platform(item.Position.x, item.Position.y, item.Width);
+            foreach (StageDefinition.MovingPlacement item in layout.MovingPlatforms)
+                Moving(item.Position.x, item.Position.y, item.Travel, item.Period, item.Width);
+            foreach (StageDefinition.RectPlacement item in layout.Spikes)
+                Spikes(item.Position.x, item.Position.y, item.Width);
+            foreach (StageDefinition.SawPlacement item in layout.Saws)
+                Saw(item.Position.x, item.Position.y, item.Travel, item.Period, item.Phase);
+            foreach (StageDefinition.MagnetPlacement item in layout.Magnets)
+                Anchor(item.Position.x, item.Position.y, item.Range, item.Strength);
+            foreach (StageDefinition.CheckpointPlacement item in layout.Checkpoints)
+                CheckpointAt(item.Position.x, item.Position.y, item.SpawnOffset);
+            foreach (StageDefinition.HintPlacement item in layout.Hints)
+                Sign(item.Position.x, item.Position.y, item.Message, item.Range);
+
+            GameObject gate = Box("Exit", layout.ExitPosition, new Vector2(0.6f, 2f), Color.green, true);
             GameArt.Apply(gate, "exit", 3);
             gate.AddComponent<ExitGate>().PrepareVisuals();
-            session.CourseEnd = exit;
-            GameArt.Backdrop(exit);
+            session.ConfigureCourse(layout.ExitPosition.x, layout.FallDeathHeight, layout.RespawnDelay);
+            GameArt.Backdrop(layout.ExitPosition.x);
         }
 
         private static GameObject Box(string name, Vector2 position, Vector2 size, Color color, bool trigger)
@@ -186,29 +108,32 @@ namespace MagnetEscape
             return platform;
         }
 
-        private static void Moving(float x, float y, Vector2 travel)
+        private static void Moving(float x, float y, Vector2 travel, float period, float width)
         {
-            GameObject platform = Platform(x, y, 3f);
+            GameObject platform = Platform(x, y, width);
             platform.name = "Moving platform";
             platform.GetComponent<SpriteRenderer>().color = new Color(0.8f, 0.6f, 0.2f);
             platform.AddComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
-            platform.AddComponent<MovingPlatform>().Configure(travel, 4f);
+            platform.AddComponent<MovingPlatform>().Configure(travel, period);
         }
 
-        private void CheckpointAt(float x, float y)
+        private void CheckpointAt(float x, float y, Vector2 spawnOffset)
         {
             GameObject flag = Box("Checkpoint", new Vector2(x, y), new Vector2(0.5f, 1.2f), Color.yellow, true);
             GameArt.Apply(flag, "checkpoint_off", 3);
             Checkpoint checkpoint = flag.AddComponent<Checkpoint>();
             checkpoint.Order = ++checkpointOrder;
+            checkpoint.SpawnOffset = spawnOffset;
             checkpoint.CreateRespawnMarker();
         }
 
-        private static void Sign(float x, float y, string message)
+        private static void Sign(float x, float y, string message, float range)
         {
             GameObject obj = new GameObject("Tutorial: " + message);
             obj.transform.position = new Vector2(x, y);
-            obj.AddComponent<TutorialSign>().Message = message;
+            TutorialSign hint = obj.AddComponent<TutorialSign>();
+            hint.Message = message;
+            hint.Range = range;
         }
 
         private static void Spikes(float x, float y, float width)
@@ -239,7 +164,7 @@ namespace MagnetEscape
             spikes.AddComponent<Hazard>();
         }
 
-        private static void Saw(float x, float y, Vector2 travel, float period)
+        private static void Saw(float x, float y, Vector2 travel, float period, float phase)
         {
             GameObject saw = Box("Rotating saw", new Vector2(x, y), Vector2.one, Color.white, true);
             // Keep the invisible box disabled immediately; use a matching circular trigger.
@@ -249,7 +174,7 @@ namespace MagnetEscape
             circle.isTrigger = true;
             GameArt.Apply(saw, "saw", 5);
             saw.AddComponent<Hazard>();
-            saw.AddComponent<RotatingSaw>().Configure(travel, period, 0f);
+            saw.AddComponent<RotatingSaw>().Configure(travel, period, phase);
         }
 
         private static void Anchor(float x, float y, float range = 7f, float strength = 1f)

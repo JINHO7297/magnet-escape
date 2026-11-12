@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a765b69993606097f5eae548e6335a77, type: 3}
+  m_Name: Stage2
+  m_EditorClassIdentifier: ''
+  Number: 2
+  DisplayName: MACHINE HALL
+  Lesson: Ride the machinery. Dash past danger.
+  ParTime: 45
+  StartPosition: {x: 0.0, y: 1.0}
+  ExitPosition: {x: 60.0, y: 1.2}
+  DashEnabled: 1
+  MagnetEnabled: 0
+  FallDeathHeight: -7
+  RespawnDelay: 0.2
+  Platforms:
+  - Position: {x: 1.0, y: -0.5}
+    Width: 8.0
+  - Position: {x: 15.0, y: 0.0}
+    Width: 6.0
+  - Position: {x: 23.0, y: 0.0}
+    Width: 6.0
+  - Position: {x: 37.0, y: 0.8}
+    Width: 5.0
+  - Position: {x: 44.0, y: 0.0}
+    Width: 6.0
+  - Position: {x: 58.0, y: 0.0}
+    Width: 6.0
+  MovingPlatforms:
+  - Position: {x: 8.0, y: -0.5}
+    Travel: {x: 3.0, y: 1.0}
+    Period: 4.0
+    Width: 3.0
+  - Position: {x: 31.0, y: 0.0}
+    Travel: {x: 2.0, y: 2.0}
+    Period: 4.0
+    Width: 3.0
+  - Position: {x: 51.0, y: 0.0}
+    Travel: {x: 2.0, y: 0.0}
+    Period: 4.0
+    Width: 3.0
+  Spikes:
+  - Position: {x: 22.0, y: 0.65}
+    Width: 1.2
+  - Position: {x: 43.0, y: 0.65}
+    Width: 1.5
+  Saws:
+  - Position: {x: 17.0, y: 1.7}
+    Travel: {x: 0.0, y: 0.8}
+    Period: 3.6
+    Phase: 0.0
+  - Position: {x: 38.0, y: 2.4}
+    Travel: {x: 0.0, y: 0.9}
+    Period: 4.2
+    Phase: 0.0
+  Magnets: []
+  Checkpoints:
+  - Position: {x: 14.0, y: 0.9}
+    SpawnOffset: {x: 0.0, y: 1.0}
+  - Position: {x: 36.0, y: 1.7}
+    SpawnOffset: {x: 0.0, y: 1.0}
+  Hints:
+  - Position: {x: 1.0, y: 1.0}
+    Message: Gold rails show platform travel. Ride the platform and time your next jump.
+    Range: 4.5
+  - Position: {x: 14.0, y: 1.0}
+    Message: Hold a direction and press SHIFT to dash. A diagonal dash works too.
+    Range: 4.5
+  - Position: {x: 25.0, y: 1.0}
+    Message: The cyan bar shows dash cooldown. Wait for it to refill before dashing again.
+    Range: 4.5
+  - Position: {x: 36.0, y: 2.0}
+    Message: The red rail shows the saw's patrol. Wait for an opening, then jump or dash.
+    Range: 4.5
+  - Position: {x: 47.0, y: 1.0}
+    Message: Ride the last platform, then dash to safety. Watch its direction.
+    Range: 4.5

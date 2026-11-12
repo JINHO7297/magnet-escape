@@ -127,6 +127,13 @@ namespace MagnetEscape
             SceneManager.LoadScene("Stage" + Mathf.Clamp(stage, 1, 4));
         }
 
+        public void ConfigureCourse(float end, float deathHeight, float delay)
+        {
+            courseEnd = end;
+            fallDeathHeight = deathHeight;
+            respawnDelay = Mathf.Clamp(delay, 0f, 1f);
+        }
+
         public void ShowSelection()
         {
             Time.timeScale = 1f;
@@ -193,7 +200,7 @@ namespace MagnetEscape
 
         public static string EvaluateRank(float seconds, int deathCount, int stage)
         {
-            float par = 25f + stage * 10f;
+            float par = StageInfo.ParTime(stage);
             if (deathCount == 0 && seconds <= par) return "S";
             if (deathCount <= 2 && seconds <= par * 1.5f) return "A";
             if (deathCount <= 5 && seconds <= par * 2f) return "B";

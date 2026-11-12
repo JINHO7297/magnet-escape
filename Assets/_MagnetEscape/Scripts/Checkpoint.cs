@@ -8,6 +8,7 @@ namespace MagnetEscape
         [SerializeField] private Vector2 spawnOffset = Vector2.up;
         private bool activated;
         private SpriteRenderer flag;
+        public Vector2 SpawnOffset { get => spawnOffset; set => spawnOffset = value; }
         public Vector2 SpawnPoint => respawnMarker != null ? (Vector2)respawnMarker.position
             : (Vector2)transform.position + spawnOffset;
 

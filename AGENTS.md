@@ -20,7 +20,8 @@
 - 사망, 재시작, 스테이지 전환 때 속도와 일시적인 이동 상태를 명시적으로 초기화한다.
 - 새 에셋은 .meta와 함께 추적한다. Library, Temp, Logs, 빌드 산출물을 커밋하지 않는다.
 - 현재 구조: Assets/_MagnetEscape/{Scripts,Scenes,Resources/Art,Editor,Tests/Editor}, Packages, ProjectSettings, Tools.
-- 기본 스테이지는 각 씬의 StageBootstrap이 런타임에 생성한다. Editor 메뉴로 별도의 편집용 복사본을 만들 수 있으나, 실행 전에는 편집본·프리팹이 생성되었다고 표시하지 않는다.
+- 코스의 원본 배치는 Resources/Stages/Stage1~Stage4.asset(StageDefinition)이다. 좌표·장애물·자력·체크포인트·기준 시간은 이 에셋에서 조정하고 코드에 중복 배치를 추가하지 않는다.
+- 기본 스테이지는 각 씬의 StageBootstrap이 해당 데이터로 런타임에 생성한다. Editor 메뉴로 별도의 편집용 복사본을 만들 수 있으나, 실행 전에는 편집본·프리팹이 생성되었다고 표시하지 않는다.
 - 편집본 생성기는 원본 씬·기존 편집본·기존 프리팹을 덮어쓰지 않는다. 생성 후에는 Unity가 만든 .meta를 함께 추적한다.
 - 사용자는 별도 지시를 기다리지 않고 남은 게임 구현을 계속 진행하도록 승인했다. 각 단계 후 다음 미완료 작업을 선택하며 계속할지 묻지 않는다.
 - 사용자 최신 지시는 실행 검증을 나중으로 남기고 게임 구현을 우선하는 것이다. 검증 항목은 TASKS.md/PROGRESS.md에 기록하되, 검증 도구 작업을 반복하며 기능 개발을 미루지 않는다.
