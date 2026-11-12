@@ -39,16 +39,18 @@ namespace MagnetEscape
             session.Stage = stage;
             if (stage == 0)
             {
-                GameArt.Backdrop(24f);
+                session.FactoryWall = GameArt.Backdrop(24f);
                 return;
             }
 
             StageDefinition layout = StageInfo.Definition(stage);
-            if (layout == null || layout.Number != stage)
+            string configurationError = layout == null || layout.Number != stage
+                ? "Missing or mismatched stage definition: Resources/Stages/Stage" + stage
+                : LayerMask.NameToLayer("Ground") < 0 ? "The Ground physics layer is missing." : null;
+            if (configurationError != null)
             {
-                string detail = "Missing or mismatched stage definition: Resources/Stages/Stage" + stage;
-                if (!Application.isPlaying) throw new System.InvalidOperationException(detail);
-                Debug.LogError(detail);
+                if (!Application.isPlaying) throw new System.InvalidOperationException(configurationError);
+                Debug.LogError(configurationError);
                 session.ReportCourseError("This course could not be prepared. Return to stage selection or try again.");
                 return;
             }
@@ -81,7 +83,7 @@ namespace MagnetEscape
             GameArt.Apply(gate, "exit", 3);
             gate.AddComponent<ExitGate>().PrepareVisuals();
             session.ConfigureCourse(layout.ExitPosition.x, layout.FallDeathHeight, layout.RespawnDelay, layout.ParTime);
-            GameArt.Backdrop(layout.ExitPosition.x);
+            session.FactoryWall = GameArt.Backdrop(layout.StartPosition, layout.ExitPosition);
         }
 
         private static GameObject Box(string name, Vector2 position, Vector2 size, Color color, bool trigger)

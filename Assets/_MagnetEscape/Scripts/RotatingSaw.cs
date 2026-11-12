@@ -11,6 +11,7 @@ namespace MagnetEscape
         private Rigidbody2D body;
         private Vector2 origin;
         private float elapsed;
+        public Vector2 Travel => travel;
 
         private void Awake()
         {

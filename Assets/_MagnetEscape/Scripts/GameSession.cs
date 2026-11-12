@@ -9,6 +9,7 @@ namespace MagnetEscape
         public static GameSession Active { get; private set; }
         public int Stage;
         public PlayerMotor Player;
+        public SpriteRenderer FactoryWall;
         public bool Paused { get; private set; }
         public bool Respawning { get; private set; }
         public bool Finished { get; private set; }
@@ -39,6 +40,9 @@ namespace MagnetEscape
         private Vector2 spawn = new Vector2(0f, 1f);
         private float startX;
         private float startY;
+        private float cameraFloor;
+        private float cameraCeiling;
+        private bool geometryReady;
         private Checkpoint currentCheckpoint;
         private Camera view;
         private GameAudio audioFeedback;
@@ -59,19 +63,81 @@ namespace MagnetEscape
         private void Start()
         {
             view = Camera.main;
+            if (!string.IsNullOrEmpty(CourseError)) return;
+            if (Stage > 0 && (Player == null || view == null || LayerMask.NameToLayer("Ground") < 0))
+            {
+                Debug.LogError("Course requires a player, Main Camera and Ground layer: " + gameObject.scene.path);
+                ReportCourseError("This course is missing something needed to play. Return to stage selection or try again.");
+                return;
+            }
             // Editable courses may place their robot somewhere other than (0, 1).
             if (Player != null) spawn = Player.GetComponent<Rigidbody2D>().position;
             startX = spawn.x;
             startY = spawn.y;
             ExitPosition = new Vector2(courseEnd, spawn.y);
+            bool foundExit = false;
             foreach (ExitGate gate in FindObjectsOfType<ExitGate>())
             {
                 if (gate.gameObject.scene != gameObject.scene) continue;
                 ExitPosition = gate.transform.position;
                 courseEnd = ExitPosition.x;
+                foundExit = true;
                 break;
             }
+            if (Stage > 0 && !foundExit)
+            {
+                Debug.LogError("Course has no ExitGate: " + gameObject.scene.path);
+                ReportCourseError("This course has no available exit. Return to stage selection.");
+                return;
+            }
+            if (Player != null) PrepareCourseGeometry();
             SnapCamera();
+        }
+
+        private void PrepareCourseGeometry()
+        {
+            Physics2D.SyncTransforms();
+            Bounds bounds = new Bounds(new Vector3(startX, startY, 0f), Vector3.zero);
+            bounds.Encapsulate(ExitPosition);
+            int ground = LayerMask.NameToLayer("Ground");
+            foreach (Collider2D collider in FindObjectsOfType<Collider2D>())
+            {
+                if (collider.gameObject.scene != gameObject.scene || collider.isTrigger || !collider.enabled || collider.gameObject.layer != ground) continue;
+                Bounds platformBounds = collider.bounds;
+                bounds.Encapsulate(platformBounds);
+                MovingPlatform moving = collider.GetComponent<MovingPlatform>();
+                if (moving == null) continue;
+                platformBounds.center += (Vector3)moving.Travel;
+                bounds.Encapsulate(platformBounds);
+            }
+            foreach (MagnetAnchor anchor in MagnetAnchor.All)
+            {
+                if (anchor.gameObject.scene == gameObject.scene)
+                    bounds.Encapsulate(new Bounds(anchor.transform.position, Vector3.one));
+            }
+            foreach (RotatingSaw saw in FindObjectsOfType<RotatingSaw>())
+            {
+                if (saw.gameObject.scene != gameObject.scene) continue;
+                bounds.Encapsulate(new Bounds((Vector2)saw.transform.position - saw.Travel, Vector3.one));
+                bounds.Encapsulate(new Bounds((Vector2)saw.transform.position + saw.Travel, Vector3.one));
+            }
+            foreach (Checkpoint checkpoint in FindObjectsOfType<Checkpoint>())
+            {
+                if (checkpoint.gameObject.scene != gameObject.scene) continue;
+                bounds.Encapsulate(checkpoint.transform.position);
+                bounds.Encapsulate(new Bounds(checkpoint.SpawnPoint, new Vector3(0.7f, 0.9f, 0f)));
+            }
+            cameraFloor = Mathf.Min(Mathf.Min(startY, ExitPosition.y) + 1.6f, bounds.min.y + 3.4f);
+            cameraCeiling = Mathf.Max(Mathf.Max(startY, ExitPosition.y) + 5.8f, bounds.max.y + 1f);
+            geometryReady = true;
+            if (FactoryWall == null)
+                foreach (SpriteRenderer renderer in FindObjectsOfType<SpriteRenderer>())
+                    if (renderer.gameObject.scene == gameObject.scene && renderer.gameObject.name == GameArt.BackdropName)
+                    {
+                        FactoryWall = renderer;
+                        break;
+                    }
+            if (FactoryWall != null) GameArt.FitBackdrop(FactoryWall, bounds);
         }
 
         private void OnDestroy()
@@ -143,8 +209,8 @@ namespace MagnetEscape
             float last = courseEnd - direction * 3f;
             float x = Mathf.Abs(courseEnd - startX) < 6.5f ? (startX + courseEnd) * 0.5f
                 : Mathf.Clamp(Player.transform.position.x + direction * 3.5f, Mathf.Min(first, last), Mathf.Max(first, last));
-            float minY = Mathf.Min(startY, ExitPosition.y) + 1.6f;
-            float maxY = Mathf.Max(startY, ExitPosition.y) + 5.8f;
+            float minY = geometryReady ? cameraFloor : Mathf.Min(startY, ExitPosition.y) + 1.6f;
+            float maxY = geometryReady ? cameraCeiling : Mathf.Max(startY, ExitPosition.y) + 5.8f;
             float y = Mathf.Clamp(Player.transform.position.y + 1.5f, minY, maxY);
             return new Vector3(x, y, -10f);
         }

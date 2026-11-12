@@ -401,3 +401,13 @@
 - StageDefinitionEditor.cs에 보조 핸들만 편집하는 모드를 추가했다. Travel/SpawnOffset이 0일 때 중심 핸들과 끝점이 겹쳐도 끝점을 선택할 수 있게 하기 위한 변경이다.
 - StageInfo.cs/GameArt.cs의 정적 캐시는 SubsystemRegistration에서 참조를 비운다. 새 Play 시 코스·아트 리소스를 다시 찾으며 리소스 에셋을 삭제하거나 파괴하지 않는다.
 - README.md/TASKS.md를 갱신했다. 미검증: 0 오프셋 조작·Undo·그룹 전환, Domain Reload 비활성화·리소스 이름/임포트 변경 후 Play. 다음은 실제 배경/카메라 범위 보완이다.
+
+
+## 2026-11-12 — 연속 작업 8: 실제 지형의 배경·카메라 범위
+
+- GameArt.cs의 배경 크기를 부호 있는 출구 X값이 아니라 Bounds 기준으로 만들고, StageBootstrap.cs가 시작/출구 위치와 배경 참조를 연결한다. 음수·역방향 좌표에서 음수 SpriteRenderer.size가 생기는 경로를 제거했다.
+- GameSession.cs는 시작 시 물리 Transform을 동기화하고 현재 씬의 Ground 콜라이더·이동 발판 끝·톱날 경로·자석·체크포인트 생성점을 포함해 배경과 수직 카메라 범위를 구성한다. 매 프레임 전체 씬을 탐색하지 않는다.
+- RotatingSaw.cs는 경로 계산용 Travel 읽기 속성을 제공한다. 새 편집본은 배경 참조를 저장하며 이전 편집본은 동일한 장식 이름을 찾아 맞춘다.
+- 필수 플레이어·Main Camera·Ground 레이어·ExitGate가 누락된 편집 코스도 오류 복귀 화면으로 안내한다. 원본 생성 단계의 Ground 누락도 감지한다.
+- README.md/TASKS.md를 갱신했다. 기존 GUID를 유지하고 사용자 이름으로 바꾼 장식을 임의로 대체하지 않는다.
+- 미검증: 지형 Bounds·Physics2D 동기화, 높거나 낮은 경로·음수/역방향 좌표·부활점, 배경 타일·카메라 범위, 이전 편집본·필수 요소 누락. 실행 검수는 계속 보류한다.
