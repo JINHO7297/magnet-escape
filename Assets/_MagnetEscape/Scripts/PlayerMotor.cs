@@ -24,7 +24,9 @@ namespace MagnetEscape
         private Rigidbody2D body;
         private BoxCollider2D shape;
         private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
+        private readonly RaycastHit2D[] sweepHits = new RaycastHit2D[16];
         private ContactFilter2D groundFilter;
+        private ContactFilter2D hazardFilter;
         private Vector2 movement;
         private Vector2 dashDirection;
         private bool jumpQueued;
@@ -63,6 +65,9 @@ namespace MagnetEscape
             groundFilter = new ContactFilter2D();
             groundFilter.useTriggers = false;
             groundFilter.SetLayerMask(LayerMask.GetMask("Ground"));
+            hazardFilter = new ContactFilter2D();
+            hazardFilter.useTriggers = true;
+            hazardFilter.SetLayerMask(~0);
         }
 
         private void Update()
@@ -112,7 +117,9 @@ namespace MagnetEscape
             {
                 dashRemaining -= dt;
                 body.gravityScale = 0f;
-                body.velocity = dashDirection * dashSpeed;
+                Vector2 dashVelocity = dashDirection * dashSpeed;
+                if (SweepHazard(dashVelocity)) return;
+                body.velocity = dashVelocity;
                 previousVerticalSpeed = body.velocity.y;
                 cutJump = false;
                 return;
@@ -163,6 +170,7 @@ namespace MagnetEscape
             }
             velocity.x = Mathf.Clamp(velocity.x, -18f, 18f);
             velocity.y = Mathf.Clamp(velocity.y, -22f, 20f);
+            if (SweepHazard(velocity)) return;
             body.velocity = velocity;
             previousVerticalSpeed = velocity.y;
         }
@@ -182,6 +190,38 @@ namespace MagnetEscape
                     return true;
                 }
             return false;
+        }
+
+        private bool SweepHazard(Vector2 velocity)
+        {
+            GameSession session = GameSession.Active;
+            if (session == null || session.Paused || session.Respawning || session.Finished) return false;
+            // Include this step's gravity. Collider casts supplement trigger callbacks
+            // for fast movement; they do not activate checkpoints or exits early.
+            Vector2 motion = (velocity + Physics2D.gravity * body.gravityScale * Time.fixedDeltaTime) * Time.fixedDeltaTime;
+            float distance = motion.magnitude;
+            if (distance < 0.001f) return false;
+            Vector2 direction = motion / distance;
+            int count = shape.Cast(direction, hazardFilter, sweepHits, distance);
+            float hazardDistance = float.PositiveInfinity;
+            float blockingDistance = distance;
+            for (int i = 0; i < count; i++)
+            {
+                Collider2D other = sweepHits[i].collider;
+                if (other == null) continue;
+                if (other.GetComponent<Hazard>() != null)
+                {
+                    hazardDistance = Mathf.Min(hazardDistance, sweepHits[i].distance);
+                    continue;
+                }
+                // A facing wall can block the route to a hazard. Ignore grazing
+                // floor contacts so standing beside a spike still checks forward.
+                if (!other.isTrigger && Vector2.Dot(sweepHits[i].normal, direction) < -0.5f)
+                    blockingDistance = Mathf.Min(blockingDistance, sweepHits[i].distance);
+            }
+            if (hazardDistance > blockingDistance + 0.001f) return false;
+            session.Die();
+            return true;
         }
 
         public void ResetAt(Vector2 position)
