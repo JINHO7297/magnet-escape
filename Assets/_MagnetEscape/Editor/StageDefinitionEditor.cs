@@ -17,6 +17,7 @@ namespace MagnetEscape.Editor
         };
         private bool preview = true;
         private bool hintRanges;
+        private bool secondaryOnly;
         private int group;
         private int element;
 
@@ -31,6 +32,7 @@ namespace MagnetEscape.Editor
             preview = EditorGUILayout.Toggle("Scene preview", preview);
             hintRanges = EditorGUILayout.Toggle("Hint ranges", hintRanges);
             group = EditorGUILayout.Popup("Move in Scene", group, Labels);
+            if (HasSecondaryHandle()) secondaryOnly = EditorGUILayout.Toggle("Edit end / radius only", secondaryOnly);
             serializedObject.Update();
             if (group >= 2)
             {
@@ -76,18 +78,27 @@ namespace MagnetEscape.Editor
                 serializedObject.Update();
                 SerializedProperty position = SelectedPosition();
                 if (position == null) return;
-                Handles.color = Color.white;
-                EditorGUI.BeginChangeCheck();
-                Vector3 moved = Handles.PositionHandle(position.vector2Value, Quaternion.identity);
-                if (EditorGUI.EndChangeCheck())
+                if (!secondaryOnly || !HasSecondaryHandle())
                 {
-                    position.vector2Value = new Vector2(moved.x, moved.y);
-                    serializedObject.ApplyModifiedProperties(); // SerializedProperty records Undo and dirties the asset.
-                    Repaint();
+                    Handles.color = Color.white;
+                    EditorGUI.BeginChangeCheck();
+                    Vector3 moved = Handles.PositionHandle(position.vector2Value, Quaternion.identity);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        position.vector2Value = new Vector2(moved.x, moved.y);
+                        serializedObject.ApplyModifiedProperties();
+                        Repaint();
+                    }
                 }
                 DrawSecondaryHandle(position.vector2Value);
             }
             finally { Handles.color = previous; }
+        }
+
+        private bool HasSecondaryHandle()
+        {
+            string field = Fields[group];
+            return field == "MovingPlatforms" || field == "Saws" || field == "Checkpoints" || field == "Magnets" || field == "Hints";
         }
 
         private void DrawSecondaryHandle(Vector2 center)

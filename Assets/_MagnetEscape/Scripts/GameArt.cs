@@ -8,6 +8,9 @@ namespace MagnetEscape
     {
         private static readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetCache() => Sprites.Clear();
+
         public static Sprite Get(string name)
         {
             if (Sprites.TryGetValue(name, out Sprite sprite) && sprite != null) return sprite;

@@ -6,6 +6,9 @@ namespace MagnetEscape
     {
         private static readonly StageDefinition[] Definitions = new StageDefinition[5];
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetCache() => System.Array.Clear(Definitions, 0, Definitions.Length);
+
         public static StageDefinition Definition(int stage)
         {
             if (stage < 1 || stage > 4) return null;
