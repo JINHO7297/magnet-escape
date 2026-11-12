@@ -86,3 +86,13 @@
 - 현재 연결의 manageable installations, installed accounts, `gh api user/installations` 조회 결과는 모두 비어 있다. 앱 설치가 실제로 없는지, 현재 인증에서 설치를 조회할 수 없는지는 단정하지 않는다.
 - 다음 조치: GitHub Settings > Applications > Installed GitHub Apps에서 ChatGPT/Codex 연결 앱 설치와 magnet-escape 저장소 접근을 확인하고 연결을 재인증한다.
 - 기존 구현 커밋은 로컬 develop에 보존되어 있다. Unity 실행 검증 상태에는 변화가 없다.
+
+
+## 2026-11-12 — 원격 푸시 성공
+
+- 사용자 권한 변경 후 `git push -u origin develop`이 성공했다. 이전 GitHub 403 차단은 해소되었다.
+- 원격 develop 생성 및 추적 브랜치 설정을 확인했다.
+- 최초 성공 푸시 후 `git rev-parse HEAD`와 `git ls-remote origin refs/heads/develop` 모두 `879f3b132cd52e543dbd78abe7a156de750287a1`로 일치했다.
+- 변경 파일: TASKS.md의 원격 반영 상태를 검증됨으로 변경하고 이 문서에 성공 결과를 추가했다.
+- 이 문서 변경도 별도 커밋으로 develop에 반영한다. 게임 코드는 수정하지 않았다.
+- Unity 컴파일·EditMode 테스트·플레이·macOS 빌드는 여전히 미검증이다. 다음 작업은 README에 따라 Mac Unity에서 프로젝트를 열고 테스트 16건과 Stage 1 조작을 확인하는 것이다.
