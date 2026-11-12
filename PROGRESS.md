@@ -139,3 +139,15 @@
 - 도구 코드는 작성했지만 Unity에서 메뉴를 실행하지 않았다. 편집본 씬·프리팹·Generated 재질이 실제 생성되었다고 표시하지 않는다.
 - 보류 검증: 도구 컴파일, 편집본 생성·저장·재로딩, 원본/기존 씬 보호, 프리팹 참조, 빌드 설정 전환과 각 코스 실행.
 - 이번 단계도 C# 문법과 staged diff 공백만 확인했다. Unity 컴파일·테스트·플레이는 보류했다.
+
+
+## 2026-11-12 — 저장소 재분석 및 자동 검사 보강
+
+- AGENTS.md, GOAL.md, TASKS.md, PROGRESS.md와 실제 변경 이력을 대조했다. 시작 HEAD는 f384d7d이며 작업 트리는 깨끗했고 git fetch 후 원격 추가 커밋이 없었다.
+- 직전 구현 3커밋에는 아트·애니메이션, 4코스·HUD·일시정지·음향, 편집 도구가 이미 포함되어 있었다. 기능을 중복 구현하지 않고 미완료 14번(자동 검증과 재현 가능한 실행 절차)을 우선했다.
+- Tools/validate_project.py에 PNG CRC·RGBA 형식·스프라이트 임포트, 필수 16종 스프라이트, 런타임의 Editor 전용 어셈블리 참조 검사를 추가했다.
+- Tools/tests/test_validate_project.py에 정상 저장소와 메타 누락·중복 GUID·잘못된 씬/빌드 참조·레이어·스프라이트 손상·잘못된 임포트·Editor 의존성 등 회귀 테스트 10건을 추가했다. 테스트는 임시 복사본에서 수행한다.
+- .github/workflows/static-checks.yml에 develop/main 푸시·PR의 읽기 전용 CI를 작성했다. .gitignore에 __pycache__를 추가하고 README.md, TASKS.md를 갱신했다.
+- 실행 결과: 정적 무결성 검사 PASS(식별자 51개, 씬 5개, 스프라이트 16개), Python unittest 10/10 PASS, git diff --check PASS.
+- 보류: Unity 컴파일·EditMode·PlayMode·실제 완주와 macOS 빌드. 현재 환경에서 Unity 실행 명령을 다시 확인했으나 찾지 못했다.
+- 다음 작업은 기존 부활·체크포인트·일시정지의 PlayMode 회귀 테스트와 Mac 빌드 자동화다. Unity 부재를 이유로 다음 구현을 중단하지 않는다.

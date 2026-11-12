@@ -90,10 +90,11 @@ Unity 없이 수행할 수 있는 검사는 다음과 같습니다. Python 3 표
 
 ```bash
 python3 Tools/validate_project.py
+python3 -m unittest discover -s Tools/tests -v
 git diff --check
 ```
 
-이 검사는 `.meta` 누락·중복 GUID·씬 참조·빌드 순서·어셈블리 참조를 확인합니다. Unity 역직렬화나 C# 컴파일을 대신하지 않습니다.
+이 검사는 `.meta` 누락·중복 GUID·씬 참조·빌드 순서·어셈블리 참조, PNG 체크섬과 스프라이트 임포트 설정을 확인합니다. 검사기 회귀 테스트 10건은 임시 복사본에 결함을 주입하여 잘못된 설정이 실제로 차단되는지 확인합니다. `.github/workflows/static-checks.yml`은 같은 검사를 GitHub Actions에서 수행하며 Unity 라이선스나 토큰 입력은 필요하지 않습니다. Unity 역직렬화나 C# 컴파일을 대신하지 않습니다.
 
 Mac Unity에서는 **Window > General > Test Runner > EditMode > Run All**로 랭크 경계값 10건, 씬 역직렬화 5건, 빌드 순서 1건을 실행합니다. 테스트 코드도 아직 Unity에서 실행하지 못했습니다. CLI로는 저장소 루트에서 다음 명령을 사용할 수 있습니다.
 

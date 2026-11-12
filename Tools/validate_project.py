@@ -5,7 +5,35 @@ Run with Python 3 from any working directory.
 """
 import json
 import re
+import struct
+import zlib
 from pathlib import Path
+
+
+def validate_sprite(path):
+    data = path.read_bytes()
+    assert data[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid PNG signature: {path}"
+    offset = 8
+    chunks = []
+    while offset < len(data):
+        assert offset + 12 <= len(data), f"Truncated PNG: {path}"
+        length = struct.unpack_from(">I", data, offset)[0]
+        end = offset + length + 12
+        assert end <= len(data), f"Truncated PNG chunk: {path}"
+        kind = data[offset + 4:offset + 8]
+        payload = data[offset + 8:end - 4]
+        checksum = struct.unpack_from(">I", data, end - 4)[0]
+        assert zlib.crc32(kind + payload) & 0xffffffff == checksum, f"PNG checksum mismatch: {path}"
+        if kind == b"IHDR":
+            assert length == 13, f"Invalid PNG header: {path}"
+            width, height, depth, color, _, _, _ = struct.unpack(">IIBBBBB", payload)
+            assert width > 0 and height > 0 and depth == 8 and color == 6, f"Expected 8-bit RGBA sprite: {path}"
+        chunks.append(kind)
+        offset = end
+    assert chunks[0] == b"IHDR" and b"IDAT" in chunks and chunks[-1] == b"IEND", f"Incomplete PNG: {path}"
+    meta = Path(str(path) + ".meta").read_text()
+    for declaration in ["TextureImporter:", "  textureType: 8", "  spriteMode: 1", "  spriteMeshType: 0", "  spritePixelsToUnits: 64"]:
+        assert declaration in meta, f"Invalid sprite import setting {declaration.strip()}: {path}"
 
 
 def validate(root):
@@ -50,16 +78,27 @@ def validate(root):
     assert "com.unity.modules.physics2d" in manifest["dependencies"]
     assert "com.unity.test-framework" in manifest["dependencies"]
     definitions = list(assets.rglob("*.asmdef"))
-    names = {json.loads(p.read_text())["name"] for p in definitions}
+    assemblies = {json.loads(p.read_text())["name"]: json.loads(p.read_text()) for p in definitions}
+    names = set(assemblies)
     assert len(names) == len(definitions), "Duplicate assembly name"
-    for p in definitions:
-        for reference in json.loads(p.read_text()).get("references", []):
-            assert reference in names, f"Missing assembly: {reference}"
+    test_runners = {"UnityEngine.TestRunner", "UnityEditor.TestRunner"}
+    for name, definition in assemblies.items():
+        for reference in definition.get("references", []):
+            assert reference in names or reference in test_runners, f"Missing assembly: {reference}"
+            if reference in names and definition.get("includePlatforms") != ["Editor"]:
+                assert assemblies[reference].get("includePlatforms") != ["Editor"], f"Player assembly {name} references Editor-only assembly {reference}"
     tags = (root / "ProjectSettings/TagManager.asset").read_text()
     layers = tags.split("  layers:\n", 1)[1].split("  m_SortingLayers:", 1)[0]
     assert len(layers.splitlines()) == 32, "Expected 32 Unity layers"
     assert layers.splitlines()[8].strip() == "- Ground", "Ground layer configuration missing"
-    print(f"PASS: {count} asset identities, 5 scene entries, script/local references, assemblies, packages, Ground layer")
+    art = assets / "_MagnetEscape/Resources/Art"
+    required = {"robot_idle", "robot_jump", "robot_fall", "robot_dash", "platform", "spike", "saw", "anchor", "checkpoint_off", "checkpoint_on", "exit", "factory_backdrop"}
+    required.update(f"robot_run_{i}" for i in range(4))
+    assert required <= {p.stem for p in art.glob("*.png")}, "Missing runtime sprite"
+    sprites = list(art.glob("*.png"))
+    for sprite in sprites:
+        validate_sprite(sprite)
+    print(f"PASS: {count} asset identities, 5 scene entries, references, assemblies, Ground layer, {len(sprites)} sprite files/import settings")
     print("Unity import, C# compilation and play tests remain unverified.")
 
 
