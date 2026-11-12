@@ -76,3 +76,13 @@
 - 환경의 자동 승인 심사에 의한 거절은 아니다. GitHub 서버가 접근을 거부했다.
 - 원격 권한이 복구되면 이 로컬 저장소에서 `git push -u origin develop`을 실행하고 원격 SHA가 로컬 HEAD와 일치하는지 확인한다. 코드 재작성은 필요 없다.
 - 로컬 작업과 원격 차단 상태를 문서에 기록하는 후속 커밋도 준비한다.
+
+## 2026-11-12 — 연결 갱신 후 재시도
+
+- 사용자가 GitHub 연결 권한 갱신을 완료했다고 알려 재시도했다.
+- 새 `git push -u origin develop` 호출도 GitHub 403으로 실패했다.
+- 연결 도구의 `.gitignore` 생성도 403 `Resource not accessible by integration`으로 실패했다. 원격 변경은 발생하지 않았다.
+- 저장소 조회는 가능하며 사용자 계정의 push=true가 반환된다. 이는 연결 앱에 Contents 쓰기 권한이 있음을 뜻하지 않는다.
+- 현재 연결의 manageable installations, installed accounts, `gh api user/installations` 조회 결과는 모두 비어 있다. 앱 설치가 실제로 없는지, 현재 인증에서 설치를 조회할 수 없는지는 단정하지 않는다.
+- 다음 조치: GitHub Settings > Applications > Installed GitHub Apps에서 ChatGPT/Codex 연결 앱 설치와 magnet-escape 저장소 접근을 확인하고 연결을 재인증한다.
+- 기존 구현 커밋은 로컬 develop에 보존되어 있다. Unity 실행 검증 상태에는 변화가 없다.
