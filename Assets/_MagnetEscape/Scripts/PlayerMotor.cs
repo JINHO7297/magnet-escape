@@ -7,6 +7,7 @@ namespace MagnetEscape
     {
         [SerializeField] private float moveSpeed = 7f;
         [SerializeField] private float jumpSpeed = 13f;
+        [SerializeField, Min(0.1f)] private float gravityScale = 3f;
         [SerializeField] private float dashSpeed = 19f;
         [SerializeField] private float dashDuration = 0.15f;
         [SerializeField] private float dashCooldown = 0.75f;
@@ -58,7 +59,7 @@ namespace MagnetEscape
         {
             body = GetComponent<Rigidbody2D>();
             shape = GetComponent<BoxCollider2D>();
-            body.gravityScale = 3f;
+            body.gravityScale = gravityScale;
             body.freezeRotation = true;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -124,7 +125,7 @@ namespace MagnetEscape
                 cutJump = false;
                 return;
             }
-            body.gravityScale = 3f;
+            body.gravityScale = gravityScale;
             Vector2 velocity = body.velocity;
             float desiredHorizontal = movement.x * moveSpeed + (grounded ? supportVelocity.x : 0f);
             velocity.x = !grounded && magneticMomentum
@@ -229,7 +230,7 @@ namespace MagnetEscape
             body.position = position;
             body.velocity = Vector2.zero;
             body.angularVelocity = 0f;
-            body.gravityScale = 3f;
+            body.gravityScale = gravityScale;
             ClearInput();
             jumpBuffer = coyote = dashRemaining = cooldown = 0f;
             Grounded = false;
@@ -276,7 +277,7 @@ namespace MagnetEscape
             {
                 if (Vector2.Dot(collision.GetContact(i).normal, dashDirection) > -0.6f) continue;
                 dashRemaining = 0f;
-                body.gravityScale = 3f;
+                body.gravityScale = gravityScale;
                 // Collision response resolves velocity. Keep the existing cooldown.
                 break;
             }

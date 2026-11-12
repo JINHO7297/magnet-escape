@@ -57,9 +57,16 @@ namespace MagnetEscape.Editor
                     SerializedObject serialized = new SerializedObject(bootstrap);
                     serialized.FindProperty("stage").intValue = stage;
                     serialized.ApplyModifiedPropertiesWithoutUndo();
-                    bootstrap.BuildScene();
+                    bootstrap.BuildScene(prefab => (GameObject)PrefabUtility.InstantiatePrefab(prefab));
                     Object.DestroyImmediate(bootstrap);
                     PersistGeneratedMaterials(scene);
+                    PlayerMotor player = root.GetComponent<GameSession>().Player;
+                    if (player != null && PrefabUtility.IsPartOfPrefabInstance(player.gameObject))
+                    {
+                        PrefabUtility.RecordPrefabInstancePropertyModifications(player.gameObject);
+                        foreach (Component component in player.GetComponents<Component>())
+                            if (component != null) PrefabUtility.RecordPrefabInstancePropertyModifications(component);
+                    }
                     if (!EditorSceneManager.SaveScene(scene, path)) throw new IOException("Could not save " + path);
                     created++;
                 }

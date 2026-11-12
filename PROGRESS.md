@@ -411,3 +411,13 @@
 - 필수 플레이어·Main Camera·Ground 레이어·ExitGate가 누락된 편집 코스도 오류 복귀 화면으로 안내한다. 원본 생성 단계의 Ground 누락도 감지한다.
 - README.md/TASKS.md를 갱신했다. 기존 GUID를 유지하고 사용자 이름으로 바꾼 장식을 임의로 대체하지 않는다.
 - 미검증: 지형 Bounds·Physics2D 동기화, 높거나 낮은 경로·음수/역방향 좌표·부활점, 배경 타일·카메라 범위, 이전 편집본·필수 요소 누락. 실행 검수는 계속 보류한다.
+
+
+## 2026-11-12 — 연속 작업 9: 플레이어 프리팹 실제 연결
+
+- 생성 도구로 저장한 로봇 프리팹이 원본 코스 생성에는 연결되지 않았던 빈틈을 보완했다. StageDefinition.cs에 선택적 PlayerPrefab을 추가하고 네 기본 에셋은 null로 두어 현재 기본 로봇을 유지한다.
+- StageBootstrap.cs는 지정된 프리팹의 루트 Motor/BoxCollider/Dynamic Rigidbody를 확인하고 인스턴스를 만든다. 시작 위치와 대시/자력 허용은 코스 데이터로 적용하며 프리팹의 물리 재질·표현 구성은 덮어쓰지 않는다.
+- 편집기는 생성 함수를 주입해 PrefabUtility로 인스턴스를 만들고 GameObject/루트 컴포넌트 오버라이드를 기록한다. 런타임 어셈블리에 UnityEditor 의존성을 추가하지 않았다.
+- PlayerMotor.cs의 일반 중력을 직렬화하여 프리팹에서 조절할 수 있게 했다. 기존 부활 테스트는 고정 3 대신 원래 설정된 중력 복원을 기대하도록 맞췄으며 실행하지 않았다.
+- 변경 파일: StageDefinition.cs, StageBootstrap.cs, StageAuthoring.cs, PlayerMotor.cs, 기본 Stage1~4.asset, 기존 PlayMode 테스트, TASKS.md/README.md. 기존 GUID와 기본 배치·수치는 유지했다.
+- 미검증: 프리팹 생성/할당/실행, 비활성 프리팹, 루트 컴포넌트 누락, 편집본 프리팹 링크·오버라이드·재로딩, 중력/부활. 실제 프리팹 산출물을 생성했다고 표시하지 않는다.

@@ -22,7 +22,7 @@ namespace MagnetEscape
 
         private void Awake() => BuildScene();
 
-        public void BuildScene()
+        public void BuildScene(System.Func<GameObject, GameObject> instantiatePrefab = null)
         {
             if (GetComponent<GameSession>() != null) return;
             GameObject cameraObject = new GameObject("Main Camera");
@@ -47,6 +47,14 @@ namespace MagnetEscape
             string configurationError = layout == null || layout.Number != stage
                 ? "Missing or mismatched stage definition: Resources/Stages/Stage" + stage
                 : LayerMask.NameToLayer("Ground") < 0 ? "The Ground physics layer is missing." : null;
+            if (configurationError == null && layout.PlayerPrefab != null)
+            {
+                GameObject prefab = layout.PlayerPrefab;
+                Rigidbody2D prefabBody = prefab.GetComponent<Rigidbody2D>();
+                if (prefab.GetComponent<PlayerMotor>() == null || prefab.GetComponent<BoxCollider2D>() == null
+                    || prefabBody == null || prefabBody.bodyType != RigidbodyType2D.Dynamic)
+                    configurationError = "Player prefab requires root PlayerMotor, BoxCollider2D and a dynamic Rigidbody2D.";
+            }
             if (configurationError != null)
             {
                 if (!Application.isPlaying) throw new System.InvalidOperationException(configurationError);
@@ -54,15 +62,29 @@ namespace MagnetEscape
                 session.ReportCourseError("This course could not be prepared. Return to stage selection or try again.");
                 return;
             }
-            GameObject player = Box("Magnet robot", layout.StartPosition, new Vector2(0.7f, 0.9f), Color.cyan, false);
-            GameArt.Apply(player, "robot_idle", 10);
-            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
-            if (robotMaterial == null) robotMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
-            body.sharedMaterial = robotMaterial;
-            session.Player = player.AddComponent<PlayerMotor>();
+            GameObject player;
+            if (layout.PlayerPrefab != null)
+            {
+                player = instantiatePrefab != null ? instantiatePrefab(layout.PlayerPrefab)
+                    : Instantiate(layout.PlayerPrefab, layout.StartPosition, Quaternion.identity);
+                player.transform.position = layout.StartPosition;
+                player.transform.rotation = Quaternion.identity;
+                session.Player = player.GetComponent<PlayerMotor>();
+            }
+            else
+            {
+                player = Box("Magnet robot", layout.StartPosition, new Vector2(0.7f, 0.9f), Color.cyan, false);
+                GameArt.Apply(player, "robot_idle", 10);
+                Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+                if (robotMaterial == null) robotMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
+                body.sharedMaterial = robotMaterial;
+                session.Player = player.AddComponent<PlayerMotor>();
+                player.AddComponent<PlayerVisual>();
+            }
             session.Player.DashEnabled = layout.DashEnabled;
             session.Player.MagnetEnabled = layout.MagnetEnabled;
-            player.AddComponent<PlayerVisual>();
+            session.Player.enabled = true;
+            player.SetActive(true);
 
             foreach (StageDefinition.RectPlacement item in layout.Platforms)
                 Platform(item.Position.x, item.Position.y, item.Width);

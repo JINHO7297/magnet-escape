@@ -11,6 +11,7 @@ namespace MagnetEscape
         [TextArea] public string Lesson;
         [Min(1f)] public float ParTime = 35f;
         public Vector2 StartPosition = Vector2.up;
+        public GameObject PlayerPrefab;
         public Vector2 ExitPosition;
         public bool DashEnabled;
         public bool MagnetEnabled;

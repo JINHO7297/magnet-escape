@@ -17,6 +17,7 @@ MonoBehaviour:
   Lesson: Combine every skill. Leave the factory.
   ParTime: 65
   StartPosition: {x: 0.0, y: 1.0}
+  PlayerPrefab: {fileID: 0}
   ExitPosition: {x: 81.0, y: 1.2}
   DashEnabled: 1
   MagnetEnabled: 1

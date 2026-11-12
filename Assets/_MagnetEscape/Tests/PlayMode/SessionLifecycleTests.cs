@@ -161,6 +161,7 @@ namespace MagnetEscape.Tests
         public IEnumerator ResetAtRemovesMomentumAndRestoresGravity()
         {
             Rigidbody2D body = session.Player.GetComponent<Rigidbody2D>();
+            float configuredGravity = body.gravityScale;
             body.velocity = new Vector2(11f, -8f);
             body.angularVelocity = 20f;
             body.gravityScale = 0f;
@@ -168,7 +169,7 @@ namespace MagnetEscape.Tests
             Assert.That(body.position, Is.EqualTo(new Vector2(1f, 3f)));
             Assert.That(body.velocity, Is.EqualTo(Vector2.zero));
             Assert.That(body.angularVelocity, Is.Zero);
-            Assert.That(body.gravityScale, Is.EqualTo(3f));
+            Assert.That(body.gravityScale, Is.EqualTo(configuredGravity));
             Assert.That(session.Player.Cooldown, Is.Zero);
             yield break;
         }
