@@ -107,6 +107,11 @@ namespace MagnetEscape.Editor
         public static void UseSelectedRevision()
         {
             string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.LogWarning("Select a generated course revision folder or a scene inside it.");
+                return;
+            }
             if (!AssetDatabase.IsValidFolder(path)) path = Path.GetDirectoryName(path);
             path = path?.Replace('\\', '/');
             if (string.IsNullOrEmpty(path) || !path.StartsWith(Root + "/Scenes/Revisions/", System.StringComparison.Ordinal))
@@ -139,8 +144,7 @@ namespace MagnetEscape.Editor
         [MenuItem("Tools/Magnet Escape/Use Generated Source Stages in Build")]
         public static void UseSourceStages()
         {
-            string[] names = { "StageSelect", "Stage1", "Stage2", "Stage3", "Stage4" };
-            EditorBuildSettings.scenes = names.Select(name => new EditorBuildSettingsScene(Root + "/Scenes/" + name + ".unity", true)).ToArray();
+            UseStageFolder(Root + "/Scenes");
         }
 
         [MenuItem("Tools/Magnet Escape/Create Player Prefab from Selected Robot")]

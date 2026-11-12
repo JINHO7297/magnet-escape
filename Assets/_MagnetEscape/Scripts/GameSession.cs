@@ -19,12 +19,20 @@ namespace MagnetEscape
         public bool NewBestRank { get; private set; }
         public float PreviousBestTime { get; private set; } = -1f;
         public string Hint { get; private set; }
+        public bool HasCheckpoint => currentCheckpoint != null;
+        public int CheckpointNumber => currentCheckpoint != null ? currentCheckpoint.Order : 0;
+        public Camera ViewCamera => view;
+        public Vector2 ExitPosition { get; private set; }
+        public float Progress => Player != null ? Mathf.InverseLerp(startX, courseEnd, Player.transform.position.x) : 0f;
+        public float RespawnProgress => Mathf.InverseLerp(startX, courseEnd, spawn.x);
         public string Notice => Time.unscaledTime < noticeUntil ? notice : string.Empty;
         [SerializeField] private float courseEnd;
         [SerializeField] private float fallDeathHeight = -7f;
         [SerializeField, Range(0f, 1f)] private float respawnDelay = 0.2f;
         public float CourseEnd { get => courseEnd; set => courseEnd = value; }
         private Vector2 spawn = new Vector2(0f, 1f);
+        private float startX;
+        private float startY;
         private Checkpoint currentCheckpoint;
         private Camera view;
         private GameAudio audioFeedback;
@@ -46,6 +54,16 @@ namespace MagnetEscape
             view = Camera.main;
             // Editable courses may place their robot somewhere other than (0, 1).
             if (Player != null) spawn = Player.GetComponent<Rigidbody2D>().position;
+            startX = spawn.x;
+            startY = spawn.y;
+            ExitPosition = new Vector2(courseEnd, spawn.y);
+            foreach (ExitGate gate in FindObjectsOfType<ExitGate>())
+            {
+                if (gate.gameObject.scene != gameObject.scene) continue;
+                ExitPosition = gate.transform.position;
+                courseEnd = ExitPosition.x;
+                break;
+            }
             SnapCamera();
         }
 
@@ -106,8 +124,14 @@ namespace MagnetEscape
 
         private Vector3 CameraTarget()
         {
-            float x = Mathf.Clamp(Player.transform.position.x + 3.5f, 3.5f, Mathf.Max(3.5f, CourseEnd - 3f));
-            float y = Mathf.Clamp(Player.transform.position.y + 1.5f, 2.6f, 7f);
+            float direction = courseEnd >= startX ? 1f : -1f;
+            float first = startX + direction * 3.5f;
+            float last = courseEnd - direction * 3f;
+            float x = Mathf.Abs(courseEnd - startX) < 6.5f ? (startX + courseEnd) * 0.5f
+                : Mathf.Clamp(Player.transform.position.x + direction * 3.5f, Mathf.Min(first, last), Mathf.Max(first, last));
+            float minY = Mathf.Min(startY, ExitPosition.y) + 1.6f;
+            float maxY = Mathf.Max(startY, ExitPosition.y) + 5.8f;
+            float y = Mathf.Clamp(Player.transform.position.y + 1.5f, minY, maxY);
             return new Vector3(x, y, -10f);
         }
 

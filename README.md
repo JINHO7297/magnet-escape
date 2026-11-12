@@ -190,3 +190,6 @@ Mac 빌드에는 제품 이름 `Magnet Escape`를 적용하고 종료 후 기존
 코스 데이터 변경을 기존 편집본과 비교하려면 **Create Fresh Course Revision** 메뉴 또는 코스 에셋의 **Generate Fresh Course Revision** 버튼을 사용합니다. `Scenes/Revisions/Revision_<UTC시각>_<고유값>/`에 Stage1~4를 생성하도록 구현했습니다. 기존 씬·편집본·이전 리비전과 Build Settings는 건드리지 않습니다.
 
 새 폴더 또는 그 안의 씬을 선택한 뒤 **Use Selected Revision in Build**를 실행하면 해당 4코스를 사용합니다. 네 씬이 모두 없으면 설정을 바꾸지 않습니다. 원본 생성 코스로 돌아가려면 **Use Generated Source Stages in Build**, 기존 기본 편집본을 사용하려면 **Use Editable Stages in Build**를 선택합니다. 새 리비전의 실제 생성·저장·전환은 Unity에서 미검증입니다.
+
+
+HUD에 저장된 체크포인트 번호와 진행 막대의 금색 부활 위치 표시를 추가했습니다. 화면 밖에 출구가 있으면 가장자리의 EXIT 표시로 방향을 안내합니다. 진행률은 좌표 0이 아니라 실제 시작 위치와 출구 사이를 기준으로 계산합니다. 편집본에서 출구를 옮기면 시작할 때 그 실제 위치를 읽도록 했으며, 카메라 범위도 시작/출구 좌표를 따라 조정합니다. 이동한 출구·음수 좌표·역방향·화면 비율별 표시의 실제 동작은 미검증입니다.

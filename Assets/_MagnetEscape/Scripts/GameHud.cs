@@ -17,6 +17,8 @@ namespace MagnetEscape
         private GUIStyle button;
         private Texture2D normal;
         private Texture2D hover;
+        private float uiScale;
+        private Vector2 uiOffset;
         private void Awake() => session = GetComponent<GameSession>();
 
         public bool CloseOverlay()
@@ -82,6 +84,8 @@ namespace MagnetEscape
             bool previousEnabled = GUI.enabled;
             float scale = Mathf.Min(Screen.width / 960f, Screen.height / 540f);
             Vector3 offset = new Vector3((Screen.width - 960f * scale) * 0.5f, (Screen.height - 540f * scale) * 0.5f, 0f);
+            uiScale = scale;
+            uiOffset = offset;
             GUI.matrix = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one * scale);
             try
             {
@@ -154,8 +158,10 @@ namespace MagnetEscape
                 : player.IsDashing ? "MAGNET / DASHING" : player.MagnetMode > 0 ? "Q / ATTRACTING"
                 : player.MagnetMode < 0 ? "E / REPELLING" : "MAGNET / Q ATTRACT - E REPEL";
             Label(new Rect(240, 54, 530, 24), magnet, small, player.MagnetMode < 0 ? Gold : Mint);
-            float progress = Mathf.Clamp01(player.transform.position.x / Mathf.Max(1f, session.CourseEnd));
-            Fill(new Rect(20, 83, 920 * progress, 3), Mint);
+            Label(new Rect(800, 54, 125, 24), session.HasCheckpoint ? "CP SAVED / " + session.CheckpointNumber : "NO CP YET", small, Gold);
+            Fill(new Rect(20, 83, 920 * session.Progress, 3), Mint);
+            if (session.HasCheckpoint) Fill(new Rect(18 + 920 * session.RespawnProgress, 80, 4, 10), Gold);
+            ExitIndicator();
             if (!string.IsNullOrEmpty(session.Notice))
             {
                 Panel(new Rect(280, 104, 400, 38));
@@ -183,6 +189,19 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(292, 365, 180, 30), "HELP", button)) overlay = Overlay.Controls;
             if (GUI.Button(new Rect(488, 365, 180, 30), "CREDITS", button)) overlay = Overlay.Credits;
             Volume(292, 414);
+        }
+
+        private void ExitIndicator()
+        {
+            if (session.Paused || session.Finished || session.Respawning || session.ViewCamera == null) return;
+            Vector3 viewport = session.ViewCamera.WorldToViewportPoint(session.ExitPosition);
+            if (viewport.z <= 0f || (viewport.x >= 0f && viewport.x <= 1f && viewport.y >= 0f && viewport.y <= 1f)) return;
+            Vector3 screen = session.ViewCamera.WorldToScreenPoint(session.ExitPosition);
+            float x = Mathf.Clamp((screen.x - uiOffset.x) / uiScale, 70f, 890f);
+            float y = Mathf.Clamp((Screen.height - screen.y - uiOffset.y) / uiScale, 166f, 392f);
+            string direction = viewport.x > 1f ? "EXIT >" : viewport.x < 0f ? "< EXIT" : viewport.y > 1f ? "EXIT ^" : "EXIT v";
+            Panel(new Rect(x - 44f, y - 16f, 88f, 32f));
+            Label(new Rect(x - 32f, y - 8f, 78f, 24f), direction, small, Mint);
         }
 
         private void Results()

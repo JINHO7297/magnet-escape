@@ -50,7 +50,10 @@ namespace MagnetEscape.Editor
                 view.Frame(new Bounds(center, new Vector3(width, 16f, 1f)), false);
             }
             if (GUILayout.Button("Generate Fresh Course Revision (Preserve Existing)"))
+            {
                 StageAuthoring.CreateRevisionCopies();
+                GUIUtility.ExitGUI();
+            }
             EditorGUILayout.Space();
             DrawDefaultInspector();
         }
