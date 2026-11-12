@@ -28,6 +28,7 @@ namespace MagnetEscape
         private Checkpoint currentCheckpoint;
         private Camera view;
         private GameAudio audioFeedback;
+        private GameHud hud;
         private string notice;
         private float noticeUntil;
 
@@ -36,7 +37,7 @@ namespace MagnetEscape
             Active = this;
             Time.timeScale = 1f;
             audioFeedback = gameObject.AddComponent<GameAudio>();
-            gameObject.AddComponent<GameHud>();
+            hud = gameObject.AddComponent<GameHud>();
             AudioListener.volume = GameOptions.Volume;
         }
 
@@ -65,6 +66,8 @@ namespace MagnetEscape
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.M)) GameOptions.ToggleMute();
+            if (Input.GetKeyDown(KeyCode.Escape) && hud.CloseOverlay()) return;
+            if (hud.HasOverlay) return;
             if (Stage == 0)
             {
                 for (int i = 1; i <= 4; i++)
@@ -138,6 +141,13 @@ namespace MagnetEscape
         {
             Time.timeScale = 1f;
             SceneManager.LoadScene("StageSelect");
+        }
+
+        public void QuitGame()
+        {
+            PlayerPrefs.Save();
+            Time.timeScale = 1f;
+            Application.Quit();
         }
 
         public void Die()

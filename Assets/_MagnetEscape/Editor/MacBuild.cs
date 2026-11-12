@@ -44,17 +44,30 @@ namespace MagnetEscape.Editor
             foreach (string scene in scenes)
                 if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scene) == null)
                     throw new BuildFailedException("Missing build scene: " + scene);
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                StageDefinition definition = StageInfo.Definition(stage);
+                if (definition == null || definition.Number != stage)
+                    throw new BuildFailedException("Missing or mismatched course asset: Resources/Stages/Stage" + stage);
+            }
             if (LayerMask.NameToLayer("Ground") < 0)
                 throw new BuildFailedException("The Ground physics layer is missing.");
             string path = Path.GetFullPath(output);
             Directory.CreateDirectory(Path.GetDirectoryName(path));
-            BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            BuildReport report;
+            string previousProductName = PlayerSettings.productName;
+            try
             {
-                scenes = scenes,
-                locationPathName = path,
-                target = BuildTarget.StandaloneOSX,
-                options = BuildOptions.StrictMode | (development ? BuildOptions.Development : BuildOptions.None)
-            });
+                PlayerSettings.productName = "Magnet Escape";
+                report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+                {
+                    scenes = scenes,
+                    locationPathName = path,
+                    target = BuildTarget.StandaloneOSX,
+                    options = BuildOptions.StrictMode | (development ? BuildOptions.Development : BuildOptions.None)
+                });
+            }
+            finally { PlayerSettings.productName = previousProductName; }
             BuildSummary summary = report.summary;
             string details = "Result: " + summary.result + "\nUnity: " + Application.unityVersion
                 + "\nTarget: " + summary.platform + "\nBytes: " + summary.totalSize
@@ -63,6 +76,19 @@ namespace MagnetEscape.Editor
             File.WriteAllText(Path.ChangeExtension(path, ".build.txt"), details);
             if (summary.result != BuildResult.Succeeded || summary.totalErrors > 0)
                 throw new BuildFailedException(details);
+            string guide = "MAGNET ESCAPE\n\nOpen " + Path.GetFileName(path) + " to play.\n\n"
+                + "A/D or arrows: move\nSpace: jump (hold for height)\nWASD + Shift: direction dash\n"
+                + "Q: attract / E: repel\nBackspace: retry checkpoint (+1 death, keeps timer)\n"
+                + "R: restart stage\nEsc: pause / resume\nM: mute\n\n"
+                + "Help and credits are available from stage selection and pause.\n"
+                + "All four stages can be selected from the start. Dash begins in stage 2; magnet controls in stage 3.\n"
+                + "Gold rails show platforms. Red rails show saws. Green gates are exits.\n\n"
+                + "Best time, deaths on that run, and best rank are saved separately.\n"
+                + "Rank S requires no deaths and a clear time at or below the stage target.\n";
+            for (int stage = 1; stage <= 4; stage++)
+                guide += "Stage " + stage + " - " + StageInfo.Title(stage) + ": " + StageInfo.ParTime(stage) + "s\n";
+            guide += "\nBuilt with Unity " + Application.unityVersion + ". Version " + PlayerSettings.bundleVersion + ".\n";
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(path), "PLAYING.txt"), guide);
             Debug.Log(details);
         }
     }

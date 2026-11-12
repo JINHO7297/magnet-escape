@@ -4,6 +4,9 @@ namespace MagnetEscape
 {
     public sealed class GameHud : MonoBehaviour
     {
+        private enum Overlay { None, Controls, Credits }
+        private Overlay overlay;
+        public bool HasOverlay => overlay != Overlay.None;
         private static readonly Color Mint = new Color(0.35f, 0.95f, 0.85f);
         private static readonly Color Gold = new Color(1f, 0.78f, 0.35f);
         private GameSession session;
@@ -15,6 +18,13 @@ namespace MagnetEscape
         private Texture2D normal;
         private Texture2D hover;
         private void Awake() => session = GetComponent<GameSession>();
+
+        public bool CloseOverlay()
+        {
+            if (!HasOverlay) return false;
+            overlay = Overlay.None;
+            return true;
+        }
 
         private void InitializeStyles()
         {
@@ -69,20 +79,26 @@ namespace MagnetEscape
             if (session == null) return;
             if (title == null) InitializeStyles();
             Matrix4x4 previous = GUI.matrix;
+            bool previousEnabled = GUI.enabled;
             float scale = Mathf.Min(Screen.width / 960f, Screen.height / 540f);
             Vector3 offset = new Vector3((Screen.width - 960f * scale) * 0.5f, (Screen.height - 540f * scale) * 0.5f, 0f);
             GUI.matrix = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one * scale);
             try
             {
+                GUI.enabled = previousEnabled && !HasOverlay;
                 if (session.Stage == 0) Selection();
                 else
                 {
+                    GUI.enabled = previousEnabled && !HasOverlay && !session.Paused && !session.Finished;
                     Hud();
+                    GUI.enabled = previousEnabled && !HasOverlay;
                     if (session.Paused) Pause();
                     else if (session.Finished) Results();
                 }
+                GUI.enabled = previousEnabled;
+                if (HasOverlay) InformationOverlay();
             }
-            finally { GUI.matrix = previous; }
+            finally { GUI.matrix = previous; GUI.enabled = previousEnabled; }
         }
 
         private void Selection()
@@ -113,7 +129,10 @@ namespace MagnetEscape
                 if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "START  /  " + stage, button)) session.LoadStage(stage);
             }
             Volume(52, 474);
-            Label(new Rect(530, 476, 380, 35), "1 - 4: Select stage   |   M: Mute", small);
+            if (GUI.Button(new Rect(610, 474, 90, 32), "HELP", button)) overlay = Overlay.Controls;
+            if (GUI.Button(new Rect(710, 474, 90, 32), "CREDITS", button)) overlay = Overlay.Credits;
+            if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "QUIT", button)) session.QuitGame();
+            Label(new Rect(530, 516, 380, 20), "1 - 4: Select stage   |   M: Mute", small);
         }
 
         private void Hud()
@@ -121,6 +140,11 @@ namespace MagnetEscape
             Panel(new Rect(20, 16, 920, 66));
             Label(new Rect(36, 24, 420, 28), "0" + session.Stage + "  /  " + StageInfo.Title(session.Stage), heading);
             Label(new Rect(600, 24, 330, 28), session.Elapsed.ToString("F2") + "s     DEATHS " + session.Deaths, heading);
+            if (GUI.Button(new Rect(480, 26, 90, 28), "HELP", button))
+            {
+                session.SetPaused(true);
+                overlay = Overlay.Controls;
+            }
             PlayerMotor player = session.Player;
             if (player == null) return;
             Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "DASH" : "DASH / LOCKED", small);
@@ -156,7 +180,9 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(292, 222, 376, 38), "RETRY CHECKPOINT  /  +1 DEATH", button)) session.RetryCheckpoint();
             if (GUI.Button(new Rect(292, 270, 376, 38), "RESTART STAGE", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(292, 318, 376, 38), "STAGE SELECT", button)) session.ShowSelection();
-            Volume(292, 385);
+            if (GUI.Button(new Rect(292, 365, 180, 30), "HELP", button)) overlay = Overlay.Controls;
+            if (GUI.Button(new Rect(488, 365, 180, 30), "CREDITS", button)) overlay = Overlay.Credits;
+            Volume(292, 414);
         }
 
         private void Results()
@@ -190,6 +216,41 @@ namespace MagnetEscape
             if (!Mathf.Approximately(volume, GameOptions.Volume)) GameOptions.SetVolume(volume);
             Label(new Rect(x + 278, y, 80, 25), Mathf.RoundToInt(volume * 100f) + "%", small);
             if (Event.current.type == EventType.MouseUp) PlayerPrefs.Save();
+        }
+
+        private void InformationOverlay()
+        {
+            Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.8f));
+            Panel(new Rect(100, 40, 760, 460));
+            Label(new Rect(130, 64, 700, 55), overlay == Overlay.Controls ? "HOW TO ESCAPE" : "MAGNET ESCAPE", title, Mint);
+            if (overlay == Overlay.Controls)
+            {
+                Label(new Rect(132, 125, 690, 25), "Reach the green exit. New abilities are introduced one stage at a time.", small);
+                string[] keys = { "A / D or arrows", "SPACE", "WASD + SHIFT", "Q / E", "BACKSPACE", "R", "ESC" };
+                string[] actions = {
+                    "Move left and right.", "Hold for height. Release early for a short jump.",
+                    "Dash in the held direction. Watch the cooldown bar.",
+                    "Attract / repel. Release to coast after a magnetic launch.",
+                    "Retry your checkpoint. Adds one death; keeps the timer.",
+                    "Restart the stage with a new timer and death count.", "Pause / resume. M toggles sound."
+                };
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    Label(new Rect(132, 160 + i * 37, 210, 30), keys[i], text, Gold);
+                    Label(new Rect(350, 160 + i * 37, 475, 34), actions[i], small);
+                }
+                Label(new Rect(132, 423, 690, 22), "Gold rails: platforms. Red rails: saws. Cyan circles: magnetic range.", small);
+            }
+            else
+            {
+                Label(new Rect(132, 130, 680, 55), "A small robot escapes an abandoned factory through four precision platforming courses.", text);
+                Label(new Rect(132, 213, 680, 30), "PROJECT  /  JINHO7297", heading, Gold);
+                Label(new Rect(132, 263, 680, 30), "ART  /  Original robot and factory pixel art", text);
+                Label(new Rect(132, 306, 680, 30), "SOUND  /  Original synthesized effects", text);
+                Label(new Rect(132, 349, 680, 30), "BUILT WITH  /  Unity", text);
+                Label(new Rect(132, 401, 680, 30), "Thank you for playing. Every course is replayable.", text, Mint);
+            }
+            if (GUI.Button(new Rect(330, 454, 300, 32), "BACK  /  Esc", button)) overlay = Overlay.None;
         }
 
         private void OnDestroy()
