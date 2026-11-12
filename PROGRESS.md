@@ -234,3 +234,13 @@
 - 부활 시 이전 지지 속도·착지 속도·방향·잔상·자력선을 정리하도록 보완했다.
 - 변경 파일: AGENTS.md, TASKS.md, README.md, PlayerMotor.cs, PlayerVisual.cs, GameAudio.cs, GameSession.cs. 기존 .meta와 GUID는 유지했다.
 - 미검증: 모서리/경사면/천장·바닥·벽 대시, 점프 버퍼와 유예 시간 경계, 착지 판별·효과음·먼지, 부활 직후 방향. 실행 검증을 기다리지 않고 다음 작업을 진행한다.
+
+
+## 2026-11-12 — 자율 개발: 부활 위치 편집
+
+- Checkpoint.cs에 지정 가능한 Respawn Marker와 이전 씬 호환용 Spawn Offset을 추가했다. 마커가 없는 기존 체크포인트는 이전처럼 기본 위로 1 유닛 위치를 사용한다.
+- StageBootstrap.cs가 새 코스를 만들 때 각 체크포인트 아래 Respawn point를 생성한다. 편집용 복사본에서는 해당 자식을 직접 옮길 수 있다. 원본 씬이나 기존 편집본은 덮어쓰지 않는다.
+- 체크포인트 선택 시 부활 위치와 플레이어 크기를 Gizmo로 표시한다. 활성화된 깃발에는 느린 밝기 변화를 추가했다.
+- GameSession.cs는 최초 플레이어의 실제 위치를 기억한다. 편집 씬에서 플레이어를 옮겨도 첫 부활이 고정 (0, 1)로 돌아가던 문제를 보완했다. 낙사 높이와 부활 대기 시간도 직렬화했다.
+- 변경 파일: Checkpoint.cs, StageBootstrap.cs, GameSession.cs, TASKS.md, README.md. 기존 GUID 유지.
+- 미검증: 편집본 저장·재로딩 후 마커 참조, 기존 씬 호환, 이동한 초기 위치의 부활, 낙사 기준·대기 시간, 깃발 표시. 구현을 계속 진행한다.

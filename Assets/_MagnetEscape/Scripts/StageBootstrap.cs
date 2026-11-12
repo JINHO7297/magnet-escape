@@ -199,7 +199,9 @@ namespace MagnetEscape
         {
             GameObject flag = Box("Checkpoint", new Vector2(x, y), new Vector2(0.5f, 1.2f), Color.yellow, true);
             GameArt.Apply(flag, "checkpoint_off", 3);
-            flag.AddComponent<Checkpoint>().Order = ++checkpointOrder;
+            Checkpoint checkpoint = flag.AddComponent<Checkpoint>();
+            checkpoint.Order = ++checkpointOrder;
+            checkpoint.CreateRespawnMarker();
         }
 
         private static void Sign(float x, float y, string message)

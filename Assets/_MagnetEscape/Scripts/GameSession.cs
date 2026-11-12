@@ -21,6 +21,8 @@ namespace MagnetEscape
         public string Hint { get; private set; }
         public string Notice => Time.unscaledTime < noticeUntil ? notice : string.Empty;
         [SerializeField] private float courseEnd;
+        [SerializeField] private float fallDeathHeight = -7f;
+        [SerializeField, Range(0f, 1f)] private float respawnDelay = 0.2f;
         public float CourseEnd { get => courseEnd; set => courseEnd = value; }
         private Vector2 spawn = new Vector2(0f, 1f);
         private Checkpoint currentCheckpoint;
@@ -41,6 +43,8 @@ namespace MagnetEscape
         private void Start()
         {
             view = Camera.main;
+            // Editable courses may place their robot somewhere other than (0, 1).
+            if (Player != null) spawn = Player.GetComponent<Rigidbody2D>().position;
             SnapCamera();
         }
 
@@ -87,7 +91,7 @@ namespace MagnetEscape
                 return;
             }
             Elapsed += Time.deltaTime;
-            if (Player.transform.position.y < -7f) Die();
+            if (Player.transform.position.y < fallDeathHeight) Die();
             Hint = TutorialSign.NearestMessage(Player.transform.position);
         }
 
@@ -148,7 +152,7 @@ namespace MagnetEscape
 
         private IEnumerator Respawn()
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(Mathf.Clamp(respawnDelay, 0f, 1f));
             Player.ResetAt(spawn);
             Player.SetFrozen(false);
             Respawning = false;
