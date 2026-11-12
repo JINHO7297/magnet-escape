@@ -377,3 +377,12 @@
 - Frame Entire Course가 고정 높이 대신 실제 배치/경로/반경/부활 위치를 포함한 Bounds를 사용하도록 했다. 먼 곳이나 높은 곳의 요소가 프레임 밖으로 빠지는 기존 제한을 보완했다.
 - README.md/TASKS.md에 편집 방법과 상태를 갱신했다. 새 에셋/GUID는 추가하지 않았다.
 - 미검증: 중심/끝점 선택과 드래그·Undo·반경 제한·전체 Bounds·편집 후 생성. 커밋 후 Mac 배포 패키징 구현을 이어간다.
+
+
+## 2026-11-12 — 연속 작업 5: Mac 배포 ZIP 구성
+
+- Tools/unity_tasks.py의 build-mac에 --package를 추가했다. 실제 Mac 빌드가 성공한 뒤 앱·PLAYING.txt·CREDITS.md를 임시 폴더에 모아 ditto로 ZIP을 만드는 경로다.
+- 일반 파일 ZIP 복사 대신 macOS 네이티브 복사/압축을 사용하여 앱 번들의 권한·심볼릭 링크·메타데이터를 보존하도록 했다. 원본 앱은 남기며 임시 staging만 정리하고 개발 로그는 포함하지 않는다.
+- 패키지 옵션은 Mac/ditto가 없으면 실제 실행을 거부한다. dry-run은 명령 계획만 출력한다. ZIP에 앱 Info.plist와 동봉 문서가 없으면 성공으로 표시하지 않는다.
+- invoke의 오류 라벨을 Unity/ditto로 구분하며 기존 Unity 실행 명령은 유지한다. README.md, SUBMISSION.md, TASKS.md를 갱신했다.
+- 미검증: 실제 Mac 앱 빌드·ditto 복사/압축·번들 링크/권한·압축 해제·배포 실행·코드 서명/공증. 이 환경에서 앱 또는 배포 ZIP을 생성했다고 표시하지 않는다.

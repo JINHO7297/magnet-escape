@@ -219,3 +219,6 @@ HUD에 저장된 체크포인트 번호와 진행 막대의 금색 부활 위치
 
 
 코스 에셋의 Scene 편집에서 이동 발판/톱날은 TRAVEL END, 체크포인트는 RESPAWN 보조 핸들로 경로나 부활 위치를 직접 조정하도록 추가했습니다. 자석/힌트는 RANGE 점을 수평으로 드래그해 반경을 조정합니다. 중심 위치는 기존 핸들로 옮기며, 변경은 같은 SerializedProperty/Undo 흐름에 기록합니다. Frame Entire Course는 시작/출구뿐 아니라 배치된 발판·이동 끝점·톱날 경로·자력 범위·부활 위치를 포함하도록 바꿨습니다. 핸들 조작·Undo·저장·실제 생성은 미검증입니다.
+
+
+Mac에서 `python3 Tools/unity_tasks.py build-mac --package`를 사용하면 빌드 성공 후 같은 실행 폴더에 `MagnetEscape-macOS.zip`을 만들도록 추가했습니다. 앱·PLAYING.txt·CREDITS.md만 임시 배포 폴더에 모아 macOS ditto로 압축하여 앱 번들의 권한·심볼릭 링크·메타데이터를 보존합니다. 원본 앱은 남기며 개발 로그는 ZIP에서 제외합니다. `--dry-run`과 함께 쓰면 생성하지 않고 절차만 출력합니다. 현재 환경에서는 실제 Mac ZIP을 만들거나 검수하지 않았습니다.

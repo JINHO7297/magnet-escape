@@ -8,10 +8,13 @@ import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import tempfile
 import uuid
 import xml.etree.ElementTree as ET
+import zipfile
 
 PROJECT = Path(__file__).resolve().parents[1]
 
@@ -38,11 +41,42 @@ def inspect_test_report(path):
     return len(cases)
 
 
-def invoke(command):
+def invoke(command, label='Unity'):
     print(shlex.join(str(value) for value in command), flush=True)
     result = subprocess.run([str(value) for value in command], check=False)
     if result.returncode:
-        raise RuntimeError(f'Unity exited with code {result.returncode}. See the log file in the command above.')
+        raise RuntimeError(f'{label} exited with code {result.returncode}. See the command and build log for details.')
+
+
+def package_mac(app, directory, dry_run=False):
+    archive = directory / 'MagnetEscape-macOS.zip'
+    ditto = Path('/usr/bin/ditto')
+    if dry_run:
+        print('Would stage the app, PLAYING.txt and CREDITS.md in a temporary MagnetEscape folder.')
+        print(shlex.join(str(value) for value in [ditto, '-c', '-k', '--sequesterRsrc', '--keepParent',
+                                                  directory / 'PackageContents/MagnetEscape', archive]))
+        return archive
+    if sys.platform != 'darwin' or not ditto.is_file():
+        raise OSError('macOS packaging requires /usr/bin/ditto on a Mac.')
+    guide = directory / 'PLAYING.txt'
+    credits = PROJECT / 'CREDITS.md'
+    for source in [guide, credits]:
+        if not source.is_file():
+            raise FileNotFoundError(f'Package document missing: {source}')
+    # ditto preserves app-bundle symlinks, permissions and macOS metadata.
+    # Only this temporary staging directory is removed; the original app is retained.
+    with tempfile.TemporaryDirectory(prefix='.package-', dir=directory) as temporary:
+        contents = Path(temporary) / 'MagnetEscape'
+        contents.mkdir()
+        invoke([ditto, app, contents / app.name], label='ditto')
+        shutil.copy2(guide, contents / 'PLAYING.txt')
+        shutil.copy2(credits, contents / 'CREDITS.md')
+        invoke([ditto, '-c', '-k', '--sequesterRsrc', '--keepParent', contents, archive], label='ditto')
+    with zipfile.ZipFile(archive) as package:
+        required = {f'MagnetEscape/{app.name}/Contents/Info.plist', 'MagnetEscape/PLAYING.txt', 'MagnetEscape/CREDITS.md'}
+        if not required <= set(package.namelist()):
+            raise ValueError(f'The package is missing the app or documents: {archive}')
+    return archive
 
 
 def main(argv=None):
@@ -56,9 +90,12 @@ def main(argv=None):
     test.add_argument('--suite', choices=['all', 'EditMode', 'PlayMode'], default='all')
     build = commands.add_parser('build-mac', parents=[common])
     build.add_argument('--development', action='store_true')
+    build.add_argument('--package', action='store_true', help='On macOS, also create an app-and-documents ZIP using ditto.')
     args = parser.parse_args(argv)
     try:
         editor = editor_path(args.unity)
+        if args.task == 'build-mac' and args.package and not args.dry_run and (sys.platform != 'darwin' or not Path('/usr/bin/ditto').is_file()):
+            raise OSError('--package requires macOS with /usr/bin/ditto. Omit it for build-only execution.')
         if not args.dry_run and (not editor.is_file() or not os.access(editor, os.X_OK)):
             raise FileNotFoundError(f'Unity executable unavailable: {editor}. Install the project version or provide --unity.')
         default = PROJECT / ('artifacts/tests' if args.task == 'test' else 'Builds')
@@ -93,10 +130,14 @@ def main(argv=None):
                 if not (app / 'Contents/Info.plist').is_file() or not app.with_suffix('.build.txt').is_file():
                     raise ValueError(f'Unity returned success without the app and build report: {app}')
                 print(f'Built macOS app: {app}')
+            if args.package:
+                archive = package_mac(app, directory, args.dry_run)
+                if not args.dry_run:
+                    print(f'Created macOS distribution archive: {archive}')
         if args.dry_run:
             print('DRY RUN ONLY: Unity was not executed. No tests or build were verified.')
         return 0
-    except (OSError, RuntimeError, ValueError, ET.ParseError) as error:
+    except (OSError, RuntimeError, ValueError, ET.ParseError, zipfile.BadZipFile) as error:
         print(str(error), file=sys.stderr)
         return 1
 
