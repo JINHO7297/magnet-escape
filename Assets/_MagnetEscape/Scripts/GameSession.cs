@@ -9,59 +9,127 @@ namespace MagnetEscape
         public static GameSession Active { get; private set; }
         public int Stage;
         public PlayerMotor Player;
+        public bool Paused { get; private set; }
+        public bool Respawning { get; private set; }
+        public bool Finished { get; private set; }
+        public float Elapsed { get; private set; }
+        public int Deaths { get; private set; }
+        public string Rank { get; private set; }
+        public string Hint { get; private set; }
+        public string Notice => Time.unscaledTime < noticeUntil ? notice : string.Empty;
+        public float CourseEnd { get; set; }
         private Vector2 spawn = new Vector2(0f, 1f);
         private Checkpoint currentCheckpoint;
-        private bool respawning;
-        private bool complete;
-        private float elapsed;
-        private int deaths;
-        private AudioSource audioSource;
-        private AudioClip tone;
         private Camera view;
-        private string rank;
+        private GameAudio audioFeedback;
+        private string notice;
+        private float noticeUntil;
 
         private void Awake()
         {
             Active = this;
-            audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 0f;
-            // Small synthesized placeholder cue; replace with final sound design later.
-            float[] samples = new float[4410];
-            for (int i = 0; i < samples.Length; i++)
-                samples[i] = Mathf.Sin(i * 2f * Mathf.PI * 440f / 44100f) * (1f - (float)i / samples.Length) * 0.15f;
-            tone = AudioClip.Create("Placeholder cue", samples.Length, 1, 44100, false);
-            tone.SetData(samples, 0);
+            Time.timeScale = 1f;
+            audioFeedback = gameObject.AddComponent<GameAudio>();
+            gameObject.AddComponent<GameHud>();
+            AudioListener.volume = GameOptions.Volume;
         }
 
-        private void Start() => view = Camera.main;
+        private void Start()
+        {
+            view = Camera.main;
+            SnapCamera();
+        }
+
         private void OnDestroy()
         {
-            if (Active == this) Active = null;
-            if (tone != null) Destroy(tone);
+            if (Active == this)
+            {
+                Active = null;
+                Time.timeScale = 1f;
+            }
+        }
+
+        private void OnApplicationFocus(bool focused)
+        {
+            if (!focused && Stage > 0 && !Finished) SetPaused(true);
         }
 
         private void Update()
         {
-            if (Stage == 0 || Player == null) return;
-            if (!complete) elapsed += Time.deltaTime;
-            if (Input.GetKeyDown(KeyCode.Escape)) SceneManager.LoadScene("StageSelect");
-            if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene("Stage" + Stage);
+            if (Input.GetKeyDown(KeyCode.M)) GameOptions.ToggleMute();
+            if (Stage == 0)
+            {
+                for (int i = 1; i <= 4; i++)
+                    if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) { LoadStage(i); return; }
+                return;
+            }
+            if (Player == null) return;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (Finished) ShowSelection();
+                else SetPaused(!Paused);
+                return;
+            }
+            if (Paused) return;
+            if (Input.GetKeyDown(KeyCode.R)) { LoadStage(Stage); return; }
+            if (Finished)
+            {
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    if (Stage < 4) LoadStage(Stage + 1);
+                    else ShowSelection();
+                }
+                return;
+            }
+            Elapsed += Time.deltaTime;
             if (Player.transform.position.y < -7f) Die();
+            Hint = TutorialSign.NearestMessage(Player.transform.position);
         }
 
         private void LateUpdate()
         {
-            if (view == null || Player == null) return;
-            Vector3 target = new Vector3(Player.transform.position.x + 4f, 3f, -10f);
-            view.transform.position = Vector3.Lerp(view.transform.position, target, 1f - Mathf.Exp(-7f * Time.deltaTime));
+            if (view == null || Player == null || Paused) return;
+            view.transform.position = Vector3.Lerp(view.transform.position, CameraTarget(), 1f - Mathf.Exp(-7f * Time.deltaTime));
+        }
+
+        private Vector3 CameraTarget()
+        {
+            float x = Mathf.Clamp(Player.transform.position.x + 3.5f, 3.5f, Mathf.Max(3.5f, CourseEnd - 3f));
+            float y = Mathf.Clamp(Player.transform.position.y + 1.5f, 2.6f, 7f);
+            return new Vector3(x, y, -10f);
+        }
+
+        private void SnapCamera()
+        {
+            if (view != null && Player != null) view.transform.position = CameraTarget();
+        }
+
+        public void SetPaused(bool value)
+        {
+            if (Stage == 0 || Finished) return;
+            Paused = value;
+            Time.timeScale = value ? 0f : 1f;
+            Player?.ClearInput();
+        }
+
+        public void LoadStage(int stage)
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("Stage" + Mathf.Clamp(stage, 1, 4));
+        }
+
+        public void ShowSelection()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("StageSelect");
         }
 
         public void Die()
         {
-            if (complete || respawning || Player == null) return;
-            respawning = true;
-            deaths++;
-            Player.CanMove = false;
+            if (Finished || Respawning || Paused || Player == null) return;
+            Respawning = true;
+            Deaths++;
+            Player.SetFrozen(true);
             Feedback(Player.transform.position, Color.red, 220f);
             StartCoroutine(Respawn());
         }
@@ -70,32 +138,36 @@ namespace MagnetEscape
         {
             yield return new WaitForSeconds(0.2f);
             Player.ResetAt(spawn);
-            Player.CanMove = true;
-            respawning = false;
+            Player.SetFrozen(false);
+            Respawning = false;
+            SnapCamera();
         }
 
         public void SetCheckpoint(Checkpoint checkpoint)
         {
-            if (complete || respawning || currentCheckpoint == checkpoint) return;
+            if (Finished || Respawning || (currentCheckpoint != null && checkpoint.Order <= currentCheckpoint.Order)) return;
             currentCheckpoint = checkpoint;
             spawn = checkpoint.SpawnPoint;
             checkpoint.Activate();
+            notice = "CHECKPOINT SAVED  /  " + checkpoint.Order;
+            noticeUntil = Time.unscaledTime + 2.5f;
             Feedback(spawn, Color.green, 880f);
         }
 
         public void Complete()
         {
-            if (complete || respawning) return;
-            complete = true;
-            Player.CanMove = false;
-            Player.ResetAt(Player.transform.position);
-            rank = EvaluateRank(elapsed, deaths, Stage);
+            if (Finished || Respawning || Paused) return;
+            Finished = true;
+            Player.SetFrozen(true);
+            Rank = EvaluateRank(Elapsed, Deaths, Stage);
             string key = "MagnetEscape.Stage" + Stage;
-            float best = PlayerPrefs.GetFloat(key + ".Time", float.MaxValue);
-            if (elapsed < best) PlayerPrefs.SetFloat(key + ".Time", elapsed);
-            int bestRank = PlayerPrefs.GetInt(key + ".Rank", 0);
-            int score = rank == "S" ? 4 : rank == "A" ? 3 : rank == "B" ? 2 : 1;
-            if (score > bestRank) PlayerPrefs.SetInt(key + ".Rank", score);
+            if (Elapsed < PlayerPrefs.GetFloat(key + ".Time", float.MaxValue))
+            {
+                PlayerPrefs.SetFloat(key + ".Time", Elapsed);
+                PlayerPrefs.SetInt(key + ".TimeDeaths", Deaths);
+            }
+            int score = Rank == "S" ? 4 : Rank == "A" ? 3 : Rank == "B" ? 2 : 1;
+            if (score > PlayerPrefs.GetInt(key + ".Rank", 0)) PlayerPrefs.SetInt(key + ".Rank", score);
             PlayerPrefs.Save();
             Feedback(Player.transform.position, Color.yellow, 1100f);
         }
@@ -111,8 +183,7 @@ namespace MagnetEscape
 
         public void Feedback(Vector3 position, Color color, float pitch)
         {
-            audioSource.pitch = pitch / 440f;
-            audioSource.PlayOneShot(tone);
+            audioFeedback.Play(pitch);
             GameObject effect = new GameObject("Feedback");
             effect.transform.position = position;
             ParticleSystem particles = effect.AddComponent<ParticleSystem>();
@@ -127,42 +198,12 @@ namespace MagnetEscape
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             var emission = particles.emission;
             emission.rateOverTime = 0f;
-            // Material is assigned explicitly for the built-in renderer.
-            particles.GetComponent<ParticleSystemRenderer>().sharedMaterial = StageBootstrap.ParticleMaterial;
+            var renderer = particles.GetComponent<ParticleSystemRenderer>();
+            renderer.sharedMaterial = StageBootstrap.ParticleMaterial;
+            renderer.sortingOrder = 15;
             particles.Play();
             particles.Emit(12);
             Destroy(effect, 0.6f);
-        }
-
-        private void OnGUI()
-        {
-            float scale = Mathf.Min(Screen.width / 960f, Screen.height / 540f);
-            GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * scale);
-            if (Stage == 0)
-            {
-                GUI.Box(new Rect(250, 50, 460, 430), "MAGNET ESCAPE");
-                GUI.Label(new Rect(290, 85, 400, 30), "Escape the factory. Choose a stage.");
-                string[] lessons = { "Move & jump", "Platforms, hazards & dash", "Attract & repel", "Final course" };
-                for (int i = 1; i <= 4; i++)
-                {
-                    if (GUI.Button(new Rect(290, 120 + (i - 1) * 75, 380, 40), "Stage " + i + " - " + lessons[i - 1]))
-                        SceneManager.LoadScene("Stage" + i);
-                    string key = "MagnetEscape.Stage" + i;
-                    if (PlayerPrefs.HasKey(key + ".Time"))
-                        GUI.Label(new Rect(300, 160 + (i - 1) * 75, 380, 25), "Best time: " + PlayerPrefs.GetFloat(key + ".Time").ToString("F2") + "s | Best rank: " + " CBAS"[PlayerPrefs.GetInt(key + ".Rank", 1)]);
-                }
-                return;
-            }
-            GUI.Box(new Rect(10, 10, 940, 80), "Stage " + Stage + " | Time " + elapsed.ToString("F2") + "s | Deaths " + deaths);
-            GUI.Label(new Rect(25, 36, 900, 25), "A/D or arrows: Move | Space: Jump (hold for height) | Shift: Dash | Q: Attract | E: Repel");
-            GUI.Label(new Rect(25, 60, 900, 25), "R: Restart | Esc: Stage select | Dash: " + (Stage == 1 ? "Locked" : Player.Cooldown <= 0f ? "Ready" : Player.Cooldown.ToString("F1") + "s") + " | Magnet: " + (Stage < 3 ? "Locked" : Player.MagnetMode == 0 ? "Ready" : Player.MagnetMode > 0 ? "Attract" : "Repel"));
-            if (respawning) GUI.Box(new Rect(360, 240, 240, 50), "Respawning...");
-            if (!complete) return;
-            GUI.Box(new Rect(280, 160, 400, 250), Stage == 4 ? "FACTORY ESCAPED!" : "STAGE CLEAR");
-            GUI.Label(new Rect(310, 205, 350, 30), "Time: " + elapsed.ToString("F2") + "s | Deaths: " + deaths + " | Rank: " + rank);
-            if (Stage < 4 && GUI.Button(new Rect(310, 250, 340, 35), "Next stage")) SceneManager.LoadScene("Stage" + (Stage + 1));
-            if (GUI.Button(new Rect(310, 295, 340, 35), "Retry")) SceneManager.LoadScene("Stage" + Stage);
-            if (GUI.Button(new Rect(310, 340, 340, 35), "Stage select")) SceneManager.LoadScene("StageSelect");
         }
     }
 }

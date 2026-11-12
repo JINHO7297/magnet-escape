@@ -8,6 +8,8 @@ namespace MagnetEscape
         [SerializeField, Range(0, 4)] private int stage;
         private static Sprite square;
         private static Material particleMaterial;
+        private static PhysicsMaterial2D robotMaterial;
+        private int checkpointOrder;
         public static Material ParticleMaterial
         {
             get
@@ -39,7 +41,8 @@ namespace MagnetEscape
 
             GameObject player = Box("Magnet robot", new Vector2(0f, 1f), new Vector2(0.7f, 0.9f), Color.cyan, false);
             Rigidbody2D body = player.AddComponent<Rigidbody2D>();
-            body.sharedMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
+            if (robotMaterial == null) robotMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
+            body.sharedMaterial = robotMaterial;
             session.Player = player.AddComponent<PlayerMotor>();
             session.Player.DashEnabled = stage >= 2;
             session.Player.MagnetEnabled = stage >= 3;
@@ -54,7 +57,16 @@ namespace MagnetEscape
                 Platform(22f, 0f, 6f);
                 CheckpointAt(15f, 1.6f);
                 Spikes(22f, 0.65f, 0.7f);
-                exit = 24f;
+                Platform(29f, 0.8f, 4f);
+                CheckpointAt(29f, 1.7f);
+                Platform(36f, 0f, 6f);
+                Spikes(35f, 0.65f, 1.3f);
+                Sign(1f, 1f, "A / D or arrows: move. Reach the green exit at the end of the course.");
+                Sign(8f, 1f, "Tap SPACE for a low jump. Hold SPACE to jump higher.");
+                Sign(15f, 2f, "Yellow flags save your checkpoint. Falling sends you back here.");
+                Sign(23f, 1f, "Keep moving through your jump. Release SPACE early for a precise landing.");
+                Sign(34f, 1f, "Jump over the spikes. R restarts the whole stage; Esc opens pause.");
+                exit = 38f;
             }
             else if (stage == 2)
             {
@@ -64,7 +76,20 @@ namespace MagnetEscape
                 Saw(17f, 1.7f);
                 Platform(23f, 0f, 6f);
                 Spikes(22f, 0.65f, 1.2f);
-                exit = 25f;
+                Moving(31f, 0f, new Vector2(2f, 2f));
+                Platform(37f, 0.8f, 5f);
+                CheckpointAt(36f, 1.7f);
+                Saw(38f, 2.4f);
+                Platform(44f, 0f, 6f);
+                Spikes(43f, 0.65f, 1.5f);
+                Moving(51f, 0f, new Vector2(2f, 0f));
+                Platform(58f, 0f, 6f);
+                Sign(1f, 1f, "Stand on moving platforms and wait for the right moment to jump.");
+                Sign(14f, 1f, "Hold a direction and press SHIFT to dash. A diagonal dash works too.");
+                Sign(25f, 1f, "The cyan bar shows dash cooldown. Wait for it to refill before dashing again.");
+                Sign(36f, 2f, "Jump over the saw. Touching any tooth sends you to your last checkpoint.");
+                Sign(47f, 1f, "Ride the last platform, then dash to safety. Watch its direction.");
+                exit = 60f;
             }
             else if (stage == 3)
             {
@@ -73,7 +98,17 @@ namespace MagnetEscape
                 CheckpointAt(14f, 0.4f);
                 Anchor(20f, 4f);
                 Platform(26f, 0f, 6f);
-                exit = 28f;
+                Anchor(27f, 0f);
+                Platform(38f, 0.5f, 6f);
+                CheckpointAt(37f, 1.4f);
+                Anchor(44f, 5.5f);
+                Platform(50f, 1f, 6f);
+                Sign(2f, 1f, "Jump toward the magnet, then hold Q to attract yourself toward it.");
+                Sign(14f, 1f, "Magnet range is marked by a circle. Your tether shows the selected magnet.");
+                Sign(25f, 1f, "Move to the right of the low magnet. Hold E to repel away and launch right.");
+                Sign(38f, 2f, "Release Q or E to leave the field. Combine a high jump, attraction and dash.");
+                Sign(49f, 2f, "Opposite controls: Q pulls you closer; E pushes you away. Reach the exit.");
+                exit = 52f;
             }
             else
             {
@@ -90,11 +125,29 @@ namespace MagnetEscape
                 Anchor(34f, 5f);
                 Platform(39f, 0f, 6f);
                 Saw(38f, 1.8f);
-                exit = 41f;
+                Platform(47f, 1f, 4f);
+                CheckpointAt(46f, 1.9f);
+                Moving(53f, 0.5f, new Vector2(3f, 1f));
+                Anchor(55f, 5f);
+                Platform(62f, 0f, 6f);
+                Saw(61f, 1.5f);
+                CheckpointAt(63f, 0.9f);
+                Platform(69f, 1f, 3f);
+                Spikes(69f, 1.65f, 0.8f);
+                Anchor(73f, 5f);
+                Platform(79f, 0f, 6f);
+                Saw(78f, 2.1f);
+                Sign(1f, 1f, "Final route: combine moving platforms, jumps, dash and magnetic momentum.");
+                Sign(13f, 1f, "Save the checkpoint before crossing the magnetic gap.");
+                Sign(26f, 1f, "Your dash is reusable after cooldown. Plan one safe landing at a time.");
+                Sign(46f, 2f, "The last machinery section is ahead. Use the high magnet to stay above the saw.");
+                Sign(64f, 1f, "Final stretch. Jump over the spikes, then use the last magnet to escape.");
+                exit = 81f;
             }
-            GameObject gate = Box("Exit", new Vector2(exit, 1.2f), new Vector2(0.6f, 2f), Color.green, true);
+            GameObject gate = Box("Exit", new Vector2(exit, stage == 3 ? 2.2f : 1.2f), new Vector2(0.6f, 2f), Color.green, true);
             GameArt.Apply(gate, "exit", 3);
             gate.AddComponent<ExitGate>();
+            session.CourseEnd = exit;
             GameArt.Backdrop(exit);
         }
 
@@ -137,11 +190,18 @@ namespace MagnetEscape
             platform.AddComponent<MovingPlatform>().Travel = travel;
         }
 
-        private static void CheckpointAt(float x, float y)
+        private void CheckpointAt(float x, float y)
         {
             GameObject flag = Box("Checkpoint", new Vector2(x, y), new Vector2(0.5f, 1.2f), Color.yellow, true);
             GameArt.Apply(flag, "checkpoint_off", 3);
-            flag.AddComponent<Checkpoint>();
+            flag.AddComponent<Checkpoint>().Order = ++checkpointOrder;
+        }
+
+        private static void Sign(float x, float y, string message)
+        {
+            GameObject obj = new GameObject("Tutorial: " + message);
+            obj.transform.position = new Vector2(x, y);
+            obj.AddComponent<TutorialSign>().Message = message;
         }
 
         private static void Spikes(float x, float y, float width)
