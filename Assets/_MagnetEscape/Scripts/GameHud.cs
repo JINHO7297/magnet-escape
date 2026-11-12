@@ -4,8 +4,9 @@ namespace MagnetEscape
 {
     public sealed class GameHud : MonoBehaviour
     {
-        private enum Overlay { None, Controls, Credits }
+        private enum Overlay { None, Controls, Credits, Records, ResetRecord }
         private Overlay overlay;
+        private int resetStage;
         public bool HasOverlay => overlay != Overlay.None;
         private static readonly Color Mint = new Color(0.35f, 0.95f, 0.85f);
         private static readonly Color Gold = new Color(1f, 0.78f, 0.35f);
@@ -24,7 +25,7 @@ namespace MagnetEscape
         public bool CloseOverlay()
         {
             if (!HasOverlay) return false;
-            overlay = Overlay.None;
+            overlay = overlay == Overlay.ResetRecord ? Overlay.Records : Overlay.None;
             return true;
         }
 
@@ -133,6 +134,7 @@ namespace MagnetEscape
                 if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "START  /  " + stage, button)) session.LoadStage(stage);
             }
             Volume(52, 474);
+            if (GUI.Button(new Rect(450, 474, 140, 32), "RECORDS", button)) overlay = Overlay.Records;
             if (GUI.Button(new Rect(610, 474, 90, 32), "HELP", button)) overlay = Overlay.Controls;
             if (GUI.Button(new Rect(710, 474, 90, 32), "CREDITS", button)) overlay = Overlay.Credits;
             if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "QUIT", button)) session.QuitGame();
@@ -186,8 +188,9 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(292, 222, 376, 38), "RETRY CHECKPOINT  /  +1 DEATH", button)) session.RetryCheckpoint();
             if (GUI.Button(new Rect(292, 270, 376, 38), "RESTART STAGE", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(292, 318, 376, 38), "STAGE SELECT", button)) session.ShowSelection();
-            if (GUI.Button(new Rect(292, 365, 180, 30), "HELP", button)) overlay = Overlay.Controls;
-            if (GUI.Button(new Rect(488, 365, 180, 30), "CREDITS", button)) overlay = Overlay.Credits;
+            if (GUI.Button(new Rect(292, 365, 118, 30), "HELP", button)) overlay = Overlay.Controls;
+            if (GUI.Button(new Rect(420, 365, 118, 30), "RECORDS", button)) overlay = Overlay.Records;
+            if (GUI.Button(new Rect(548, 365, 120, 30), "CREDITS", button)) overlay = Overlay.Credits;
             Volume(292, 414);
         }
 
@@ -241,7 +244,9 @@ namespace MagnetEscape
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.8f));
             Panel(new Rect(100, 40, 760, 460));
-            Label(new Rect(130, 64, 700, 55), overlay == Overlay.Controls ? "HOW TO ESCAPE" : "MAGNET ESCAPE", title, Mint);
+            string caption = overlay == Overlay.Controls ? "HOW TO ESCAPE" : overlay == Overlay.Records ? "COURSE RECORDS"
+                : overlay == Overlay.ResetRecord ? "CLEAR THIS RECORD?" : "MAGNET ESCAPE";
+            Label(new Rect(130, 64, 700, 55), caption, title, Mint);
             if (overlay == Overlay.Controls)
             {
                 Label(new Rect(132, 125, 690, 25), "Reach the green exit. New abilities are introduced one stage at a time.", small);
@@ -260,6 +265,39 @@ namespace MagnetEscape
                 }
                 Label(new Rect(132, 423, 690, 22), "Gold rails: platforms. Red rails: saws. Cyan circles: magnetic range.", small);
             }
+            else if (overlay == Overlay.Records)
+            {
+                Label(new Rect(132, 125, 690, 25), "Records for the four courses currently selected for this build.", small);
+                for (int stage = 1; stage <= 4; stage++)
+                {
+                    float y = 158 + (stage - 1) * 66;
+                    StageRecords.Record record = StageRecords.ForBuildStage(stage);
+                    Label(new Rect(132, y, 555, 28), "0" + stage + "  /  " + StageInfo.Title(stage), heading);
+                    string value = record.HasTime ? record.BestTime.ToString("F2") + "s / " + record.Deaths + " deaths"
+                        + " / Top rank " + " CBAS"[Mathf.Clamp(record.BestRank, 1, 4)] : "NO RECORD YET";
+                    Label(new Rect(132, y + 30, 555, 24), value, small, Gold);
+                    bool enabled = GUI.enabled;
+                    GUI.enabled = enabled && (record.HasTime || record.BestRank > 0);
+                    if (GUI.Button(new Rect(718, y + 10, 104, 32), "CLEAR", button))
+                    {
+                        resetStage = stage;
+                        overlay = Overlay.ResetRecord;
+                    }
+                    GUI.enabled = enabled;
+                }
+            }
+            else if (overlay == Overlay.ResetRecord)
+            {
+                Label(new Rect(132, 148, 690, 35), "STAGE " + resetStage + "  /  " + StageInfo.Title(resetStage), heading, Gold);
+                Label(new Rect(132, 210, 690, 100), "Clear the fastest time, deaths on that run and top rank for this course? "
+                    + "This cannot be undone. Other courses and sound settings stay as they are. Your current run is not restarted.", text);
+                if (GUI.Button(new Rect(160, 352, 300, 44), "CLEAR THIS COURSE", button))
+                {
+                    StageRecords.ClearBuildStage(resetStage);
+                    overlay = Overlay.Records;
+                }
+                if (GUI.Button(new Rect(490, 352, 300, 44), "CANCEL  /  Esc", button)) overlay = Overlay.Records;
+            }
             else
             {
                 Label(new Rect(132, 130, 680, 55), "A small robot escapes an abandoned factory through four precision platforming courses.", text);
@@ -269,7 +307,7 @@ namespace MagnetEscape
                 Label(new Rect(132, 349, 680, 30), "BUILT WITH  /  Unity", text);
                 Label(new Rect(132, 401, 680, 30), "Thank you for playing. Every course is replayable.", text, Mint);
             }
-            if (GUI.Button(new Rect(330, 454, 300, 32), "BACK  /  Esc", button)) overlay = Overlay.None;
+            if (overlay != Overlay.ResetRecord && GUI.Button(new Rect(330, 454, 300, 32), "BACK  /  Esc", button)) overlay = Overlay.None;
         }
 
         private void OnDestroy()
