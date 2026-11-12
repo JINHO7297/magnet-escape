@@ -4,7 +4,7 @@
 
 - 개발 브랜치: develop. 이전 게임 기능은 유지하고 자동 검증·실행 도구를 보강했다.
 - 실제 통과: Python 회귀 테스트 21건(에셋 무결성 10건 + 실행 도구 결과 처리 11건), 에셋·GUID 정적 검사, C# 구문 파싱. C# 의미 분석 컴파일은 아니다.
-- 원격 CI: 7bcbb12의 run 43145623736, 3f0b23e의 run 43145844120은 success로 확인했다. 이후 커밋 CI 결과는 별도 확인해야 한다.
+- 원격 CI: 최종 코드 커밋 b886825의 run 43146400001이 success이며 Python 21건과 프로젝트 무결성 검사를 통과했다. 7bcbb12와 3f0b23e의 CI도 success로 확인했다.
 - 미실행: Unity EditMode 16건, PlayMode 8건, 실제 코스 완주, 편집 도구 실행, macOS 앱 빌드·실행. Unity 실행 파일이 없어 차단되며 통과로 표시하지 않는다.
 - Mac에서 실행할 명령: `python3 Tools/unity_tasks.py test`, `python3 Tools/unity_tasks.py build-mac`.
 - 전체 게임은 아직 검증 완료가 아니다. 아래 기록은 이력이며 최신 내용이 이전 상태를 대체한다.
@@ -185,3 +185,11 @@
 - README.md, GOAL.md, TASKS.md와 현재 상태 요약을 갱신하고 artifacts/를 Git에서 제외했다. README·기록 존재 조건만 확인 완료로 변경했으며 게임 실행 조건은 모두 미완료다.
 - 별도 미검증: MacBuild C# 의미 분석·모듈 감지·실제 .app 생성, 테스트 24건, 에디터 씬 생성, 플랫폼 아키텍처·서명·공증·코스 완주. 현재 환경에서는 Unity가 없어 해당 실행이 불가능하다.
 - 다음 우선순위: Unity 실행 환경에서 컴파일/24건 실행, 발견된 실제 실패 수정, Stage 1부터 코스 난이도 조정. 그동안 코드로 확인 가능한 결함은 계속 수정할 수 있다.
+
+
+### 최종 원격 반영 확인
+
+- 구현·테스트 3개 커밋: 7bcbb12(무결성·CI), 3f0b23e(PlayMode 8건), b886825(Mac 테스트·빌드 도구).
+- b886825에서 로컬 HEAD와 origin/develop의 SHA가 일치했고 작업 트리가 깨끗했다.
+- 최종 코드 CI run 43146400001은 completed/success다: https://github.com/JINHO7297/magnet-escape/actions/runs/43146400001
+- 이 항목은 성공 결과를 기록하는 문서 변경이며 실제 Unity 테스트 24건·Mac 빌드 미실행 상태는 유지한다.
