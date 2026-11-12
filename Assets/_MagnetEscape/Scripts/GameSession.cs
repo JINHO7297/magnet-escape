@@ -20,6 +20,7 @@ namespace MagnetEscape
         public bool NewBestTime { get; private set; }
         public bool NewBestRank { get; private set; }
         public bool RecordSaved { get; private set; }
+        public bool PracticeRun => string.IsNullOrEmpty(gameObject.scene.path);
         public float PreviousBestTime { get; private set; } = -1f;
         public string Hint { get; private set; }
         public bool HasCheckpoint => currentCheckpoint != null;
@@ -264,11 +265,19 @@ namespace MagnetEscape
             Player.SetFrozen(true);
             Rank = RankAtTarget(Elapsed, Deaths, RankTarget);
             int score = Rank == "S" ? 4 : Rank == "A" ? 3 : Rank == "B" ? 2 : 1;
-            StageRecords.SavedRun saved = StageRecords.Save(Stage, gameObject.scene.path, Elapsed, Deaths, score);
-            PreviousBestTime = saved.PreviousTime;
-            NewBestTime = saved.NewTime;
-            NewBestRank = saved.NewRank;
-            RecordSaved = saved.Persisted;
+            try
+            {
+                StageRecords.SavedRun saved = StageRecords.Save(Stage, gameObject.scene.path, Elapsed, Deaths, score);
+                PreviousBestTime = saved.PreviousTime;
+                NewBestTime = saved.NewTime;
+                NewBestRank = saved.NewRank;
+                RecordSaved = saved.Persisted;
+            }
+            catch (PlayerPrefsException exception)
+            {
+                RecordSaved = false;
+                Debug.LogException(exception);
+            }
             Feedback(Player.transform.position, Color.yellow, GameAudio.Cue.Clear);
         }
 

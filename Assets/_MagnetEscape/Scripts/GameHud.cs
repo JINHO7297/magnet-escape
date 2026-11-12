@@ -9,6 +9,7 @@ namespace MagnetEscape
         private int resetStage;
         private string resetScenePath;
         private string resetTitle;
+        private string recordWarning;
         public bool HasOverlay => overlay != Overlay.None;
         private static readonly Color Mint = new Color(0.35f, 0.95f, 0.85f);
         private static readonly Color Gold = new Color(1f, 0.78f, 0.35f);
@@ -23,6 +24,12 @@ namespace MagnetEscape
         private float uiScale;
         private Vector2 uiOffset;
         private void Awake() => session = GetComponent<GameSession>();
+
+        private void OpenRecords()
+        {
+            recordWarning = null;
+            overlay = Overlay.Records;
+        }
 
         public bool CloseOverlay()
         {
@@ -151,7 +158,7 @@ namespace MagnetEscape
                 GUI.enabled = enabled;
             }
             Volume(52, 474);
-            if (GUI.Button(new Rect(450, 474, 140, 32), "RECORDS", button)) overlay = Overlay.Records;
+            if (GUI.Button(new Rect(450, 474, 140, 32), "RECORDS", button)) OpenRecords();
             if (GUI.Button(new Rect(610, 474, 90, 32), "HELP", button)) overlay = Overlay.Controls;
             if (GUI.Button(new Rect(710, 474, 90, 32), "CREDITS", button)) overlay = Overlay.Credits;
             if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "QUIT", button)) session.QuitGame();
@@ -218,7 +225,7 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(292, 270, 376, 38), "RESTART STAGE", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(292, 318, 376, 38), "STAGE SELECT", button)) session.ShowSelection();
             if (GUI.Button(new Rect(292, 365, 118, 30), "HELP", button)) overlay = Overlay.Controls;
-            if (GUI.Button(new Rect(420, 365, 118, 30), "RECORDS", button)) overlay = Overlay.Records;
+            if (GUI.Button(new Rect(420, 365, 118, 30), "RECORDS", button)) OpenRecords();
             if (GUI.Button(new Rect(548, 365, 120, 30), "CREDITS", button)) overlay = Overlay.Credits;
             Volume(292, 414);
             DisplayModeButton(new Rect(292, 448, 376, 30));
@@ -251,7 +258,8 @@ namespace MagnetEscape
             Label(new Rect(263, 108, 450, 36), session.Stage == 4 ? "FACTORY ESCAPED" : "STAGE CLEAR", heading, Mint);
             Label(new Rect(267, 154, 410, 70), "RANK  " + session.Rank, title, Gold);
             Label(new Rect(270, 226, 420, 30), "TIME " + session.Elapsed.ToString("F2") + "s     /     DEATHS " + session.Deaths, text);
-            string record = !session.RecordSaved ? "PRACTICE RUN / RECORD NOT SAVED" : session.PreviousBestTime < 0f ? "FIRST CLEAR / NEW TIME RECORD"
+            string record = !session.RecordSaved ? (session.PracticeRun ? "PRACTICE RUN / RECORD NOT SAVED" : "RECORD COULD NOT BE SAVED")
+                : session.PreviousBestTime < 0f ? "FIRST CLEAR / NEW TIME RECORD"
                 : (session.NewBestTime ? "NEW TIME RECORD / " : "PREVIOUS BEST / ")
                     + session.PreviousBestTime.ToString("F2") + "s  ("
                     + (session.Elapsed - session.PreviousBestTime).ToString("+0.00;-0.00;0.00") + "s)";
@@ -265,7 +273,7 @@ namespace MagnetEscape
             }
             if (GUI.Button(new Rect(266, 360, 207, 40), "RETRY  /  R", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(487, 360, 207, 40), "STAGE SELECT", button)) session.ShowSelection();
-            Label(new Rect(270, 418, 425, 25), !session.RecordSaved ? "This run does not affect your saved records."
+            Label(new Rect(270, 418, 425, 25), !session.RecordSaved ? (session.PracticeRun ? "This run does not affect your saved records." : "The stage is clear, but its record was not saved.")
                 : session.Stage == 4 ? "You made it outside. Every route is replayable." : "Your best time and best rank are saved separately.", small);
         }
 
@@ -327,6 +335,7 @@ namespace MagnetEscape
                     }
                     GUI.enabled = enabled;
                 }
+                if (!string.IsNullOrEmpty(recordWarning)) Label(new Rect(132, 421, 690, 25), recordWarning, small, Gold);
             }
             else if (overlay == Overlay.ResetRecord)
             {
@@ -335,7 +344,15 @@ namespace MagnetEscape
                     + "This cannot be undone. Other courses and sound settings stay as they are. Your current run is not restarted.", text);
                 if (GUI.Button(new Rect(160, 352, 300, 44), "CLEAR THIS COURSE", button))
                 {
-                    StageRecords.ClearCourse(resetStage, resetScenePath);
+                    try
+                    {
+                        recordWarning = StageRecords.ClearCourse(resetStage, resetScenePath) ? null : "This course record is not available.";
+                    }
+                    catch (PlayerPrefsException exception)
+                    {
+                        recordWarning = "The record change could not be saved on this device.";
+                        Debug.LogException(exception);
+                    }
                     overlay = Overlay.Records;
                 }
                 if (GUI.Button(new Rect(490, 352, 300, 44), "CANCEL  /  Esc", button)) overlay = Overlay.Records;
