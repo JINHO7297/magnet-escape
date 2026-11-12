@@ -98,19 +98,19 @@ namespace MagnetEscape
             }
             else if (stage == 3)
             {
-                Anchor(8f, 3.5f);
+                Anchor(8f, 3.5f, 7f, 1.05f);
                 Platform(14f, -0.5f, 6f);
                 CheckpointAt(14f, 0.4f);
                 Anchor(20f, 4f);
                 Platform(26f, 0f, 6f);
-                Anchor(27f, 0f);
+                Anchor(27f, 0f, 4.5f, 1.2f);
                 Platform(38f, 0.5f, 6f);
                 CheckpointAt(37f, 1.4f);
-                Anchor(44f, 5.5f);
+                Anchor(44f, 5.5f, 7f, 1.15f);
                 Platform(50f, 1f, 6f);
                 Sign(2f, 1f, "Jump toward the magnet, then hold Q to attract yourself toward it.");
                 Sign(14f, 1f, "Magnet range is marked by a circle. Your tether shows the selected magnet.");
-                Sign(25f, 1f, "Move to the right of the low magnet. Hold E to repel away and launch right.");
+                Sign(25f, 1f, "Stand right of the low magnet, jump and hold E to launch right. Release to coast.");
                 Sign(38f, 2f, "Release Q or E to leave the field. Combine a high jump, attraction and dash.");
                 Sign(49f, 2f, "Opposite controls: Q pulls you closer; E pushes you away. Reach the exit.");
                 exit = 52f;
@@ -133,7 +133,7 @@ namespace MagnetEscape
                 Platform(47f, 1f, 4f);
                 CheckpointAt(46f, 1.9f);
                 Moving(53f, 0.5f, new Vector2(3f, 1f));
-                Anchor(55f, 5f);
+                Anchor(55f, 5f, 7f, 1.1f);
                 Platform(62f, 0f, 6f);
                 Saw(61f, 1.5f, new Vector2(0f, 0.9f), 4.5f);
                 CheckpointAt(63f, 0.9f);
@@ -250,23 +250,11 @@ namespace MagnetEscape
             saw.AddComponent<RotatingSaw>().Configure(travel, period, 0f);
         }
 
-        private static void Anchor(float x, float y)
+        private static void Anchor(float x, float y, float range = 7f, float strength = 1f)
         {
             GameObject anchor = Box("Magnet anchor (range 7)", new Vector2(x, y), Vector2.one, Color.magenta, true);
             GameArt.Apply(anchor, "anchor", 4);
-            anchor.AddComponent<MagnetAnchor>();
-            LineRenderer ring = anchor.AddComponent<LineRenderer>();
-            ring.sharedMaterial = ParticleMaterial;
-            ring.startColor = ring.endColor = new Color(0.5f, 0.2f, 0.5f, 0.35f);
-            ring.startWidth = ring.endWidth = 0.025f;
-            ring.loop = true;
-            ring.useWorldSpace = false;
-            ring.positionCount = 64;
-            for (int i = 0; i < 64; i++)
-            {
-                float angle = i * Mathf.PI * 2f / 64f;
-                ring.SetPosition(i, new Vector3(Mathf.Cos(angle) * 7f, Mathf.Sin(angle) * 7f, 0.1f));
-            }
+            anchor.AddComponent<MagnetAnchor>().Configure(range, strength);
         }
     }
 }

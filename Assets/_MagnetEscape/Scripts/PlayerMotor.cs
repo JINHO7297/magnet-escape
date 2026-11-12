@@ -12,6 +12,7 @@ namespace MagnetEscape
         [SerializeField] private float dashCooldown = 0.75f;
         [SerializeField] private float magnetAcceleration = 34f;
         [SerializeField] private float magnetRange = 7f;
+        [SerializeField, Min(1f)] private float magneticAirControl = 24f;
         [SerializeField] private bool dashEnabled = true;
         [SerializeField] private bool magnetEnabled;
         private Rigidbody2D body;
@@ -32,6 +33,7 @@ namespace MagnetEscape
         private int magnetMode;
         private Vector2 supportVelocity;
         private MagnetAnchor targetAnchor;
+        private bool magneticMomentum;
         public bool CanMove { get; set; } = true;
         public bool DashEnabled { get => dashEnabled; set => dashEnabled = value; }
         public bool MagnetEnabled { get => magnetEnabled; set => magnetEnabled = value; }
@@ -41,6 +43,7 @@ namespace MagnetEscape
         public bool Grounded { get; private set; }
         public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / dashCooldown);
         public Transform MagnetTarget => targetAnchor != null ? targetAnchor.transform : null;
+        public float MagnetReach => magnetRange;
 
         private void Awake()
         {
@@ -82,6 +85,7 @@ namespace MagnetEscape
             }
             bool grounded = IsGrounded();
             Grounded = grounded;
+            if (grounded) magneticMomentum = false;
             coyote = grounded ? 0.1f : Mathf.Max(0f, coyote - dt);
             jumpBuffer = jumpQueued ? 0.12f : Mathf.Max(0f, jumpBuffer - dt);
             jumpQueued = false;
@@ -89,6 +93,7 @@ namespace MagnetEscape
             {
                 dashDirection = movement.sqrMagnitude > 0.01f ? movement.normalized : new Vector2(facing, 0f);
                 dashRemaining = dashDuration;
+                magneticMomentum = false;
                 cooldown = dashCooldown;
                 GameSession.Active?.Feedback(transform.position, Color.cyan, 700f);
             }
@@ -103,7 +108,10 @@ namespace MagnetEscape
             }
             body.gravityScale = 3f;
             Vector2 velocity = body.velocity;
-            velocity.x = movement.x * moveSpeed + (grounded ? supportVelocity.x : 0f);
+            float desiredHorizontal = movement.x * moveSpeed + (grounded ? supportVelocity.x : 0f);
+            velocity.x = !grounded && magneticMomentum
+                ? Mathf.MoveTowards(velocity.x, desiredHorizontal, magneticAirControl * dt)
+                : desiredHorizontal;
             if (grounded && velocity.y <= supportVelocity.y + 0.1f) velocity.y = supportVelocity.y;
             if (jumpBuffer > 0f && coyote > 0f)
             {
@@ -115,22 +123,32 @@ namespace MagnetEscape
             }
             if (cutJump && velocity.y > 0f) velocity.y *= 0.45f;
             cutJump = false;
-            targetAnchor = null;
-            float distance = magnetRange;
-            if (MagnetEnabled)
+            bool keepTarget = MagnetEnabled && magnetMode != 0 && targetAnchor != null
+                && targetAnchor.isActiveAndEnabled && targetAnchor.Contains(body.position, magnetRange);
+            if (!keepTarget)
             {
-                foreach (MagnetAnchor anchor in MagnetAnchor.All)
+                targetAnchor = null;
+                float distance = float.MaxValue;
+                if (MagnetEnabled)
                 {
-                    float candidate = Vector2.Distance(body.position, anchor.transform.position);
-                    if (candidate < distance) { targetAnchor = anchor; distance = candidate; }
+                    foreach (MagnetAnchor anchor in MagnetAnchor.All)
+                    {
+                        float candidate = Vector2.Distance(body.position, anchor.transform.position);
+                        if (candidate < distance && anchor.Contains(body.position, magnetRange))
+                        {
+                            targetAnchor = anchor;
+                            distance = candidate;
+                        }
+                    }
                 }
-                if (targetAnchor != null && magnetMode != 0)
-                {
-                    Vector2 direction = ((Vector2)targetAnchor.transform.position - body.position).normalized;
-                    velocity += direction * (magnetMode * magnetAcceleration * dt);
-                    // Preserve horizontal momentum while using magnet controls.
-                    velocity.x = body.velocity.x + direction.x * magnetMode * magnetAcceleration * dt + movement.x * moveSpeed * dt;
-                }
+            }
+            if (targetAnchor != null && magnetMode != 0)
+            {
+                Vector2 direction = ((Vector2)targetAnchor.transform.position - body.position).normalized;
+                float acceleration = magnetAcceleration * targetAnchor.ForceMultiplier;
+                velocity += direction * (magnetMode * acceleration * dt);
+                velocity.x = body.velocity.x + direction.x * magnetMode * acceleration * dt + movement.x * moveSpeed * dt;
+                magneticMomentum = true;
             }
             velocity.x = Mathf.Clamp(velocity.x, -18f, 18f);
             velocity.y = Mathf.Clamp(velocity.y, -22f, 20f);
@@ -164,6 +182,7 @@ namespace MagnetEscape
             jumpBuffer = coyote = dashRemaining = cooldown = 0f;
             Grounded = false;
             targetAnchor = null;
+            magneticMomentum = false;
             GetComponent<PlayerVisual>()?.ResetTrail();
         }
 

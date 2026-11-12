@@ -122,7 +122,8 @@ namespace MagnetEscape
             Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "DASH" : "DASH / LOCKED", small);
             Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
-            string magnet = !player.MagnetEnabled ? "MAGNET / LOCKED" : player.MagnetMode > 0 ? "Q / ATTRACTING"
+            string magnet = !player.MagnetEnabled ? "MAGNET / LOCKED" : player.MagnetTarget == null ? "MAGNET / OUT OF RANGE"
+                : player.IsDashing ? "MAGNET / DASHING" : player.MagnetMode > 0 ? "Q / ATTRACTING"
                 : player.MagnetMode < 0 ? "E / REPELLING" : "MAGNET / Q ATTRACT - E REPEL";
             Label(new Rect(240, 54, 530, 24), magnet, small, player.MagnetMode < 0 ? Gold : Mint);
             float progress = Mathf.Clamp01(player.transform.position.x / Mathf.Max(1f, session.CourseEnd));
