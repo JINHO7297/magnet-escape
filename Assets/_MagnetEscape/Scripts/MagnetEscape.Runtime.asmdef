@@ -1,0 +1,6 @@
+{
+  "name": "MagnetEscape.Runtime",
+  "rootNamespace": "MagnetEscape",
+  "references": [],
+  "autoReferenced": true
+}

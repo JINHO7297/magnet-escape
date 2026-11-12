@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_MagnetEscape/Scenes/StageSelect.unity
+    guid: 8aedeb110d6a62e3ed4785e2421836f1
+  - enabled: 1
+    path: Assets/_MagnetEscape/Scenes/Stage1.unity
+    guid: b304cc4e158f7a4175ca5faeb4ee4a80
+  - enabled: 1
+    path: Assets/_MagnetEscape/Scenes/Stage2.unity
+    guid: 5da90eab9dc738766b325ad7d31b2711
+  - enabled: 1
+    path: Assets/_MagnetEscape/Scenes/Stage3.unity
+    guid: 6fd12bfd2f79f50ceb73eb5a0602ffa6
+  - enabled: 1
+    path: Assets/_MagnetEscape/Scenes/Stage4.unity
+    guid: de67583e59040cbd8c4dbab44aadd304
+  m_configObjects: {}

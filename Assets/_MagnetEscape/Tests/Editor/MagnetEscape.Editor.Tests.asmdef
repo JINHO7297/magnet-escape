@@ -1,0 +1,6 @@
+{
+  "name": "MagnetEscape.Editor.Tests",
+  "references": ["MagnetEscape.Runtime"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

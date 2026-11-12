@@ -1,0 +1,40 @@
+# Magnet Escape 작업 규칙
+
+## 우선순위
+- Unity 2D 정밀 플랫폼 게임, 1인 대학 기말과제 규모를 유지한다.
+- 전투, 퍼즐, 복잡한 스토리, 불필요한 프레임워크를 추가하지 않는다.
+- 개발 대상은 JINHO7297/magnet-escape이며, 사용자 개발 환경은 macOS다. 클라우드 환경은 Linux다.
+
+## 작업 시작
+1. git 상태와 기존 작업 규칙을 확인한다. 사용자 변경을 보존한다.
+2. ProjectSettings/ProjectVersion.txt, Packages/manifest.json, Assets 구조를 읽는다.
+3. Unity 설치 및 사용 가능한 테스트 환경을 확인한다. 기존 Unity 버전을 임의로 올리지 않는다.
+4. 개발 브랜치에서 작은 단위로 구현한다. 기존 씬, 프리팹, .meta의 GUID를 유지한다.
+
+## 코드 및 구조
+- 기존 저장소 컨벤션을 우선한다. 새 C# 타입과 파일명은 PascalCase로 맞춘다.
+- 플레이어 입력은 Update에서 수집하고 Rigidbody2D 물리 변경은 FixedUpdate에서 처리한다.
+- 속도, 점프, 대시, 자력 수치는 Inspector에서 조정할 수 있도록 직렬화한다.
+- 기존 입력 시스템을 재사용하고 입력 패키지를 중복 추가하지 않는다.
+- 씬 인덱스와 레이어 번호를 설명 없이 코드에 하드코딩하지 않는다.
+- 사망, 재시작, 스테이지 전환 때 속도와 일시적인 이동 상태를 명시적으로 초기화한다.
+- 새 에셋은 .meta와 함께 추적한다. Library, Temp, Logs, 빌드 산출물을 커밋하지 않는다.
+- 현재 구조: Assets/_MagnetEscape/{Scripts,Scenes,Tests/Editor}, Packages, ProjectSettings, Tools.
+- 스테이지는 각 씬의 StageBootstrap이 런타임에 생성하는 그레이박스다. 씬에 배치된 완성형 프리팹으로 오해하지 않는다.
+- Python 3 정적 검사는 python3 Tools/validate_project.py로 실행한다.
+- Unity 기준 버전은 2022.3.62f1이다. macOS Intel/Apple Silicon 배포를 공식 API에서 확인했다.
+- 현재 프로토타입은 레거시 Input을 사용한다. Active Input Handling은 Input Manager (Old) 또는 Both로 설정한다.
+- Ground 레이어는 TagManager.asset의 슬롯 8에 정의되어 있으며 이름으로 조회한다.
+
+## 각 구현 단계 종료
+1. 변경 파일과 diff를 검토한다.
+2. 가능한 정적 검사와 관련 테스트를 실행한다.
+3. TASKS.md에 구현 상태와 검증 상태를 별도로 기록한다.
+4. PROGRESS.md에 변경 파일, 실제 실행한 검증, 실패와 미검증 사항, 다음 작업을 기록한다.
+5. 커밋 가능한 상태로 정리하고 환경과 권한이 허용하면 개발 브랜치에 커밋한다.
+6. 다음 미완료 작업으로 진행한다. 원격 강제 푸시와 기본 브랜치 직접 변경은 피한다.
+
+## 완료 판단
+- 코드 작성만으로 플레이 기능을 검증 완료로 표시하지 않는다.
+- Unity 실행이 불가능하면 컴파일, 씬 참조, 실제 물리 동작, 스테이지 완주, UI와 오디오를 미검증으로 기록한다.
+- 네 스테이지의 플레이 검증과 GOAL.md의 모든 완료 조건이 충족되기 전에는 전체 완료를 선언하지 않는다.
