@@ -112,7 +112,7 @@ namespace MagnetEscape
             Label(new Rect(51, 82, 860, 30), "A small robot. An abandoned factory. Four routes to freedom.", text);
             int completed = 0;
             for (int stage = 1; stage <= 4; stage++)
-                if (PlayerPrefs.HasKey("MagnetEscape.Stage" + stage + ".Time")) completed++;
+                if (StageRecords.ForBuildStage(stage).HasTime) completed++;
             Label(new Rect(740, 45, 180, 30), "CLEARED  " + completed + " / 4", text, Gold);
             for (int stage = 1; stage <= 4; stage++)
             {
@@ -121,13 +121,13 @@ namespace MagnetEscape
                 Panel(new Rect(x, y, 418, 146));
                 Label(new Rect(x + 18, y + 14, 380, 30), "0" + stage + "  /  " + StageInfo.Title(stage), heading);
                 Label(new Rect(x + 18, y + 49, 380, 22), StageInfo.Lesson(stage), small);
-                string key = "MagnetEscape.Stage" + stage;
+                StageRecords.Record record = StageRecords.ForBuildStage(stage);
                 string best = "NO RECORD YET";
-                if (PlayerPrefs.HasKey(key + ".Time"))
+                if (record.HasTime)
                 {
-                    int score = Mathf.Clamp(PlayerPrefs.GetInt(key + ".Rank", 1), 1, 4);
-                    best = "FASTEST " + PlayerPrefs.GetFloat(key + ".Time").ToString("F2") + "s / "
-                        + PlayerPrefs.GetInt(key + ".TimeDeaths", 0) + " deaths | TOP RANK " + " CBAS"[score];
+                    int score = Mathf.Clamp(record.BestRank, 1, 4);
+                    best = "FASTEST " + record.BestTime.ToString("F2") + "s / "
+                        + record.Deaths + " deaths | TOP RANK " + " CBAS"[score];
                 }
                 Label(new Rect(x + 18, y + 77, 380, 22), best, small, Gold);
                 if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "START  /  " + stage, button)) session.LoadStage(stage);

@@ -220,18 +220,11 @@ namespace MagnetEscape
             Finished = true;
             Player.SetFrozen(true);
             Rank = RankAtTarget(Elapsed, Deaths, RankTarget);
-            string key = "MagnetEscape.Stage" + Stage;
-            PreviousBestTime = PlayerPrefs.HasKey(key + ".Time") ? PlayerPrefs.GetFloat(key + ".Time") : -1f;
-            NewBestTime = PreviousBestTime < 0f || Elapsed < PreviousBestTime;
-            if (NewBestTime)
-            {
-                PlayerPrefs.SetFloat(key + ".Time", Elapsed);
-                PlayerPrefs.SetInt(key + ".TimeDeaths", Deaths);
-            }
             int score = Rank == "S" ? 4 : Rank == "A" ? 3 : Rank == "B" ? 2 : 1;
-            NewBestRank = score > PlayerPrefs.GetInt(key + ".Rank", 0);
-            if (NewBestRank) PlayerPrefs.SetInt(key + ".Rank", score);
-            PlayerPrefs.Save();
+            StageRecords.SavedRun saved = StageRecords.Save(Stage, gameObject.scene.path, Elapsed, Deaths, score);
+            PreviousBestTime = saved.PreviousTime;
+            NewBestTime = saved.NewTime;
+            NewBestRank = saved.NewRank;
             Feedback(Player.transform.position, Color.yellow, GameAudio.Cue.Clear);
         }
 
