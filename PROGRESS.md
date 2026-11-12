@@ -368,3 +368,12 @@
 - 출구 방향 표시도 기존 HUD 좌표 변환을 통해 새 안전 영역과 같은 기준으로 그린다.
 - 변경 파일: GameOptions.cs, GameSession.cs, GameHud.cs, TASKS.md, README.md. 기존 GUID 유지. 실제 Mac 화면 설정을 이 환경에서 변경한 것은 아니다.
 - 미검증: Mac 전체 화면/창 전환·설정 복원, 노치·Retina·다양한 비율, 메뉴/출구 표시·볼륨과의 배치. 커밋 후 코스 편집 핸들 작업을 계속한다.
+
+
+## 2026-11-12 — 연속 작업 4: 배치 보조 핸들과 전체 프레이밍
+
+- StageDefinitionEditor.cs에 이동 발판/톱날 Travel 끝점, 체크포인트 SpawnOffset, 자석/힌트 Range의 보조 핸들을 추가했다. 중심 이동과 별도로 상대 위치·반경을 수정한다.
+- 반경은 최소 0.5로 제한하고 SerializedProperty를 통해 Undo/에셋 변경 흐름을 유지한다. 부분적인 배열의 null 항목은 미리보기에서 건너뛴다.
+- Frame Entire Course가 고정 높이 대신 실제 배치/경로/반경/부활 위치를 포함한 Bounds를 사용하도록 했다. 먼 곳이나 높은 곳의 요소가 프레임 밖으로 빠지는 기존 제한을 보완했다.
+- README.md/TASKS.md에 편집 방법과 상태를 갱신했다. 새 에셋/GUID는 추가하지 않았다.
+- 미검증: 중심/끝점 선택과 드래그·Undo·반경 제한·전체 Bounds·편집 후 생성. 커밋 후 Mac 배포 패키징 구현을 이어간다.
