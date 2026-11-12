@@ -1,0 +1,193 @@
+using System.Collections;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+
+namespace MagnetEscape.Tests
+{
+    // Exercise existing gameplay state without synthetic keyboard input or changing motor code.
+    public sealed class SessionLifecycleTests
+    {
+        private const string Key = "MagnetEscape.Stage1";
+        private bool hadTime;
+        private bool hadDeaths;
+        private bool hadRank;
+        private float time;
+        private int deaths;
+        private int rank;
+        private GameSession session;
+
+        [UnitySetUp]
+        public IEnumerator SetUp()
+        {
+            hadTime = PlayerPrefs.HasKey(Key + ".Time");
+            hadDeaths = PlayerPrefs.HasKey(Key + ".TimeDeaths");
+            hadRank = PlayerPrefs.HasKey(Key + ".Rank");
+            time = PlayerPrefs.GetFloat(Key + ".Time");
+            deaths = PlayerPrefs.GetInt(Key + ".TimeDeaths");
+            rank = PlayerPrefs.GetInt(Key + ".Rank");
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("Stage1");
+            yield return null;
+            session = GameSession.Active;
+            Assert.That(session, Is.Not.Null);
+            session.SetPaused(false);
+            session.Player.enabled = false; // Tests do not depend on the user's physical keyboard.
+        }
+
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("StageSelect");
+            yield return null;
+            if (hadTime) PlayerPrefs.SetFloat(Key + ".Time", time);
+            else PlayerPrefs.DeleteKey(Key + ".Time");
+            if (hadDeaths) PlayerPrefs.SetInt(Key + ".TimeDeaths", deaths);
+            else PlayerPrefs.DeleteKey(Key + ".TimeDeaths");
+            if (hadRank) PlayerPrefs.SetInt(Key + ".Rank", rank);
+            else PlayerPrefs.DeleteKey(Key + ".Rank");
+            PlayerPrefs.Save();
+        }
+
+        [UnityTest]
+        public IEnumerator FourStagesLoadWithTheirAbilitiesAndRuntimeObjects()
+        {
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                SceneManager.LoadScene("Stage" + stage);
+                yield return null;
+                GameSession active = GameSession.Active;
+                Assert.That(active, Is.Not.Null);
+                active.SetPaused(false);
+                active.Player.enabled = false;
+                Assert.That(active.Stage, Is.EqualTo(stage));
+                Assert.That(active.Player.DashEnabled, Is.EqualTo(stage >= 2));
+                Assert.That(active.Player.MagnetEnabled, Is.EqualTo(stage >= 3));
+                Assert.That(active.CourseEnd, Is.GreaterThan(0f));
+                Assert.That(Object.FindObjectsOfType<ExitGate>().Length, Is.EqualTo(1));
+                Assert.That(Object.FindObjectsOfType<Checkpoint>().Length, Is.GreaterThan(0));
+                Assert.That(Camera.main, Is.Not.Null);
+                Assert.That(active.Player.GetComponent<SpriteRenderer>().sprite, Is.Not.Null);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator RepeatedDeathCountsOnceAndRestoresPhysics()
+        {
+            session.Die();
+            session.Die();
+            Assert.That(session.Deaths, Is.EqualTo(1));
+            Assert.That(session.Player.GetComponent<Rigidbody2D>().simulated, Is.False);
+            yield return WaitForRespawn();
+            Assert.That(session.Deaths, Is.EqualTo(1));
+            Assert.That(session.Player.CanMove, Is.True);
+            Assert.That(session.Player.GetComponent<Rigidbody2D>().simulated, Is.True);
+            Assert.That(session.Player.transform.position.x, Is.EqualTo(0f).Within(0.05f));
+        }
+
+        [UnityTest]
+        public IEnumerator OlderCheckpointCannotReplaceTheLatestSpawn()
+        {
+            session.SetCheckpoint(CreateCheckpoint(new Vector2(2f, 2f), 200));
+            session.SetCheckpoint(CreateCheckpoint(new Vector2(-1f, 2f), 100));
+            session.Die();
+            yield return WaitForRespawn();
+            Assert.That(session.Player.transform.position.x, Is.EqualTo(2f).Within(0.05f));
+        }
+
+        [UnityTest]
+        public IEnumerator PauseStopsTheRunClockAndPhysicsUntilResumed()
+        {
+            session.SetPaused(true);
+            float stopped = session.Elapsed;
+            Vector2 position = session.Player.GetComponent<Rigidbody2D>().position;
+            yield return new WaitForSecondsRealtime(0.12f);
+            Assert.That(session.Elapsed, Is.EqualTo(stopped));
+            Assert.That(session.Player.GetComponent<Rigidbody2D>().position, Is.EqualTo(position));
+            session.SetPaused(false);
+            yield return new WaitForSecondsRealtime(0.12f);
+            Assert.That(session.Elapsed, Is.GreaterThan(stopped));
+        }
+
+        [UnityTest]
+        public IEnumerator CompletionStopsTheClockAndRejectsFurtherDeaths()
+        {
+            session.Complete();
+            float stopped = session.Elapsed;
+            session.Complete();
+            session.Die();
+            yield return new WaitForSecondsRealtime(0.12f);
+            Assert.That(session.Finished, Is.True);
+            Assert.That(session.Elapsed, Is.EqualTo(stopped));
+            Assert.That(session.Deaths, Is.Zero);
+            Assert.That(session.Player.GetComponent<Rigidbody2D>().simulated, Is.False);
+            Assert.That(session.Rank, Is.Not.Null.And.Not.Empty);
+        }
+
+        [UnityTest]
+        public IEnumerator RestartCreatesANewUnpausedRunWithNoDeaths()
+        {
+            session.Die();
+            yield return WaitForRespawn();
+            session.SetPaused(true);
+            session.LoadStage(1);
+            yield return null;
+            GameSession next = GameSession.Active;
+            Assert.That(next, Is.Not.SameAs(session));
+            Assert.That(next.Deaths, Is.Zero);
+            Assert.That(next.Finished, Is.False);
+            Assert.That(next.Respawning, Is.False);
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
+        }
+
+        [UnityTest]
+        public IEnumerator ReturningToSelectionDoesNotKeepTheGamePaused()
+        {
+            session.SetPaused(true);
+            session.ShowSelection();
+            yield return null;
+            Assert.That(GameSession.Active.Stage, Is.Zero);
+            Assert.That(GameSession.Active.Player, Is.Null);
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
+            GameSession.Active.LoadStage(4);
+            yield return null;
+            Assert.That(GameSession.Active.Stage, Is.EqualTo(4));
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
+        }
+
+        [UnityTest]
+        public IEnumerator ResetAtRemovesMomentumAndRestoresGravity()
+        {
+            Rigidbody2D body = session.Player.GetComponent<Rigidbody2D>();
+            body.velocity = new Vector2(11f, -8f);
+            body.angularVelocity = 20f;
+            body.gravityScale = 0f;
+            session.Player.ResetAt(new Vector2(1f, 3f));
+            Assert.That(body.position, Is.EqualTo(new Vector2(1f, 3f)));
+            Assert.That(body.velocity, Is.EqualTo(Vector2.zero));
+            Assert.That(body.angularVelocity, Is.Zero);
+            Assert.That(body.gravityScale, Is.EqualTo(3f));
+            Assert.That(session.Player.Cooldown, Is.Zero);
+            yield break;
+        }
+
+        private static Checkpoint CreateCheckpoint(Vector2 position, int order)
+        {
+            GameObject obj = new GameObject("Test checkpoint");
+            obj.transform.position = position;
+            obj.AddComponent<SpriteRenderer>();
+            Checkpoint checkpoint = obj.AddComponent<Checkpoint>();
+            checkpoint.Order = order;
+            return checkpoint;
+        }
+
+        private IEnumerator WaitForRespawn()
+        {
+            float deadline = Time.realtimeSinceStartup + 3f;
+            while (session.Respawning && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.That(session.Respawning, Is.False, "Respawn did not finish within 3 real seconds.");
+        }
+    }
+}

@@ -151,3 +151,15 @@
 - 실행 결과: 정적 무결성 검사 PASS(식별자 51개, 씬 5개, 스프라이트 16개), Python unittest 10/10 PASS, git diff --check PASS.
 - 보류: Unity 컴파일·EditMode·PlayMode·실제 완주와 macOS 빌드. 현재 환경에서 Unity 실행 명령을 다시 확인했으나 찾지 못했다.
 - 다음 작업은 기존 부활·체크포인트·일시정지의 PlayMode 회귀 테스트와 Mac 빌드 자동화다. Unity 부재를 이유로 다음 구현을 중단하지 않는다.
+
+
+## 2026-11-12 — 세션 PlayMode 회귀 테스트 작성
+
+- 테스트 8건을 Tests/PlayMode/SessionLifecycleTests.cs에 추가했다. 기존 게임 기능 구현은 변경하지 않았다.
+- 대상: 4코스 로딩과 능력 플래그, 중복 사망 집계·빠른 부활, 체크포인트 역행 방지, 일시정지 중 시간·물리 정지, 클리어 후 시간·사망 정지, 재시작, 선택 화면 전환 후 시간 배율, ResetAt의 운동량·중력 초기화.
+- 사용자의 실제 키 입력에 의존하지 않도록 모터 입력 처리를 테스트 중 비활성화한다. 이 검사는 입력 조작감·정밀 물리·완주 검증을 대신하지 않는다. 테스트가 변경한 Stage 1 최고 기록은 teardown에서 복원한다.
+- PlayMode 테스트 어셈블리는 UNITY_INCLUDE_TESTS 조건과 TestAssemblies 참조를 사용하며 런타임 게임 코드에 테스트 의존성을 추가하지 않았다.
+- 실제 실행: 정적 무결성 PASS(식별자 54개), Python unittest 10/10 PASS, C# 구문 파싱 PASS(20개 파일). 의미 분석 컴파일은 아니다.
+- 원격 GitHub Actions run 43145623736이 7bcbb12에서 success임을 확인했다: https://github.com/JINHO7297/magnet-escape/actions/runs/43145623736
+- 별도 보류: Unity EditMode 16건과 이번 PlayMode 8건은 Unity가 없어 모두 미실행. 통과했다고 표시하지 않았다.
+- 다음 작업: macOS 빌드 진입점과 테스트 실행 스크립트를 구현한다.

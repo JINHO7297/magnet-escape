@@ -1,0 +1,8 @@
+{
+  "name": "MagnetEscape.PlayMode.Tests",
+  "references": ["MagnetEscape.Runtime", "UnityEngine.TestRunner"],
+  "includePlatforms": [],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false
+}
