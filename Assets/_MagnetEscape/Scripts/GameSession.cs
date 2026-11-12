@@ -19,6 +19,7 @@ namespace MagnetEscape
         public string Rank { get; private set; }
         public bool NewBestTime { get; private set; }
         public bool NewBestRank { get; private set; }
+        public bool RecordSaved { get; private set; }
         public float PreviousBestTime { get; private set; } = -1f;
         public string Hint { get; private set; }
         public bool HasCheckpoint => currentCheckpoint != null;
@@ -266,6 +267,7 @@ namespace MagnetEscape
             PreviousBestTime = saved.PreviousTime;
             NewBestTime = saved.NewTime;
             NewBestRank = saved.NewRank;
+            RecordSaved = saved.Persisted;
             Feedback(Player.transform.position, Color.yellow, GameAudio.Cue.Clear);
         }
 

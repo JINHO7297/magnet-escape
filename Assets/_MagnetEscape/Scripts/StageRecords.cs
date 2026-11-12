@@ -31,32 +31,42 @@ namespace MagnetEscape
             public readonly float PreviousTime;
             public readonly bool NewTime;
             public readonly bool NewRank;
+            public readonly bool Persisted;
 
-            public SavedRun(float previousTime, bool newTime, bool newRank)
+            public SavedRun(float previousTime, bool newTime, bool newRank, bool persisted = true)
             {
                 PreviousTime = previousTime;
                 NewTime = newTime;
                 NewRank = newRank;
+                Persisted = persisted;
             }
         }
 
         public static string BuildScenePath(int stage)
         {
+            if (stage < 1 || stage > 4) throw new ArgumentOutOfRangeException(nameof(stage));
             string name = "Stage" + stage;
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
             {
                 string path = SceneUtility.GetScenePathByBuildIndex(i);
                 if (Path.GetFileNameWithoutExtension(path) == name) return path;
             }
-            return SourcePath(stage);
+            return null;
         }
 
-        public static Record ForBuildStage(int stage) => new Record(Key(stage, BuildScenePath(stage)));
+        public static Record ForBuildStage(int stage) => ForScene(stage, BuildScenePath(stage));
+
+        public static Record ForScene(int stage, string scenePath)
+        {
+            return string.IsNullOrEmpty(scenePath) ? default : new Record(Key(stage, scenePath));
+        }
 
         public static SavedRun Save(int stage, string scenePath, float seconds, int deaths, int rank)
         {
             if (seconds < 0f || float.IsNaN(seconds) || float.IsInfinity(seconds) || deaths < 0)
                 throw new ArgumentOutOfRangeException(nameof(seconds), "Run time and deaths must be finite and nonnegative.");
+            // An unsaved authoring scene must never overwrite the original course's records.
+            if (string.IsNullOrEmpty(scenePath)) return new SavedRun(-1f, false, false, false);
             string key = Key(stage, scenePath);
             Record previous = new Record(key);
             rank = Mathf.Clamp(rank, 1, 4);
@@ -73,13 +83,17 @@ namespace MagnetEscape
             return new SavedRun(previous.HasTime ? previous.BestTime : -1f, newTime, newRank);
         }
 
-        public static void ClearBuildStage(int stage)
+        public static void ClearBuildStage(int stage) => ClearCourse(stage, BuildScenePath(stage));
+
+        public static bool ClearCourse(int stage, string scenePath)
         {
-            string key = Key(stage, BuildScenePath(stage));
+            if (string.IsNullOrEmpty(scenePath)) return false;
+            string key = Key(stage, scenePath);
             PlayerPrefs.DeleteKey(key + ".Time");
             PlayerPrefs.DeleteKey(key + ".TimeDeaths");
             PlayerPrefs.DeleteKey(key + ".Rank");
             PlayerPrefs.Save();
+            return true;
         }
 
         private static string SourcePath(int stage) => "Assets/_MagnetEscape/Scenes/Stage" + stage + ".unity";

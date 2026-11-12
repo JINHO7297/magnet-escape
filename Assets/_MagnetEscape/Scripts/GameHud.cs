@@ -7,6 +7,8 @@ namespace MagnetEscape
         private enum Overlay { None, Controls, Credits, Records, ResetRecord }
         private Overlay overlay;
         private int resetStage;
+        private string resetScenePath;
+        private string resetTitle;
         public bool HasOverlay => overlay != Overlay.None;
         private static readonly Color Mint = new Color(0.35f, 0.95f, 0.85f);
         private static readonly Color Gold = new Color(1f, 0.78f, 0.35f);
@@ -131,15 +133,19 @@ namespace MagnetEscape
                 Label(new Rect(x + 18, y + 14, 380, 30), "0" + stage + "  /  " + StageInfo.Title(stage), heading);
                 Label(new Rect(x + 18, y + 49, 380, 22), StageInfo.Lesson(stage), small);
                 StageRecords.Record record = StageRecords.ForBuildStage(stage);
-                string best = "NO RECORD YET";
-                if (record.HasTime)
+                bool available = session.CanOpenStage(stage);
+                string best = available ? "NO RECORD YET" : "COURSE NOT IN THIS BUILD";
+                if (available && record.HasTime)
                 {
                     int score = Mathf.Clamp(record.BestRank, 1, 4);
                     best = "FASTEST " + record.BestTime.ToString("F2") + "s / "
                         + record.Deaths + " deaths | TOP RANK " + " CBAS"[score];
                 }
                 Label(new Rect(x + 18, y + 77, 380, 22), best, small, Gold);
-                if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "START  /  " + stage, button)) session.LoadStage(stage);
+                bool enabled = GUI.enabled;
+                GUI.enabled = enabled && available;
+                if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), available ? "START  /  " + stage : "UNAVAILABLE", button)) session.LoadStage(stage);
+                GUI.enabled = enabled;
             }
             Volume(52, 474);
             if (GUI.Button(new Rect(450, 474, 140, 32), "RECORDS", button)) overlay = Overlay.Records;
@@ -233,7 +239,7 @@ namespace MagnetEscape
             Label(new Rect(263, 108, 450, 36), session.Stage == 4 ? "FACTORY ESCAPED" : "STAGE CLEAR", heading, Mint);
             Label(new Rect(267, 154, 410, 70), "RANK  " + session.Rank, title, Gold);
             Label(new Rect(270, 226, 420, 30), "TIME " + session.Elapsed.ToString("F2") + "s     /     DEATHS " + session.Deaths, text);
-            string record = session.PreviousBestTime < 0f ? "FIRST CLEAR / NEW TIME RECORD"
+            string record = !session.RecordSaved ? "PRACTICE RUN / RECORD NOT SAVED" : session.PreviousBestTime < 0f ? "FIRST CLEAR / NEW TIME RECORD"
                 : (session.NewBestTime ? "NEW TIME RECORD / " : "PREVIOUS BEST / ")
                     + session.PreviousBestTime.ToString("F2") + "s  ("
                     + (session.Elapsed - session.PreviousBestTime).ToString("+0.00;-0.00;0.00") + "s)";
@@ -247,7 +253,8 @@ namespace MagnetEscape
             }
             if (GUI.Button(new Rect(266, 360, 207, 40), "RETRY  /  R", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(487, 360, 207, 40), "STAGE SELECT", button)) session.ShowSelection();
-            Label(new Rect(270, 418, 425, 25), session.Stage == 4 ? "You made it outside. Every route is replayable." : "Your best time and best rank are saved separately.", small);
+            Label(new Rect(270, 418, 425, 25), !session.RecordSaved ? "This run does not affect your saved records."
+                : session.Stage == 4 ? "You made it outside. Every route is replayable." : "Your best time and best rank are saved separately.", small);
         }
 
         private void Volume(float x, float y)
@@ -290,16 +297,20 @@ namespace MagnetEscape
                 for (int stage = 1; stage <= 4; stage++)
                 {
                     float y = 158 + (stage - 1) * 66;
-                    StageRecords.Record record = StageRecords.ForBuildStage(stage);
+                    string scenePath = StageRecords.BuildScenePath(stage);
+                    StageRecords.Record record = StageRecords.ForScene(stage, scenePath);
+                    bool available = !string.IsNullOrEmpty(scenePath) && session.CanOpenStage(stage);
                     Label(new Rect(132, y, 555, 28), "0" + stage + "  /  " + StageInfo.Title(stage), heading);
-                    string value = record.HasTime ? record.BestTime.ToString("F2") + "s / " + record.Deaths + " deaths"
+                    string value = !available ? "COURSE NOT IN THIS BUILD" : record.HasTime ? record.BestTime.ToString("F2") + "s / " + record.Deaths + " deaths"
                         + " / Top rank " + " CBAS"[Mathf.Clamp(record.BestRank, 1, 4)] : "NO RECORD YET";
                     Label(new Rect(132, y + 30, 555, 24), value, small, Gold);
                     bool enabled = GUI.enabled;
-                    GUI.enabled = enabled && (record.HasTime || record.BestRank > 0);
+                    GUI.enabled = enabled && available && (record.HasTime || record.BestRank > 0);
                     if (GUI.Button(new Rect(718, y + 10, 104, 32), "CLEAR", button))
                     {
                         resetStage = stage;
+                        resetScenePath = scenePath;
+                        resetTitle = StageInfo.Title(stage);
                         overlay = Overlay.ResetRecord;
                     }
                     GUI.enabled = enabled;
@@ -307,12 +318,12 @@ namespace MagnetEscape
             }
             else if (overlay == Overlay.ResetRecord)
             {
-                Label(new Rect(132, 148, 690, 35), "STAGE " + resetStage + "  /  " + StageInfo.Title(resetStage), heading, Gold);
+                Label(new Rect(132, 148, 690, 35), "STAGE " + resetStage + "  /  " + resetTitle, heading, Gold);
                 Label(new Rect(132, 210, 690, 100), "Clear the fastest time, deaths on that run and top rank for this course? "
                     + "This cannot be undone. Other courses and sound settings stay as they are. Your current run is not restarted.", text);
                 if (GUI.Button(new Rect(160, 352, 300, 44), "CLEAR THIS COURSE", button))
                 {
-                    StageRecords.ClearBuildStage(resetStage);
+                    StageRecords.ClearCourse(resetStage, resetScenePath);
                     overlay = Overlay.Records;
                 }
                 if (GUI.Button(new Rect(490, 352, 300, 44), "CANCEL  /  Esc", button)) overlay = Overlay.Records;
