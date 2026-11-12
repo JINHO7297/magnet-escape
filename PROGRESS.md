@@ -65,3 +65,14 @@
 - PyYAML 구문 파싱: PASS, 씬·설정·메타 파일 31개. Unity 역직렬화는 아님.
 - `git diff --cached --check`: PASS, 최초 구현 54개 파일의 staged 변경 검사.
 - Unity 테스트 16건은 작성만 했으며 통과했다고 표시하지 않는다.
+
+
+### 로컬 커밋 및 원격 반영 차단
+
+- 로컬 develop 최초 구현 커밋: `82fa02c` (`feat: bootstrap Magnet Escape four-stage graybox prototype`).
+- `git push -u origin develop`: GitHub 403, `Permission to JINHO7297/magnet-escape.git denied to JINHO7297`로 실패했다.
+- 연결 도구로 저장소 메타데이터를 다시 조회하니 계정의 push 권한은 true였다. 그러나 `.gitignore` 초기화를 위한 Contents API 쓰기도 403 `Resource not accessible by integration`으로 실패했다. 계정 권한과 연결 인증의 쓰기 권한은 별개다.
+- 위 쓰기는 둘 다 실패했으며 원격 브랜치나 커밋이 생성되었다고 주장하지 않는다. GitHub 연결의 대상 저장소 접근 및 Contents 쓰기 권한 갱신이 필요하다. 사용자에게 연결 갱신을 요청했다.
+- 환경의 자동 승인 심사에 의한 거절은 아니다. GitHub 서버가 접근을 거부했다.
+- 원격 권한이 복구되면 이 로컬 저장소에서 `git push -u origin develop`을 실행하고 원격 SHA가 로컬 HEAD와 일치하는지 확인한다. 코드 재작성은 필요 없다.
+- 로컬 작업과 원격 차단 상태를 문서에 기록하는 후속 커밋도 준비한다.
