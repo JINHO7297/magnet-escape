@@ -89,7 +89,7 @@ namespace MagnetEscape
                 Spikes(43f, 0.65f, 1.5f);
                 Moving(51f, 0f, new Vector2(2f, 0f));
                 Platform(58f, 0f, 6f);
-                Sign(1f, 1f, "Stand on moving platforms and wait for the right moment to jump.");
+                Sign(1f, 1f, "Gold rails show platform travel. Ride the platform and time your next jump.");
                 Sign(14f, 1f, "Hold a direction and press SHIFT to dash. A diagonal dash works too.");
                 Sign(25f, 1f, "The cyan bar shows dash cooldown. Wait for it to refill before dashing again.");
                 Sign(36f, 2f, "The red rail shows the saw's patrol. Wait for an opening, then jump or dash.");
@@ -151,7 +151,7 @@ namespace MagnetEscape
             }
             GameObject gate = Box("Exit", new Vector2(exit, stage == 3 ? 2.2f : 1.2f), new Vector2(0.6f, 2f), Color.green, true);
             GameArt.Apply(gate, "exit", 3);
-            gate.AddComponent<ExitGate>();
+            gate.AddComponent<ExitGate>().PrepareVisuals();
             session.CourseEnd = exit;
             GameArt.Backdrop(exit);
         }
@@ -192,7 +192,7 @@ namespace MagnetEscape
             platform.name = "Moving platform";
             platform.GetComponent<SpriteRenderer>().color = new Color(0.8f, 0.6f, 0.2f);
             platform.AddComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
-            platform.AddComponent<MovingPlatform>().Travel = travel;
+            platform.AddComponent<MovingPlatform>().Configure(travel, 4f);
         }
 
         private void CheckpointAt(float x, float y)
