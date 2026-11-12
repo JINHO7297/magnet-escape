@@ -17,7 +17,8 @@ namespace MagnetEscape
         public string Rank { get; private set; }
         public string Hint { get; private set; }
         public string Notice => Time.unscaledTime < noticeUntil ? notice : string.Empty;
-        public float CourseEnd { get; set; }
+        [SerializeField] private float courseEnd;
+        public float CourseEnd { get => courseEnd; set => courseEnd = value; }
         private Vector2 spawn = new Vector2(0f, 1f);
         private Checkpoint currentCheckpoint;
         private Camera view;

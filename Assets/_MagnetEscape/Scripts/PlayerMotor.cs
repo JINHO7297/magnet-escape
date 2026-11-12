@@ -12,6 +12,8 @@ namespace MagnetEscape
         [SerializeField] private float dashCooldown = 0.75f;
         [SerializeField] private float magnetAcceleration = 34f;
         [SerializeField] private float magnetRange = 7f;
+        [SerializeField] private bool dashEnabled = true;
+        [SerializeField] private bool magnetEnabled;
         private Rigidbody2D body;
         private BoxCollider2D shape;
         private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
@@ -31,8 +33,8 @@ namespace MagnetEscape
         private Vector2 supportVelocity;
         private MagnetAnchor targetAnchor;
         public bool CanMove { get; set; } = true;
-        public bool DashEnabled { get; set; } = true;
-        public bool MagnetEnabled { get; set; }
+        public bool DashEnabled { get => dashEnabled; set => dashEnabled = value; }
+        public bool MagnetEnabled { get => magnetEnabled; set => magnetEnabled = value; }
         public float Cooldown => cooldown;
         public int MagnetMode => magnetMode;
         public bool IsDashing => dashRemaining > 0f;

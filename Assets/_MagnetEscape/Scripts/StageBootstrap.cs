@@ -19,8 +19,11 @@ namespace MagnetEscape
             }
         }
 
-        private void Awake()
+        private void Awake() => BuildScene();
+
+        public void BuildScene()
         {
+            if (GetComponent<GameSession>() != null) return;
             GameObject cameraObject = new GameObject("Main Camera");
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
@@ -40,6 +43,7 @@ namespace MagnetEscape
             }
 
             GameObject player = Box("Magnet robot", new Vector2(0f, 1f), new Vector2(0.7f, 0.9f), Color.cyan, false);
+            GameArt.Apply(player, "robot_idle", 10);
             Rigidbody2D body = player.AddComponent<Rigidbody2D>();
             if (robotMaterial == null) robotMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
             body.sharedMaterial = robotMaterial;
@@ -186,7 +190,7 @@ namespace MagnetEscape
             GameObject platform = Platform(x, y, 3f);
             platform.name = "Moving platform";
             platform.GetComponent<SpriteRenderer>().color = new Color(0.8f, 0.6f, 0.2f);
-            platform.AddComponent<Rigidbody2D>();
+            platform.AddComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
             platform.AddComponent<MovingPlatform>().Travel = travel;
         }
 

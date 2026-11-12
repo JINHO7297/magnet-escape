@@ -1,0 +1,5 @@
+{
+  "name": "MagnetEscape.Editor",
+  "references": ["MagnetEscape.Runtime"],
+  "includePlatforms": ["Editor"]
+}

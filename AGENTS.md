@@ -19,8 +19,10 @@
 - 씬 인덱스와 레이어 번호를 설명 없이 코드에 하드코딩하지 않는다.
 - 사망, 재시작, 스테이지 전환 때 속도와 일시적인 이동 상태를 명시적으로 초기화한다.
 - 새 에셋은 .meta와 함께 추적한다. Library, Temp, Logs, 빌드 산출물을 커밋하지 않는다.
-- 현재 구조: Assets/_MagnetEscape/{Scripts,Scenes,Tests/Editor}, Packages, ProjectSettings, Tools.
-- 스테이지는 각 씬의 StageBootstrap이 런타임에 생성하는 그레이박스다. 씬에 배치된 완성형 프리팹으로 오해하지 않는다.
+- 현재 구조: Assets/_MagnetEscape/{Scripts,Scenes,Resources/Art,Editor,Tests/Editor}, Packages, ProjectSettings, Tools.
+- 기본 스테이지는 각 씬의 StageBootstrap이 런타임에 생성한다. Editor 메뉴로 별도의 편집용 복사본을 만들 수 있으나, 실행 전에는 편집본·프리팹이 생성되었다고 표시하지 않는다.
+- 편집본 생성기는 원본 씬·기존 편집본·기존 프리팹을 덮어쓰지 않는다. 생성 후에는 Unity가 만든 .meta를 함께 추적한다.
+- 사용자는 Unity 실행 검증을 나중으로 미루고 구현을 우선하라고 지시했다. 검증 보류 항목은 기록하되 구현 가능한 다음 작업은 계속한다.
 - Python 3 정적 검사는 python3 Tools/validate_project.py로 실행한다.
 - Unity 기준 버전은 2022.3.62f1이다. macOS Intel/Apple Silicon 배포를 공식 API에서 확인했다.
 - 현재 프로토타입은 레거시 Input을 사용한다. Active Input Handling은 Input Manager (Old) 또는 Both로 설정한다.

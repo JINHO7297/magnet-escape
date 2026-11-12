@@ -64,11 +64,25 @@ Assets/_MagnetEscape/
   Scenes/           # 선택 씬 + Stage1~Stage4
   Scripts/          # 이동, 스테이지 구성, 세션, 장애물, 피드백
   Tests/Editor/     # 랭크 경계값 및 씬 참조 검증
+  Resources/Art/    # 자체 제작 픽셀 스프라이트
+  Editor/           # 편집용 코스 복사·프리팹 생성 메뉴
 Packages/           # 최소 모듈 및 Unity Test Framework
 ProjectSettings/    # 버전, 빌드 씬 순서, Ground 레이어
 Tools/              # Unity 없이 실행하는 정적 검사
 AGENTS.md / GOAL.md / TASKS.md / PROGRESS.md
 ```
+
+## Unity에서 코스 편집하기
+
+기본 씬은 코드로 코스를 생성합니다. 나중에 직접 지형을 조정하려면 다음 메뉴를 사용합니다. 이 에디터 도구도 현재 실행 검증은 보류되어 있습니다.
+
+1. Play 모드를 종료하고 **Tools > Magnet Escape > Create Editable Stage Copies**를 선택합니다.
+2. `Assets/_MagnetEscape/Scenes/Editable/Stage1~Stage4.unity` 복사본이 생성되도록 구현했습니다. 원본 씬·GUID와 이미 존재하는 편집본은 덮어쓰지 않습니다. 열려 있던 씬은 유지합니다.
+3. 편집본에는 런타임 생성기 대신 실제 플레이어·발판·장애물·체크포인트·카메라 오브젝트가 저장됩니다. Scene 뷰에서 위치와 크기를 조정합니다. 이동 발판은 Travel/Period, 체크포인트는 Order, 안내 오브젝트는 Message/Range를 조정합니다.
+4. **Use Editable Stages in Build**를 선택하면 선택 화면 이후 편집본을 사용합니다. 원본으로 돌아가려면 **Use Generated Source Stages in Build**를 선택합니다.
+5. 편집본의 로봇을 선택하고 **Create Player Prefab from Selected Robot**을 선택하면 `Prefabs/MagnetRobot.prefab`을 생성하도록 구현했습니다. 기존 프리팹은 덮어쓰지 않습니다. 이 명령은 프리팹 에셋을 저장하며 현재 로봇을 자동으로 프리팹 인스턴스에 연결하지는 않습니다.
+
+편집본과 프리팹은 클라우드에서 생성한 산출물이 아닙니다. Unity에서 메뉴를 실행해야 만들어집니다. 생성된 씬·재질·프리팹은 각 `.meta`와 함께 커밋하세요. 코드 코스의 이후 변경은 기존 편집본에 자동 반영되지 않으므로 두 버전 중 사용할 것을 명시적으로 선택해야 합니다.
 
 ## 검사와 테스트
 
