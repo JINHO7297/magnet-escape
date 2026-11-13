@@ -467,3 +467,12 @@
 - 다음 코스가 현재 빌드에 없으면 클리어 화면 버튼이 사유를 표시하며 비활성화된다. 다시하기·선택 복귀는 계속 사용할 수 있고 Enter 경로도 기존 OpenScene의 가용성 검사를 거친다.
 - 변경: GameHud.cs, TASKS.md, PROGRESS.md. 에셋 무결성·C# 24파일 구문·공백 검사 PASS. Unity의 실제 GUI 배치·클릭·Enter 오류 안내·전환 실패 복귀는 미검증이다.
 - 다음 작업: 편집 코스와 플레이어 입력의 생명주기 연결을 계속 보완한다.
+
+
+## 2026-11-13 — 정지 중 점프 버튼 해제 처리
+
+- 기존 PlayerMotor.ClearInput은 정지 시 jumpHeld와 cutJump를 모두 지웠다. 정지 중 Space를 놓으면 GetKeyUp을 다음 프레임에 읽을 수 없어 재개 후 상승이 단축되지 않았다.
+- PlayerMotor.cs는 정지 때만 기존 점프 유지/해제 대기 여부를 보관하고 첫 유효 Update에서 실제 Space 상태를 확인한다. 실제 속도 변경은 기존 FixedUpdate의 점프 단축 경로를 사용한다.
+- GameSession.SetPaused는 이 보관을 요청한다. 새 점프·대시·자력 큐는 기존처럼 지우며 사망/ResetAt/SetFrozen은 기본 ClearInput으로 보관 상태까지 완전히 초기화한다.
+- 변경: PlayerMotor.cs, GameSession.cs, TASKS.md, PROGRESS.md. 에셋 무결성·C# 구문·공백 검사 PASS. 실제 Unity 입력/물리·정지 중 해제/재입력·반복 정지·부활은 미검증이며 플레이 검사 목록에 남겼다.
+- 다음은 전체 변경 검토와 진행 요약 갱신 후 남은 구현 결함을 이어서 처리한다.

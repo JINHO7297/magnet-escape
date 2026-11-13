@@ -34,6 +34,7 @@ namespace MagnetEscape
         private bool dashQueued;
         private bool cutJump;
         private bool jumpHeld;
+        private bool checkJumpReleaseOnResume;
         private float jumpBuffer;
         private float coyote;
         private float dashRemaining;
@@ -81,8 +82,10 @@ namespace MagnetEscape
             movement = new Vector2(horizontal, vertical);
             if (movement.x != 0f) facing = Mathf.Sign(movement.x);
             jumpQueued |= Input.GetKeyDown(KeyCode.Space);
-            cutJump |= Input.GetKeyUp(KeyCode.Space);
-            jumpHeld = Input.GetKey(KeyCode.Space);
+            bool held = Input.GetKey(KeyCode.Space);
+            cutJump |= Input.GetKeyUp(KeyCode.Space) || (checkJumpReleaseOnResume && !held);
+            checkJumpReleaseOnResume = false;
+            jumpHeld = held;
             dashQueued |= Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
             magnetMode = MagnetEnabled ? (Input.GetKey(KeyCode.E) ? -1 : Input.GetKey(KeyCode.Q) ? 1 : 0) : 0;
         }
@@ -242,8 +245,11 @@ namespace MagnetEscape
             GetComponent<PlayerVisual>()?.ResetTrail();
         }
 
-        public void ClearInput()
+        public void ClearInput(bool preserveJumpRelease = false)
         {
+            // A release can occur while Update is suspended by pause. Preserve only
+            // that held-jump state, never a queued jump, dash or magnet command.
+            checkJumpReleaseOnResume = preserveJumpRelease && (checkJumpReleaseOnResume || jumpHeld || cutJump);
             movement = Vector2.zero;
             jumpQueued = dashQueued = cutJump = jumpHeld = false;
             jumpBuffer = 0f;

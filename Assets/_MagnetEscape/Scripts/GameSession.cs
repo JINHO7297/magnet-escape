@@ -225,7 +225,7 @@ namespace MagnetEscape
             if (Stage == 0 || Finished || ChangingScene || !string.IsNullOrEmpty(CourseError)) return;
             Paused = value;
             Time.timeScale = value ? 0f : 1f;
-            Player?.ClearInput();
+            Player?.ClearInput(preserveJumpRelease: true);
         }
 
         public void LoadStage(int stage)
