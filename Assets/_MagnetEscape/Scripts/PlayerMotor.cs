@@ -41,6 +41,7 @@ namespace MagnetEscape
         private float cooldown;
         private float facing = 1f;
         private int magnetMode;
+        private int audibleMagnetMode;
         private Vector2 supportVelocity;
         private MagnetAnchor targetAnchor;
         private bool magneticMomentum;
@@ -119,6 +120,7 @@ namespace MagnetEscape
             dashQueued = false;
             if (dashRemaining > 0f)
             {
+                audibleMagnetMode = 0;
                 dashRemaining -= dt;
                 body.gravityScale = 0f;
                 Vector2 dashVelocity = dashDirection * dashSpeed;
@@ -166,12 +168,16 @@ namespace MagnetEscape
             }
             if (targetAnchor != null && magnetMode != 0)
             {
+                if (audibleMagnetMode != magnetMode)
+                    GameSession.Active?.PlayCue(magnetMode > 0 ? GameAudio.Cue.MagnetAttract : GameAudio.Cue.MagnetRepel);
+                audibleMagnetMode = magnetMode;
                 Vector2 direction = ((Vector2)targetAnchor.transform.position - body.position).normalized;
                 float acceleration = magnetAcceleration * targetAnchor.ForceMultiplier;
                 velocity += direction * (magnetMode * acceleration * dt);
                 velocity.x = body.velocity.x + direction.x * magnetMode * acceleration * dt + movement.x * moveSpeed * dt;
                 magneticMomentum = true;
             }
+            else audibleMagnetMode = 0;
             velocity.x = Mathf.Clamp(velocity.x, -18f, 18f);
             velocity.y = Mathf.Clamp(velocity.y, -22f, 20f);
             if (SweepHazard(velocity)) return;
@@ -254,6 +260,7 @@ namespace MagnetEscape
             jumpQueued = dashQueued = cutJump = jumpHeld = false;
             jumpBuffer = 0f;
             magnetMode = 0;
+            audibleMagnetMode = 0;
         }
 
         public void SetFrozen(bool frozen)

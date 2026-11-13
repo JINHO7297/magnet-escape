@@ -361,9 +361,11 @@ namespace MagnetEscape
             return "C";
         }
 
+        public void PlayCue(GameAudio.Cue cue) => audioFeedback.Play(cue);
+
         public void Feedback(Vector3 position, Color color, GameAudio.Cue cue)
         {
-            audioFeedback.Play(cue);
+            PlayCue(cue);
             GameObject effect = new GameObject("Feedback");
             effect.transform.position = position;
             ParticleSystem particles = effect.AddComponent<ParticleSystem>();

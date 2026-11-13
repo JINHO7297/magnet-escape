@@ -166,7 +166,7 @@ Packages/
 ProjectSettings/
 ```
 
-로봇 애니메이션과 대시 잔상·자력선·착지 파티클·출구 표현·합성 효과음 6종을 사용합니다. 원본 아트 재생성은 선택적으로 Pillow가 필요한 `Tools/generate_art.py`로 수행하며 게임 실행에는 Python/Pillow가 필요하지 않습니다.
+로봇 애니메이션과 대시 잔상·자력선·착지 파티클·출구 표현·합성 효과음 8종(인력·척력 시작음 포함)을 사용합니다. 원본 아트 재생성은 선택적으로 Pillow가 필요한 `Tools/generate_art.py`로 수행하며 게임 실행에는 Python/Pillow가 필요하지 않습니다.
 
 Mac 빌드 메뉴와 CLI는 Intel 64-bit + Apple silicon(Universal)을 요청하고 기존 아키텍처 설정을 복원합니다. 실제 Universal 바이너리 생성·실행은 아직 확인하지 못했습니다.
 
