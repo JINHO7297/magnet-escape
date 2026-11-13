@@ -64,9 +64,14 @@ namespace MagnetEscape.Editor
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             BuildReport report;
             string previousProductName = PlayerSettings.productName;
+            // macOS standalone uses EditorUserBuildSettings, not the iOS
+            // PlayerSettings.SetArchitecture API. Include both desktop CPUs.
+            const string architecture = "x64ARM64";
+            string previousArchitecture = EditorUserBuildSettings.GetPlatformSettings("Standalone", "OSXUniversal", "Architecture");
             try
             {
                 PlayerSettings.productName = "Magnet Escape";
+                EditorUserBuildSettings.SetPlatformSettings("Standalone", "OSXUniversal", "Architecture", architecture);
                 report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
                 {
                     scenes = scenes,
@@ -75,10 +80,15 @@ namespace MagnetEscape.Editor
                     options = BuildOptions.StrictMode | (development ? BuildOptions.Development : BuildOptions.None)
                 });
             }
-            finally { PlayerSettings.productName = previousProductName; }
+            finally
+            {
+                PlayerSettings.productName = previousProductName;
+                EditorUserBuildSettings.SetPlatformSettings("Standalone", "OSXUniversal", "Architecture", previousArchitecture);
+            }
             BuildSummary summary = report.summary;
             string details = "Result: " + summary.result + "\nUnity: " + Application.unityVersion
                 + "\nTarget: " + summary.platform + "\nBytes: " + summary.totalSize
+                + "\nRequested architecture: " + architecture
                 + "\nErrors: " + summary.totalErrors + "\nWarnings: " + summary.totalWarnings
                 + "\nDuration: " + summary.totalTime + "\nOutput: " + path + "\n";
             File.WriteAllText(Path.ChangeExtension(path, ".build.txt"), details);
@@ -96,7 +106,8 @@ namespace MagnetEscape.Editor
                 + "Source course targets below may differ from edited revisions; follow the in-game S target.\n";
             for (int stage = 1; stage <= 4; stage++)
                 guide += "Stage " + stage + " - " + StageInfo.Title(stage) + ": " + StageInfo.ParTime(stage) + "s\n";
-            guide += "\nBuilt with Unity " + Application.unityVersion + ". Version " + PlayerSettings.bundleVersion + ".\n";
+            guide += "\nmacOS: Intel 64-bit + Apple silicon (Universal).\n"
+                + "Built with Unity " + Application.unityVersion + ". Version " + PlayerSettings.bundleVersion + ".\n";
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(path), "PLAYING.txt"), guide);
             Debug.Log(details);
         }

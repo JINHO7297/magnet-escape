@@ -450,3 +450,12 @@
 - 변경: 위 C# 4개, README.md/TASKS.md/PROGRESS.md. 기존 에셋·GUID 유지. README의 테스트 수를 현재 16 EditMode + 9 PlayMode = 25로 갱신했다.
 - 실제 검사: 에셋 무결성 PASS, C# 24파일 구문 파싱 PASS(컴파일 아님), 공백 검사 PASS. Unity 컴파일·잘못된 프리팹 UI·빌드 거부·유효 프리팹 플레이는 미검증이다.
 - 다음 작업: 실제 플레이 중 남는 입력과 부활 상태를 검토하고 발견한 결함을 보완한다.
+
+
+## 2026-11-13 — Intel/Apple Silicon 동시 배포 구성
+
+- MacBuild.cs가 Standalone/OSXUniversal의 Architecture=x64ARM64를 명시하여 두 Mac CPU용 빌드를 요청한다. 기존 설정은 제품명과 함께 finally에서 복원하고 보고서에 요청 아키텍처를 남긴다. PLAYING 안내에도 대상을 추가했다.
+- Unity 2022.3 공식 Manual/macos-building.html에서 Intel 64-bit + Apple silicon 지원을 확인했다. UnityCsReference 2022.3의 EditorUserBuildSettings.bindings.cs에서 4인자 플랫폼 설정 API를 확인했다. iOS용 PlayerSettings.SetArchitecture를 잘못 사용하지 않는다.
+- 변경: MacBuild.cs, README.md, TASKS.md, PROGRESS.md. 에셋 무결성·C# 구문 파싱·공백 검사 PASS.
+- 미검증: Unity 컴파일/실제 빌드, 요청 문자열의 설치된 Editor 동작, 결과 실행 파일의 x86_64/arm64 포함 여부, 두 Mac CPU 실행과 예외 시 설정 복원. Universal 실행을 검증 완료로 표시하지 않는다.
+- 다음 작업은 런타임 입력·부활 경계와 남은 사용자 흐름의 실제 결함 보완이다.
