@@ -6,7 +6,7 @@
 - 추가 구현: 씬 전환/오류 복귀, 기록 대상/연습 실행 보호, Mac 창 모드·SafeArea, 경로/부활/반경 핸들, Mac ZIP 패키징, 저장 예외 흐름, 핸들/캐시 보완, 실제 지형 배경/카메라, 플레이어 프리팹 연결.
 - 이번에 실제 통과한 범위: Python 회귀 테스트 21건, 에셋 무결성 검사(식별자 63개·원본 씬 5개·스프라이트 16개), C# 24개 파일 구문 파싱과 공백 검사. C# 의미 분석·Unity 실행을 뜻하지 않는다.
 - 이전에 확인한 원격 CI는 b886825의 run 43146400001 등이다. 이번 최신 커밋의 원격 CI 결과는 대기하며 조회하지 않았다.
-- 미실행: Unity EditMode 16건, PlayMode 8건, 실제 코스 완주, 편집 도구/프리팹 실행, macOS 앱 빌드·ZIP·실행·서명. 미검증으로 유지한다.
+- 미실행: Unity EditMode 16건, PlayMode 9건, 실제 코스 완주, 편집 도구/프리팹 실행, macOS 앱 빌드·ZIP·실행·서명. 미검증으로 유지한다.
 - Mac 명령: `python3 Tools/unity_tasks.py test`, `python3 Tools/unity_tasks.py build-mac --package`.
 - 기본 필수 기능은 코드로 존재한다. 기획 범위를 늘리기보다 발견한 실제 빈틈·마감 작업을 진행하며 전체 완료는 선언하지 않는다. 아래는 누적 이력이고 최신 항목이 이전 상태를 대체한다.
 
@@ -171,7 +171,7 @@
 - PlayMode 테스트 어셈블리는 UNITY_INCLUDE_TESTS 조건과 TestAssemblies 참조를 사용하며 런타임 게임 코드에 테스트 의존성을 추가하지 않았다.
 - 실제 실행: 정적 무결성 PASS(식별자 54개), Python unittest 10/10 PASS, C# 구문 파싱 PASS(20개 파일). 의미 분석 컴파일은 아니다.
 - 원격 GitHub Actions run 43145623736이 7bcbb12에서 success임을 확인했다: https://github.com/JINHO7297/magnet-escape/actions/runs/43145623736
-- 별도 보류: Unity EditMode 16건과 이번 PlayMode 8건은 Unity가 없어 모두 미실행. 통과했다고 표시하지 않았다.
+- 별도 보류: Unity EditMode 16건과 이번 PlayMode 9건은 Unity가 없어 모두 미실행. 통과했다고 표시하지 않았다.
 - 다음 작업: macOS 빌드 진입점과 테스트 실행 스크립트를 구현한다.
 
 
@@ -190,7 +190,7 @@
 
 ### 최종 원격 반영 확인
 
-- 구현·테스트 3개 커밋: 7bcbb12(무결성·CI), 3f0b23e(PlayMode 8건), b886825(Mac 테스트·빌드 도구).
+- 구현·테스트 3개 커밋: 7bcbb12(무결성·CI), 3f0b23e(PlayMode 9건), b886825(Mac 테스트·빌드 도구).
 - b886825에서 로컬 HEAD와 origin/develop의 SHA가 일치했고 작업 트리가 깨끗했다.
 - 최종 코드 CI run 43146400001은 completed/success다: https://github.com/JINHO7297/magnet-escape/actions/runs/43146400001
 - 이 항목은 성공 결과를 기록하는 문서 변경이며 실제 Unity 테스트 24건·Mac 빌드 미실행 상태는 유지한다.
@@ -432,3 +432,12 @@
 - Python CLI 테스트는 가짜 실행 파일을 사용한다. 새 native ditto 패키징 경로와 Unity C#의 의미 분석/게임 동작을 검증한 결과가 아니다. C# 구문 파싱도 컴파일이 아니다.
 - 이번 실행에서 Unity 테스트·플레이·Mac 앱/ZIP 생성은 수행하지 않았다. 필수 동작 완료 조건은 미완료로 유지한다.
 - 앞선 9개 코드 단계는 모두 origin/develop에 푸시했고 로컬과 원격 159bdbf 일치를 확인했다. 이 문서 정리도 별도 커밋한다.
+
+
+## 2026-11-13 — 편집 톱날 경로와 안내 레일 일치
+
+- RotatingSaw.cs의 레일은 생성 당시 월드 좌표를 계속 표시하던 반면 실제 이동은 Awake에서 읽은 편집 위치를 사용했다. 실행 시 현재 원점으로 레일을 갱신하고 Configure 반복 호출에도 기존 LineRenderer를 재사용한다.
+- Travel 변경을 반영하고 이동량이 없는 톱날은 레일을 숨긴다. 선택한 톱날의 양 끝점·위험 반경을 Scene Gizmo로 표시한다. 기존 GUID·코스 좌표·물리 주기는 유지했다.
+- 기존 PlayMode 파일에 편집 원점/기존 레일 재사용/정지 경로 회귀 사례 1건을 추가했다. 총 9건이며 Unity 부재로 모두 미실행이다.
+- 실제 검사: 에셋 무결성 PASS(63 식별자·5 씬·16 스프라이트), C# 24개 구문 파싱 PASS(컴파일 아님), git diff --check PASS.
+- 미검증: Unity 컴파일, 재로딩한 편집본의 레일 정합·Gizmo·실제 왕복 이동. 다음은 입력·부활 및 프리팹 설정의 실행 연결을 보완한다.

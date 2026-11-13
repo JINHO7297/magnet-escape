@@ -174,6 +174,29 @@ namespace MagnetEscape.Tests
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator SawRouteUsesEditedOriginAndReusesItsRenderer()
+        {
+            session.SetPaused(true);
+            GameObject obj = new GameObject("Edited saw route");
+            obj.SetActive(false);
+            obj.transform.position = new Vector2(9f, 5f);
+            LineRenderer rail = obj.AddComponent<LineRenderer>();
+            rail.positionCount = 2;
+            rail.SetPosition(0, Vector3.zero); // Old serialized route before moving the saw.
+            rail.SetPosition(1, Vector3.one);
+            RotatingSaw saw = obj.AddComponent<RotatingSaw>();
+            obj.SetActive(true);
+            saw.Configure(new Vector2(3f, 1f), 4f, 0f);
+            yield return null;
+            Assert.That(obj.GetComponents<LineRenderer>().Length, Is.EqualTo(1));
+            Assert.That((Vector2)rail.GetPosition(0), Is.EqualTo(new Vector2(6f, 4f)));
+            Assert.That((Vector2)rail.GetPosition(1), Is.EqualTo(new Vector2(12f, 6f)));
+            Assert.That(rail.enabled, Is.True);
+            saw.Configure(Vector2.zero, 4f, 0f);
+            Assert.That(rail.enabled, Is.False);
+        }
+
         private static Checkpoint CreateCheckpoint(Vector2 position, int order)
         {
             GameObject obj = new GameObject("Test checkpoint");
