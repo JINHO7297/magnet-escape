@@ -139,7 +139,7 @@ git diff --check
 
 이 검사는 에셋 `.meta`·GUID·씬/어셈블리 참조·레이어·PNG/임포트, 실행 도구의 인수·결과 처리를 다룹니다. CLI 회귀 검사는 가짜 실행 파일을 사용하며 실제 Unity나 Mac 앱 성공을 뜻하지 않습니다.
 
-Unity에서는 Test Runner의 EditMode 16건과 PlayMode 8건을 실행해야 합니다. CLI는 다음과 같습니다.
+Unity에서는 Test Runner의 EditMode 16건과 PlayMode 9건을 실행해야 합니다. CLI는 다음과 같습니다.
 
 ```bash
 python3 Tools/unity_tasks.py test
@@ -147,7 +147,7 @@ python3 Tools/unity_tasks.py test --suite EditMode
 python3 Tools/unity_tasks.py test --suite PlayMode
 ```
 
-XML과 로그는 `artifacts/tests/<고유 실행 ID>/`에 저장하며 이전 결과를 재사용하지 않습니다. 프로세스 실패·보고서 누락·실패·0건·모두 건너뜀은 통과로 처리하지 않습니다. **Unity 테스트 24건은 아직 이 환경에서 실행하지 못했습니다.** 실제 키 입력·정밀 물리·코스 완주는 수동 플레이 확인도 필요합니다.
+XML과 로그는 `artifacts/tests/<고유 실행 ID>/`에 저장하며 이전 결과를 재사용하지 않습니다. 프로세스 실패·보고서 누락·실패·0건·모두 건너뜀은 통과로 처리하지 않습니다. **Unity 테스트 25건은 아직 이 환경에서 실행하지 못했습니다.** 실제 키 입력·정밀 물리·코스 완주는 수동 플레이 확인도 필요합니다.
 
 구현과 미검증 항목은 [TASKS.md](TASKS.md), 변경·검사 이력은 [PROGRESS.md](PROGRESS.md)에 구분합니다. 파일 문법 검사와 게임 동작 검수는 별개입니다.
 
@@ -167,5 +167,7 @@ ProjectSettings/
 ```
 
 로봇 애니메이션과 대시 잔상·자력선·착지 파티클·출구 표현·합성 효과음 6종을 사용합니다. 원본 아트 재생성은 선택적으로 Pillow가 필요한 `Tools/generate_art.py`로 수행하며 게임 실행에는 Python/Pillow가 필요하지 않습니다.
+
+선택적 플레이어 프리팹은 루트 Motor·Dynamic/Simulated Rigidbody2D·활성 비 Trigger BoxCollider2D가 필요합니다. Inspector와 원본 코스 빌드가 이 설정을 확인합니다. 독립 편집본은 그 씬의 로봇 설정을 사용합니다.
 
 잘못된 코스 데이터나 필수 플레이어·카메라·Ground·출구가 없으면 복귀 화면을 제공하도록 작성했고, 씬 전환 중에는 중복 요청·진행 입력을 막습니다. 오류 복구를 포함한 실제 게임 동작은 여전히 미검증입니다.

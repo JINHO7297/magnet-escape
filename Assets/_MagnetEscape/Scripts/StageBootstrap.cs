@@ -48,13 +48,7 @@ namespace MagnetEscape
                 ? "Missing or mismatched stage definition: Resources/Stages/Stage" + stage
                 : LayerMask.NameToLayer("Ground") < 0 ? "The Ground physics layer is missing." : null;
             if (configurationError == null && layout.PlayerPrefab != null)
-            {
-                GameObject prefab = layout.PlayerPrefab;
-                Rigidbody2D prefabBody = prefab.GetComponent<Rigidbody2D>();
-                if (prefab.GetComponent<PlayerMotor>() == null || prefab.GetComponent<BoxCollider2D>() == null
-                    || prefabBody == null || prefabBody.bodyType != RigidbodyType2D.Dynamic)
-                    configurationError = "Player prefab requires root PlayerMotor, BoxCollider2D and a dynamic Rigidbody2D.";
-            }
+                configurationError = layout.PlayerPrefabError();
             if (configurationError != null)
             {
                 if (!Application.isPlaying) throw new System.InvalidOperationException(configurationError);

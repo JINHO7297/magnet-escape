@@ -49,6 +49,14 @@ namespace MagnetEscape.Editor
                 StageDefinition definition = StageInfo.Definition(stage);
                 if (definition == null || definition.Number != stage)
                     throw new BuildFailedException("Missing or mismatched course asset: Resources/Stages/Stage" + stage);
+                // Baked revisions own their player instance; later source-prefab edits
+                // must not invalidate that independent build set.
+                if (scenes[stage] == "Assets/_MagnetEscape/Scenes/Stage" + stage + ".unity")
+                {
+                    string prefabError = definition.PlayerPrefabError();
+                    if (prefabError != null)
+                        throw new BuildFailedException("Stage " + stage + ": " + prefabError);
+                }
             }
             if (LayerMask.NameToLayer("Ground") < 0)
                 throw new BuildFailedException("The Ground physics layer is missing.");

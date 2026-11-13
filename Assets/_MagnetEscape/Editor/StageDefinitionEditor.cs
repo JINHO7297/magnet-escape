@@ -56,6 +56,8 @@ namespace MagnetEscape.Editor
             }
             EditorGUILayout.Space();
             DrawDefaultInspector();
+            string prefabError = ((StageDefinition)target).PlayerPrefabError();
+            if (prefabError != null) EditorGUILayout.HelpBox(prefabError, MessageType.Error);
         }
 
         private SerializedProperty SelectedPosition()

@@ -25,6 +25,20 @@ namespace MagnetEscape
         public CheckpointPlacement[] Checkpoints = Array.Empty<CheckpointPlacement>();
         public HintPlacement[] Hints = Array.Empty<HintPlacement>();
 
+        public string PlayerPrefabError()
+        {
+            if (PlayerPrefab == null) return null;
+            Rigidbody2D body = PlayerPrefab.GetComponent<Rigidbody2D>();
+            BoxCollider2D collider = PlayerPrefab.GetComponent<BoxCollider2D>();
+            if (PlayerPrefab.GetComponent<PlayerMotor>() == null || body == null || collider == null)
+                return "Player prefab requires root PlayerMotor, BoxCollider2D and Rigidbody2D components.";
+            if (body.bodyType != RigidbodyType2D.Dynamic || !body.simulated)
+                return "Player prefab requires a dynamic Rigidbody2D with Simulated enabled.";
+            if (!collider.enabled || collider.isTrigger)
+                return "Player prefab requires an enabled, non-trigger root BoxCollider2D to stand on platforms.";
+            return null;
+        }
+
         [Serializable]
         public sealed class RectPlacement
         {

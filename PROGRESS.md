@@ -441,3 +441,12 @@
 - 기존 PlayMode 파일에 편집 원점/기존 레일 재사용/정지 경로 회귀 사례 1건을 추가했다. 총 9건이며 Unity 부재로 모두 미실행이다.
 - 실제 검사: 에셋 무결성 PASS(63 식별자·5 씬·16 스프라이트), C# 24개 구문 파싱 PASS(컴파일 아님), git diff --check PASS.
 - 미검증: Unity 컴파일, 재로딩한 편집본의 레일 정합·Gizmo·실제 왕복 이동. 다음은 입력·부활 및 프리팹 설정의 실행 연결을 보완한다.
+
+
+## 2026-11-13 — 프리팹의 실제 충돌 가능 설정 안내
+
+- StageDefinition.cs에 선택적 플레이어 프리팹의 공통 오류 안내를 두었다. 루트 컴포넌트 존재뿐 아니라 Dynamic/Simulated Rigidbody2D와 enabled/non-trigger BoxCollider2D도 필요하다. 비활성 프리팹 자체는 기존처럼 생성 시 활성화한다.
+- StageBootstrap.cs·StageDefinitionEditor.cs·MacBuild.cs가 같은 안내를 사용한다. 원본 코스의 잘못된 프리팹은 Inspector에서 보이고 원본 빌드도 중단한다. 이미 베이크한 독립 리비전은 원본 PlayerPrefab의 후속 수정 때문에 중단하지 않는다.
+- 변경: 위 C# 4개, README.md/TASKS.md/PROGRESS.md. 기존 에셋·GUID 유지. README의 테스트 수를 현재 16 EditMode + 9 PlayMode = 25로 갱신했다.
+- 실제 검사: 에셋 무결성 PASS, C# 24파일 구문 파싱 PASS(컴파일 아님), 공백 검사 PASS. Unity 컴파일·잘못된 프리팹 UI·빌드 거부·유효 프리팹 플레이는 미검증이다.
+- 다음 작업: 실제 플레이 중 남는 입력과 부활 상태를 검토하고 발견한 결함을 보완한다.
