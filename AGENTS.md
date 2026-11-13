@@ -28,6 +28,8 @@
 - 사용자 최신 지시는 실행 검증을 나중으로 남기고 게임 구현을 우선하는 것이다. 검증 항목은 TASKS.md/PROGRESS.md에 기록하되, 검증 도구 작업을 반복하며 기능 개발을 미루지 않는다.
 - 게임 동작을 검증하지 않았다면 미검증으로 표시한다. 파일 문법·공백 정리는 실행 검증과 구분한다.
 - Python 3 정적 검사는 python3 Tools/validate_project.py로 실행한다.
+- 플레이어 프리팹은 root PlayerMotor·Dynamic/Simulated Rigidbody2D·enabled/non-trigger BoxCollider2D를 요구한다. 공통 안내는 StageDefinition.PlayerPrefabError를 사용한다.
+- Mac 빌드는 Universal(Intel/Apple Silicon)을 요청하고 제품명·아키텍처 설정은 예외 시에도 복원한다. 실제 바이너리 생성·양쪽 CPU 실행을 확인하기 전에는 호환성 검증 완료로 표시하지 않는다.
 - Unity 기준 버전은 2022.3.62f1이다. macOS Intel/Apple Silicon 배포를 공식 API에서 확인했다.
 - 현재 프로토타입은 레거시 Input을 사용한다. Active Input Handling은 Input Manager (Old) 또는 Both로 설정한다.
 - Ground 레이어는 TagManager.asset의 슬롯 8에 정의되어 있으며 이름으로 조회한다.
