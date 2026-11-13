@@ -115,6 +115,12 @@ namespace MagnetEscape
                 }
                 GUI.enabled = previousEnabled && !session.ChangingScene;
                 if (HasOverlay) InformationOverlay();
+                if (!HasOverlay && session.Stage > 0 && (session.Paused || session.Finished)
+                    && string.IsNullOrEmpty(session.CourseError) && !string.IsNullOrEmpty(session.Notice))
+                {
+                    Panel(new Rect(170, 18, 620, 50));
+                    Label(new Rect(188, 30, 584, 32), session.Notice, text, Gold);
+                }
                 if (session.ChangingScene)
                 {
                     Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.7f));
@@ -266,11 +272,17 @@ namespace MagnetEscape
             Label(new Rect(270, 260, 420, 24), record, small, session.NewBestTime ? Gold : Mint);
             Label(new Rect(270, 286, 420, 22), session.NewBestRank ? "NEW BEST RANK  /  " + session.Rank
                 : "S TARGET  /  no deaths and under " + session.RankTarget.ToString("F1") + "s", small);
-            if (GUI.Button(new Rect(266, 308, 428, 40), session.Stage < 4 ? "NEXT STAGE  /  Enter" : "BACK TO STAGE SELECT  /  Enter", button))
+            bool nextAvailable = session.Stage >= 4 || session.CanOpenStage(session.Stage + 1);
+            bool enabled = GUI.enabled;
+            GUI.enabled = enabled && nextAvailable;
+            string nextLabel = session.Stage >= 4 ? "BACK TO STAGE SELECT  /  Enter"
+                : nextAvailable ? "NEXT STAGE  /  Enter" : "NEXT COURSE NOT IN THIS BUILD";
+            if (GUI.Button(new Rect(266, 308, 428, 40), nextLabel, button))
             {
                 if (session.Stage < 4) session.LoadStage(session.Stage + 1);
                 else session.ShowSelection();
             }
+            GUI.enabled = enabled;
             if (GUI.Button(new Rect(266, 360, 207, 40), "RETRY  /  R", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(487, 360, 207, 40), "STAGE SELECT", button)) session.ShowSelection();
             Label(new Rect(270, 418, 425, 25), !session.RecordSaved ? (session.PracticeRun ? "This run does not affect your saved records." : "The stage is clear, but its record was not saved.")
