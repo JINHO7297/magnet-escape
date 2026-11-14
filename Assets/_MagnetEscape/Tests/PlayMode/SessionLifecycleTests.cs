@@ -175,6 +175,37 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator ScaledMagnetRingMatchesForceRangeAndDisabledState()
+        {
+            GameObject obj = new GameObject("Scaled magnet");
+            obj.transform.position = new Vector2(12f, 4f);
+            obj.transform.localScale = new Vector3(2f, 0.5f, 1f);
+            obj.transform.rotation = Quaternion.Euler(0f, 0f, 37f);
+            MagnetAnchor anchor = obj.AddComponent<MagnetAnchor>();
+            anchor.Configure(3f, 1f);
+            LineRenderer ring = obj.GetComponent<LineRenderer>();
+            Assert.That(anchor.Contains((Vector2)obj.transform.position + Vector2.right * 3f, 7f), Is.True);
+            Assert.That(anchor.Contains((Vector2)obj.transform.position + Vector2.right * 3.1f, 7f), Is.False);
+            yield return null;
+            for (int change = 0; change < 2; change++)
+            {
+                for (int i = 0; i < ring.positionCount; i++)
+                {
+                    Vector2 offset = obj.transform.TransformPoint(ring.GetPosition(i)) - obj.transform.position;
+                    Assert.That(offset.magnitude, Is.EqualTo(3f).Within(0.001f));
+                }
+                obj.transform.localScale = new Vector3(0.75f, 2.5f, 1f);
+                yield return null;
+            }
+            anchor.enabled = false;
+            Assert.That(ring.enabled, Is.False);
+            Assert.That(MagnetAnchor.All.Contains(anchor), Is.False);
+            anchor.enabled = true;
+            Assert.That(ring.enabled, Is.True);
+            Assert.That(MagnetAnchor.All.Contains(anchor), Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator PlayerVisualReusesPrefabEffectsAndStopsThemWhenDisabled()
         {
             GameObject obj = new GameObject("Robot with prefab effects");

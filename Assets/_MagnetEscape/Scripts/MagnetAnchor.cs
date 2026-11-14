@@ -11,9 +11,19 @@ namespace MagnetEscape
         private LineRenderer ring;
         private SpriteRenderer visual;
         private float drawnRadius = -1f;
+        private Matrix4x4 drawnTransform;
         public float ForceMultiplier => forceMultiplier;
-        private void OnEnable() => All.Add(this);
-        private void OnDisable() => All.Remove(this);
+        private void OnEnable()
+        {
+            All.Add(this);
+            if (ring != null) ring.enabled = true;
+        }
+        private void OnDisable()
+        {
+            All.Remove(this);
+            if (ring != null) ring.enabled = false;
+            if (visual != null) visual.color = Color.white;
+        }
         private void Start() => InitializeRing();
 
         public void Configure(float radius, float strength)
@@ -38,6 +48,7 @@ namespace MagnetEscape
             ring.useWorldSpace = false;
             ring.positionCount = 64;
             ring.loop = true;
+            ring.enabled = isActiveAndEnabled;
             ring.sortingOrder = -2;
             ring.startWidth = ring.endWidth = 0.025f;
             ring.startColor = ring.endColor = new Color(0.4f, 0.65f, 0.65f, 0.14f);
@@ -47,10 +58,14 @@ namespace MagnetEscape
         private void DrawRing(float radius)
         {
             drawnRadius = radius;
+            drawnTransform = transform.localToWorldMatrix;
             for (int i = 0; i < ring.positionCount; i++)
             {
                 float angle = i * Mathf.PI * 2f / ring.positionCount;
-                ring.SetPosition(i, new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0.1f));
+                // Physics range is a world-space circle, regardless of the anchor's
+                // inherited scale/rotation. Keep local points so editor moves follow.
+                Vector3 point = transform.position + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0.1f);
+                ring.SetPosition(i, transform.InverseTransformPoint(point));
             }
         }
 
@@ -59,7 +74,7 @@ namespace MagnetEscape
             if (ring == null) InitializeRing();
             PlayerMotor player = GameSession.Active != null ? GameSession.Active.Player : null;
             float radius = player != null ? Mathf.Min(range, player.MagnetReach) : range;
-            if (!Mathf.Approximately(radius, drawnRadius)) DrawRing(radius);
+            if (!Mathf.Approximately(radius, drawnRadius) || drawnTransform != transform.localToWorldMatrix) DrawRing(radius);
             bool selected = player != null && player.MagnetEnabled && player.MagnetTarget == transform;
             bool active = selected && player.CanMove && player.MagnetMode != 0 && !player.IsDashing;
             Color color = active && player.MagnetMode < 0 ? new Color(1f, 0.75f, 0.3f) : new Color(0.35f, 0.95f, 0.85f);
