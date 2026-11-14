@@ -175,6 +175,27 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator PlayerVisualReusesPrefabEffectsAndStopsThemWhenDisabled()
+        {
+            GameObject obj = new GameObject("Robot with prefab effects");
+            obj.SetActive(false);
+            obj.transform.position = new Vector2(0f, 50f);
+            TrailRenderer trail = obj.AddComponent<TrailRenderer>();
+            LineRenderer tether = obj.AddComponent<LineRenderer>();
+            PlayerVisual visual = obj.AddComponent<PlayerVisual>();
+            obj.SetActive(true);
+            yield return null;
+            Assert.That(obj.GetComponents<TrailRenderer>().Length, Is.EqualTo(1));
+            Assert.That(obj.GetComponents<LineRenderer>().Length, Is.EqualTo(1));
+            trail.emitting = true;
+            tether.enabled = true;
+            visual.enabled = false;
+            Assert.That(trail.emitting, Is.False);
+            Assert.That(tether.enabled, Is.False);
+            Assert.That(obj.GetComponent<PlayerMotor>(), Is.Not.Null);
+        }
+
+        [UnityTest]
         public IEnumerator ReconfiguredPlatformKeepsItsOriginalPatrolRail()
         {
             GameObject obj = new GameObject("Reconfigured platform");

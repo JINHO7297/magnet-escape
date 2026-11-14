@@ -28,7 +28,8 @@ namespace MagnetEscape
             dash = GameArt.Get("robot_dash");
             visual.drawMode = SpriteDrawMode.Simple;
             visual.sortingOrder = 10;
-            trail = gameObject.AddComponent<TrailRenderer>();
+            trail = GetComponent<TrailRenderer>();
+            if (trail == null) trail = gameObject.AddComponent<TrailRenderer>();
             trail.sharedMaterial = StageBootstrap.ParticleMaterial;
             trail.time = 0.15f;
             trail.startWidth = 0.45f;
@@ -37,7 +38,8 @@ namespace MagnetEscape
             trail.endColor = new Color(0.35f, 1f, 0.85f, 0f);
             trail.sortingOrder = 8;
             trail.emitting = false;
-            tether = gameObject.AddComponent<LineRenderer>();
+            tether = GetComponent<LineRenderer>();
+            if (tether == null) tether = gameObject.AddComponent<LineRenderer>();
             tether.sharedMaterial = StageBootstrap.ParticleMaterial;
             tether.useWorldSpace = true;
             tether.startWidth = 0.045f;
@@ -73,6 +75,16 @@ namespace MagnetEscape
             trail.Clear();
             tether.enabled = false;
             visual.flipX = false;
+        }
+
+        private void OnDisable()
+        {
+            if (trail != null)
+            {
+                trail.emitting = false;
+                trail.Clear();
+            }
+            if (tether != null) tether.enabled = false;
         }
     }
 }
