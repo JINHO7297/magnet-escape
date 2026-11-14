@@ -38,6 +38,7 @@ namespace MagnetEscape
         private float jumpBuffer;
         private float coyote;
         private float dashRemaining;
+        private bool dashStepActive;
         private float cooldown;
         private float facing = 1f;
         private int magnetMode;
@@ -51,7 +52,7 @@ namespace MagnetEscape
         public bool MagnetEnabled { get => magnetEnabled; set => magnetEnabled = value; }
         public float Cooldown => cooldown;
         public int MagnetMode => magnetMode;
-        public bool IsDashing => dashRemaining > 0f;
+        public bool IsDashing => dashStepActive;
         public bool Grounded { get; private set; }
         public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / Mathf.Max(0.001f, dashCooldown));
         public Transform MagnetTarget => targetAnchor != null ? targetAnchor.transform : null;
@@ -100,6 +101,9 @@ namespace MagnetEscape
             if (!CanMove || (GameSession.Active != null && GameSession.Active.ChangingScene))
             {
                 body.velocity = Vector2.zero;
+                body.gravityScale = gravityScale;
+                dashRemaining = 0f;
+                dashStepActive = false;
                 return;
             }
             bool grounded = IsGrounded();
@@ -120,10 +124,13 @@ namespace MagnetEscape
                 GameSession.Active?.Feedback(transform.position, Color.cyan, GameAudio.Cue.Dash);
             }
             dashQueued = false;
-            if (dashRemaining > 0f)
+            // Keep the public state active for the whole step that applies dash
+            // velocity, including the final step after its timer reaches zero.
+            dashStepActive = dashRemaining > 0f;
+            if (dashStepActive)
             {
                 audibleMagnetMode = 0;
-                dashRemaining -= dt;
+                dashRemaining = Mathf.Max(0f, dashRemaining - dt);
                 body.gravityScale = 0f;
                 Vector2 dashVelocity = dashDirection * dashSpeed;
                 if (SweepHazard(dashVelocity)) return;
@@ -244,6 +251,7 @@ namespace MagnetEscape
             body.gravityScale = gravityScale;
             ClearInput();
             jumpBuffer = coyote = dashRemaining = cooldown = 0f;
+            dashStepActive = false;
             Grounded = false;
             targetAnchor = null;
             magneticMomentum = false;
@@ -270,7 +278,13 @@ namespace MagnetEscape
             CanMove = !frozen;
             body.velocity = Vector2.zero;
             body.simulated = !frozen;
-            if (frozen) ClearInput();
+            if (frozen)
+            {
+                dashRemaining = 0f;
+                dashStepActive = false;
+                body.gravityScale = gravityScale;
+                ClearInput();
+            }
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -287,11 +301,12 @@ namespace MagnetEscape
 
         private void StopBlockedDash(Collision2D collision)
         {
-            if (!CanMove || dashRemaining <= 0f) return;
+            if (!CanMove || !IsDashing) return;
             for (int i = 0; i < collision.contactCount; i++)
             {
                 if (Vector2.Dot(collision.GetContact(i).normal, dashDirection) > -0.6f) continue;
                 dashRemaining = 0f;
+                dashStepActive = false;
                 body.gravityScale = gravityScale;
                 // Collision response resolves velocity. Keep the existing cooldown.
                 break;
