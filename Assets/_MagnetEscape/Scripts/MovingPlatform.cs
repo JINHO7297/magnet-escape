@@ -28,7 +28,7 @@ namespace MagnetEscape
             Travel = travel;
             Period = Mathf.Max(0.1f, period);
             GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
-            DrawRoute(transform.position);
+            DrawRoute(Application.isPlaying ? origin : (Vector2)transform.position);
         }
 
         private void DrawRoute(Vector2 start)

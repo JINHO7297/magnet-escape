@@ -175,6 +175,24 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator ReconfiguredPlatformKeepsItsOriginalPatrolRail()
+        {
+            GameObject obj = new GameObject("Reconfigured platform");
+            Vector2 origin = new Vector2(4f, 2f);
+            obj.transform.position = origin;
+            MovingPlatform platform = obj.AddComponent<MovingPlatform>();
+            platform.Configure(Vector2.right * 3f, 4f);
+            // Represent a platform part way through its patrol, not at its origin.
+            obj.GetComponent<Rigidbody2D>().position = origin + Vector2.right;
+            platform.Configure(Vector2.up * 3f, 2f);
+            LineRenderer rail = obj.GetComponent<LineRenderer>();
+            Assert.That((Vector2)rail.GetPosition(0), Is.EqualTo(origin));
+            Assert.That((Vector2)rail.GetPosition(1), Is.EqualTo(origin + Vector2.up * 3f));
+            Assert.That(obj.GetComponents<LineRenderer>().Length, Is.EqualTo(1));
+            yield break;
+        }
+
+        [UnityTest]
         public IEnumerator RankPaceUsesCourseSnapshotAndMatchesTheClearResult()
         {
             session.ConfigureCourse(session.CourseEnd, -7f, 0f, 120f);

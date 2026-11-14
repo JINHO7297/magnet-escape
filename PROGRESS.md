@@ -505,3 +505,12 @@
 - 실제 검사: Python unittest 21/21 PASS, 에셋 무결성 PASS(63 식별자·5 씬·16 PNG), C# 24파일 구문 파싱 PASS(컴파일 아님), git diff --check PASS.
 - 미검증: Unity 컴파일·새 연동 테스트, 시간 경계의 랭크 변경, 실제 부활/정지 입력, 해상도별 HUD 겹침·가독성. 기존 코스 완주·Mac 빌드도 계속 보류다.
 - 다음 우선순위: 실행 가능한 환경에서 기존 26건과 HUD를 확인한다. 개발을 이어갈 때는 기존 구현과 겹치지 않는 실제 조작·표현 결함을 우선하며 미검증을 완료로 바꾸지 않는다.
+
+
+## 2026-11-14 — 이동 발판 재설정 시 레일 원점 유지
+
+- 사용자의 단계 종료 후 자동 후속 구현 지시를 적용했다. 작업 트리는 clean 상태였고 기존 AGENTS 규칙을 유지했다.
+- MovingPlatform.Configure는 이동 도중 호출하면 현재 위치에 레일을 그렸지만 실제 왕복은 Awake의 origin을 계속 사용했다. 실행 중에는 저장된 origin, 편집 중에는 현재 Transform을 사용하도록 맞췄다. 기존 경로·주기·물리 계산과 GUID는 유지했다.
+- SessionLifecycleTests에 이동 중 위치에서 재설정해도 레일 원점과 Renderer가 유지되는 사례 1건을 추가했다. 현재 Unity 테스트 16 EditMode + 11 PlayMode = 27건, 모두 미실행이다.
+- 변경: MovingPlatform.cs, SessionLifecycleTests.cs, README.md, TASKS.md, PROGRESS.md. 에셋 무결성·C# 24파일 구문·공백 검사 PASS. Unity 컴파일·실제 이동 중 재설정은 미검증이다.
+- 다음 작업: 이동 발판의 운반 속도를 달리기 애니메이션에서 분리한다. 확인을 기다리지 않고 이어서 구현한다.
