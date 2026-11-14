@@ -59,6 +59,14 @@ namespace MagnetEscape
         public float MagnetReach => magnetRange;
         public float FacingDirection => facing;
         public float HorizontalSpeedRelativeToGround => body.velocity.x - (Grounded ? supportVelocity.x : 0f);
+        private GameSession Session
+        {
+            get
+            {
+                GameSession session = GameSession.Active;
+                return session != null && session.Player == this ? session : null;
+            }
+        }
 
         private void Awake()
         {
@@ -108,7 +116,7 @@ namespace MagnetEscape
             }
             bool grounded = IsGrounded();
             if (grounded && !Grounded && previousVerticalSpeed - supportVelocity.y < -2f)
-                GameSession.Active?.Feedback((Vector2)transform.position + Vector2.down * 0.45f,
+                Session?.Feedback((Vector2)transform.position + Vector2.down * 0.45f,
                     new Color(0.7f, 0.8f, 0.85f), GameAudio.Cue.Land);
             Grounded = grounded;
             if (grounded) magneticMomentum = false;
@@ -121,7 +129,7 @@ namespace MagnetEscape
                 dashRemaining = dashDuration;
                 magneticMomentum = false;
                 cooldown = dashCooldown;
-                GameSession.Active?.Feedback(transform.position, Color.cyan, GameAudio.Cue.Dash);
+                Session?.Feedback(transform.position, Color.cyan, GameAudio.Cue.Dash);
             }
             dashQueued = false;
             // Keep the public state active for the whole step that applies dash
@@ -152,7 +160,7 @@ namespace MagnetEscape
                 jumpBuffer = 0f;
                 coyote = 0f;
                 if (!jumpHeld) cutJump = false;
-                GameSession.Active?.Feedback(transform.position, Color.white, GameAudio.Cue.Jump);
+                Session?.Feedback(transform.position, Color.white, GameAudio.Cue.Jump);
             }
             if (cutJump && velocity.y > 0f) velocity.y *= jumpReleaseMultiplier;
             cutJump = false;
@@ -178,7 +186,7 @@ namespace MagnetEscape
             if (targetAnchor != null && magnetMode != 0)
             {
                 if (audibleMagnetMode != magnetMode)
-                    GameSession.Active?.PlayCue(magnetMode > 0 ? GameAudio.Cue.MagnetAttract : GameAudio.Cue.MagnetRepel);
+                    Session?.PlayCue(magnetMode > 0 ? GameAudio.Cue.MagnetAttract : GameAudio.Cue.MagnetRepel);
                 audibleMagnetMode = magnetMode;
                 Vector2 direction = ((Vector2)targetAnchor.transform.position - body.position).normalized;
                 float acceleration = magnetAcceleration * targetAnchor.ForceMultiplier;
@@ -213,7 +221,7 @@ namespace MagnetEscape
 
         private bool SweepHazard(Vector2 velocity)
         {
-            GameSession session = GameSession.Active;
+            GameSession session = Session;
             if (session == null || session.Paused || session.Respawning || session.Finished) return false;
             // Include this step's gravity. Collider casts supplement trigger callbacks
             // for fast movement; they do not activate checkpoints or exits early.
@@ -291,7 +299,7 @@ namespace MagnetEscape
         {
             if (collision.collider.GetComponent<Hazard>() != null)
             {
-                GameSession.Active?.Die();
+                Session?.Die();
                 return;
             }
             StopBlockedDash(collision);
@@ -315,10 +323,16 @@ namespace MagnetEscape
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.GetComponent<Hazard>() != null) GameSession.Active.Die();
+            GameSession session = Session;
+            if (session == null) return;
+            if (other.GetComponent<Hazard>() != null)
+            {
+                session.Die();
+                return;
+            }
             Checkpoint checkpoint = other.GetComponent<Checkpoint>();
-            if (checkpoint != null) GameSession.Active.SetCheckpoint(checkpoint);
-            if (other.GetComponent<ExitGate>() != null) GameSession.Active.Complete();
+            if (checkpoint != null) session.SetCheckpoint(checkpoint);
+            if (other.GetComponent<ExitGate>() != null) session.Complete();
         }
     }
 }

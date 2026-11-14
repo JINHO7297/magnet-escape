@@ -141,7 +141,7 @@ git diff --check
 
 이 검사는 에셋 `.meta`·GUID·씬/어셈블리 참조·레이어·PNG/임포트, 실행 도구의 인수·결과 처리를 다룹니다. CLI 회귀 검사는 가짜 실행 파일을 사용하며 실제 Unity나 Mac 앱 성공을 뜻하지 않습니다.
 
-Unity에서는 Test Runner의 EditMode 16건과 PlayMode 13건을 실행해야 합니다. CLI는 다음과 같습니다.
+Unity에서는 Test Runner의 EditMode 16건과 PlayMode 14건을 실행해야 합니다. CLI는 다음과 같습니다.
 
 ```bash
 python3 Tools/unity_tasks.py test
@@ -149,7 +149,7 @@ python3 Tools/unity_tasks.py test --suite EditMode
 python3 Tools/unity_tasks.py test --suite PlayMode
 ```
 
-XML과 로그는 `artifacts/tests/<고유 실행 ID>/`에 저장하며 이전 결과를 재사용하지 않습니다. 프로세스 실패·보고서 누락·실패·0건·모두 건너뜀은 통과로 처리하지 않습니다. **Unity 테스트 29건은 아직 이 환경에서 실행하지 못했습니다.** 실제 키 입력·정밀 물리·코스 완주는 수동 플레이 확인도 필요합니다.
+XML과 로그는 `artifacts/tests/<고유 실행 ID>/`에 저장하며 이전 결과를 재사용하지 않습니다. 프로세스 실패·보고서 누락·실패·0건·모두 건너뜀은 통과로 처리하지 않습니다. **Unity 테스트 30건은 아직 이 환경에서 실행하지 못했습니다.** 실제 키 입력·정밀 물리·코스 완주는 수동 플레이 확인도 필요합니다.
 
 구현과 미검증 항목은 [TASKS.md](TASKS.md), 변경·검사 이력은 [PROGRESS.md](PROGRESS.md)에 구분합니다. 파일 문법 검사와 게임 동작 검수는 별개입니다.
 

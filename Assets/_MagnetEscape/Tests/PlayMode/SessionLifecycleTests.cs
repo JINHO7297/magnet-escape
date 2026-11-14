@@ -175,6 +175,33 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator ExtraRobotTriggersCannotChangeTheActiveRun()
+        {
+            GameObject extra = new GameObject("Extra prefab robot");
+            extra.transform.position = new Vector2(100f, 50f);
+            extra.AddComponent<PlayerMotor>();
+            GameObject danger = new GameObject("Extra robot hazard callback");
+            danger.transform.position = new Vector2(200f, 50f);
+            Collider2D hazardCollider = danger.AddComponent<BoxCollider2D>();
+            danger.AddComponent<Hazard>();
+            // Dispatch the Unity callbacks directly: this checks session ownership,
+            // not the physics engine's overlap or callback timing.
+            extra.SendMessage("OnTriggerEnter2D", hazardCollider);
+            Assert.That(session.Deaths, Is.Zero);
+            Checkpoint checkpoint = CreateCheckpoint(new Vector2(200f, 55f), 500);
+            Collider2D checkpointCollider = checkpoint.gameObject.AddComponent<BoxCollider2D>();
+            extra.SendMessage("OnTriggerEnter2D", checkpointCollider);
+            Assert.That(session.HasCheckpoint, Is.False);
+            GameObject exit = new GameObject("Extra robot exit callback");
+            exit.transform.position = new Vector2(200f, 60f);
+            Collider2D exitCollider = exit.AddComponent<BoxCollider2D>();
+            exit.AddComponent<ExitGate>();
+            extra.SendMessage("OnTriggerEnter2D", exitCollider);
+            Assert.That(session.Finished, Is.False);
+            yield break;
+        }
+
+        [UnityTest]
         public IEnumerator ScaledMagnetRingMatchesForceRangeAndDisabledState()
         {
             GameObject obj = new GameObject("Scaled magnet");
