@@ -63,6 +63,8 @@ git switch develop
 
 기준 시간은 StageDefinition의 ParTime입니다. S는 기준 이내·무사망, A는 기준 1.5배 이내·2회 이하 사망, B는 기준 2배 이내·5회 이하 사망, 나머지는 C입니다.
 
+플레이 중 `RANK PACE`는 현재 시간·사망 횟수로 아직 가능한 최고 랭크와 그 제한까지 남은 시간을 표시합니다. 추가 사망이나 시간 초과로 S→A→B→C로 바뀔 수 있으며 클리어를 보장하는 예측은 아닙니다. C에서는 `FINISH TO CLEAR`를 표시합니다. 일시정지 중 시간은 멈추고, 편집 코스는 그 씬에 저장된 기준 시간을 사용합니다.
+
 - 원본 `Scenes/Stage1~4.unity`는 기존 기록 키를 유지합니다.
 - 서로 다른 Editable/리비전 씬 경로는 별도 기록을 사용합니다. 선택 화면은 현재 빌드에서 실행할 코스의 기록을 읽습니다.
 - 같은 파일의 코스 내용을 수정해도 기록 묶음은 같습니다. 새 기록을 원하면 RECORDS에서 그 코스만 초기화하거나 새 리비전을 만듭니다.
@@ -139,7 +141,7 @@ git diff --check
 
 이 검사는 에셋 `.meta`·GUID·씬/어셈블리 참조·레이어·PNG/임포트, 실행 도구의 인수·결과 처리를 다룹니다. CLI 회귀 검사는 가짜 실행 파일을 사용하며 실제 Unity나 Mac 앱 성공을 뜻하지 않습니다.
 
-Unity에서는 Test Runner의 EditMode 16건과 PlayMode 9건을 실행해야 합니다. CLI는 다음과 같습니다.
+Unity에서는 Test Runner의 EditMode 16건과 PlayMode 10건을 실행해야 합니다. CLI는 다음과 같습니다.
 
 ```bash
 python3 Tools/unity_tasks.py test
@@ -147,7 +149,7 @@ python3 Tools/unity_tasks.py test --suite EditMode
 python3 Tools/unity_tasks.py test --suite PlayMode
 ```
 
-XML과 로그는 `artifacts/tests/<고유 실행 ID>/`에 저장하며 이전 결과를 재사용하지 않습니다. 프로세스 실패·보고서 누락·실패·0건·모두 건너뜀은 통과로 처리하지 않습니다. **Unity 테스트 25건은 아직 이 환경에서 실행하지 못했습니다.** 실제 키 입력·정밀 물리·코스 완주는 수동 플레이 확인도 필요합니다.
+XML과 로그는 `artifacts/tests/<고유 실행 ID>/`에 저장하며 이전 결과를 재사용하지 않습니다. 프로세스 실패·보고서 누락·실패·0건·모두 건너뜀은 통과로 처리하지 않습니다. **Unity 테스트 26건은 아직 이 환경에서 실행하지 못했습니다.** 실제 키 입력·정밀 물리·코스 완주는 수동 플레이 확인도 필요합니다.
 
 구현과 미검증 항목은 [TASKS.md](TASKS.md), 변경·검사 이력은 [PROGRESS.md](PROGRESS.md)에 구분합니다. 파일 문법 검사와 게임 동작 검수는 별개입니다.
 

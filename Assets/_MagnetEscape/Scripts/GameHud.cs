@@ -195,6 +195,13 @@ namespace MagnetEscape
             Fill(new Rect(20, 83, 920 * session.Progress, 3), Mint);
             if (session.HasCheckpoint) Fill(new Rect(18 + 920 * session.RespawnProgress, 80, 4, 10), Gold);
             ExitIndicator();
+            if (!session.Paused && !session.Finished)
+            {
+                Panel(new Rect(20, 100, 250, 42));
+                string pace = session.RankPace;
+                string budget = pace == "C" ? "FINISH TO CLEAR" : session.RankTimeRemaining.ToString("F1") + "s LEFT";
+                Label(new Rect(32, 113, 230, 24), "RANK PACE " + pace + "  /  " + budget, small, pace == "S" ? Gold : Mint);
+            }
             if (!string.IsNullOrEmpty(session.Notice))
             {
                 Panel(new Rect(280, 104, 400, 38));

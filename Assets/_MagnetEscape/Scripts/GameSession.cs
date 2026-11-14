@@ -37,6 +37,18 @@ namespace MagnetEscape
         [SerializeField, Range(0f, 1f)] private float respawnDelay = 0.2f;
         public float CourseEnd { get => courseEnd; set => courseEnd = value; }
         public float RankTarget => courseParTime > 0f ? courseParTime : StageInfo.ParTime(Stage);
+        // Best rank still available if the player clears without another death.
+        // Use the same course snapshot and thresholds as the final result.
+        public string RankPace => RankAtTarget(Elapsed, Deaths, RankTarget);
+        public float RankTimeRemaining
+        {
+            get
+            {
+                string pace = RankPace;
+                if (pace == "C") return 0f;
+                return Mathf.Max(0f, RankTimeLimit(pace, RankTarget) - Elapsed);
+            }
+        }
         private Vector2 spawn = new Vector2(0f, 1f);
         private float startX;
         private float startY;
@@ -354,11 +366,15 @@ namespace MagnetEscape
 
         private static string RankAtTarget(float seconds, int deathCount, float target)
         {
-            float par = Mathf.Max(1f, target);
-            if (deathCount == 0 && seconds <= par) return "S";
-            if (deathCount <= 2 && seconds <= par * 1.5f) return "A";
-            if (deathCount <= 5 && seconds <= par * 2f) return "B";
+            if (deathCount == 0 && seconds <= RankTimeLimit("S", target)) return "S";
+            if (deathCount <= 2 && seconds <= RankTimeLimit("A", target)) return "A";
+            if (deathCount <= 5 && seconds <= RankTimeLimit("B", target)) return "B";
             return "C";
+        }
+
+        private static float RankTimeLimit(string rank, float target)
+        {
+            return Mathf.Max(1f, target) * (rank == "S" ? 1f : rank == "A" ? 1.5f : 2f);
         }
 
         public void PlayCue(GameAudio.Cue cue) => audioFeedback.Play(cue);

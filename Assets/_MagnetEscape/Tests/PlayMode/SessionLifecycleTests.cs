@@ -175,6 +175,32 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator RankPaceUsesCourseSnapshotAndMatchesTheClearResult()
+        {
+            session.ConfigureCourse(session.CourseEnd, -7f, 0f, 120f);
+            Assert.That(session.RankPace, Is.EqualTo("S"));
+            Assert.That(session.RankTimeRemaining, Is.EqualTo(120f - session.Elapsed).Within(0.001f));
+            session.SetPaused(true);
+            float stoppedBudget = session.RankTimeRemaining;
+            yield return new WaitForSecondsRealtime(0.06f);
+            Assert.That(session.RankPace, Is.EqualTo("S"));
+            Assert.That(session.RankTimeRemaining, Is.EqualTo(stoppedBudget));
+            session.SetPaused(false);
+            for (int deaths = 1; deaths <= 6; deaths++)
+            {
+                session.Die();
+                Assert.That(session.Deaths, Is.EqualTo(deaths));
+                string expected = deaths <= 2 ? "A" : deaths <= 5 ? "B" : "C";
+                Assert.That(session.RankPace, Is.EqualTo(expected));
+                float budget = deaths <= 2 ? 180f - session.Elapsed : deaths <= 5 ? 240f - session.Elapsed : 0f;
+                Assert.That(session.RankTimeRemaining, Is.EqualTo(budget).Within(0.001f));
+                yield return WaitForRespawn();
+            }
+            session.Complete();
+            Assert.That(session.Rank, Is.EqualTo(session.RankPace));
+        }
+
+        [UnityTest]
         public IEnumerator SawRouteUsesEditedOriginAndReusesItsRenderer()
         {
             session.SetPaused(true);
