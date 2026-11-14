@@ -56,6 +56,8 @@ namespace MagnetEscape
         public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / Mathf.Max(0.001f, dashCooldown));
         public Transform MagnetTarget => targetAnchor != null ? targetAnchor.transform : null;
         public float MagnetReach => magnetRange;
+        public float FacingDirection => facing;
+        public float HorizontalSpeedRelativeToGround => body.velocity.x - (Grounded ? supportVelocity.x : 0f);
 
         private void Awake()
         {

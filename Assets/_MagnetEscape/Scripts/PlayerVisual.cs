@@ -3,7 +3,7 @@ using UnityEngine;
 namespace MagnetEscape
 {
     // Sprite animation changes appearance only; the physics shape stays stable.
-    [RequireComponent(typeof(SpriteRenderer), typeof(Rigidbody2D))]
+    [RequireComponent(typeof(SpriteRenderer), typeof(Rigidbody2D), typeof(PlayerMotor))]
     public sealed class PlayerVisual : MonoBehaviour
     {
         private SpriteRenderer visual;
@@ -50,9 +50,12 @@ namespace MagnetEscape
         {
             if (Time.timeScale == 0f) return;
             visual.enabled = GameSession.Active == null || !GameSession.Active.Respawning;
-            if (Mathf.Abs(body.velocity.x) > 0.2f) visual.flipX = body.velocity.x < 0f;
+            // Platform transport is not running. Facing follows the same last input
+            // used by a neutral dash, rather than a platform's world velocity.
+            float horizontalSpeed = motor.HorizontalSpeedRelativeToGround;
+            visual.flipX = motor.FacingDirection < 0f;
             visual.sprite = motor.IsDashing ? dash : !motor.Grounded ? (body.velocity.y > 0f ? jump : fall)
-                : Mathf.Abs(body.velocity.x) > 0.2f ? run[Mathf.FloorToInt(Time.time * 12f) % run.Length] : idle;
+                : Mathf.Abs(horizontalSpeed) > 0.2f ? run[Mathf.FloorToInt(Time.time * 12f) % run.Length] : idle;
             visual.color = motor.MagnetMode > 0 ? new Color(1f, 0.7f, 0.9f) : motor.MagnetMode < 0 ? new Color(1f, 0.9f, 0.55f) : Color.white;
             trail.emitting = motor.CanMove && motor.IsDashing;
             if (!motor.CanMove) trail.Clear();
