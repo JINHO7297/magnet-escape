@@ -175,6 +175,24 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator RespawnHidesOnlyTheSessionsOwnRobot()
+        {
+            GameObject extra = new GameObject("Independent robot visual");
+            extra.transform.position = new Vector2(100f, 50f);
+            PlayerVisual extraVisual = extra.AddComponent<PlayerVisual>();
+            PlayerVisual playerVisual = session.Player.GetComponent<PlayerVisual>();
+            session.Die();
+            Assert.That(session.Respawning, Is.True);
+            playerVisual.SendMessage("Update");
+            extraVisual.SendMessage("Update");
+            Assert.That(session.Player.GetComponent<SpriteRenderer>().enabled, Is.False);
+            Assert.That(extra.GetComponent<SpriteRenderer>().enabled, Is.True);
+            yield return WaitForRespawn();
+            playerVisual.SendMessage("Update");
+            Assert.That(session.Player.GetComponent<SpriteRenderer>().enabled, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator ExtraRobotTriggersCannotChangeTheActiveRun()
         {
             GameObject extra = new GameObject("Extra prefab robot");

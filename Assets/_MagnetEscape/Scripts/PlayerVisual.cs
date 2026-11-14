@@ -51,7 +51,9 @@ namespace MagnetEscape
         private void Update()
         {
             if (Time.timeScale == 0f) return;
-            visual.enabled = GameSession.Active == null || !GameSession.Active.Respawning;
+            GameSession session = GameSession.Active;
+            bool respawning = session != null && session.Player == motor && session.Respawning;
+            visual.enabled = !respawning;
             // Platform transport is not running. Facing follows the same last input
             // used by a neutral dash, rather than a platform's world velocity.
             float horizontalSpeed = motor.HorizontalSpeedRelativeToGround;
