@@ -193,7 +193,8 @@ namespace MagnetEscape
             Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "대시" : "대시 / 2코스부터", small);
             if (player.DashEnabled) Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
-            string magnet = !player.MagnetEnabled ? "자력 / 3코스부터" : player.MagnetTarget == null ? "자력 / 범위 밖"
+            string magnet = player.IsGrinding ? "레일 그라인드 / Space·E 도약"
+                : player.RailEnabled && !player.MagnetEnabled ? "레일 / Q 잡기 · Space 도약" : !player.MagnetEnabled ? "자력 / 3코스부터" : player.MagnetTarget == null ? "자력 / 범위 밖"
                 : player.Grounded ? "자력 / 공중에서 사용" : player.IsDashing ? "자력 / 대시 중" : player.MagnetMode > 0 ? "Q / 끌어당기는 중"
                 : player.MagnetMode < 0 ? "E / 밀어내는 중" : "자력 / Q 인력 · E 척력";
             Label(new Rect(240, 54, 530, 24), magnet, small, player.MagnetMode < 0 ? Gold : Mint);
@@ -219,7 +220,7 @@ namespace MagnetEscape
                 Label(new Rect(138, 425, 685, 44), session.Hint, text);
             }
             Fill(new Rect(20, 489, 920, 31), new Color(0.025f, 0.05f, 0.07f, 0.9f));
-            Label(new Rect(34, 497, 895, 22), "자동 전진 →  Space 점프  Shift 대시  Q/E 공중 자력  Backspace 부활  R 처음부터  Esc 정지", small);
+            Label(new Rect(34, 497, 895, 22), "자동 전진 →  Space 점프  Shift 대시  Q/E 자력·레일  Backspace 부활  R 처음부터  Esc 정지", small);
             if (session.Respawning) Label(new Rect(370, 245, 250, 40), "다시 출발합니다…", heading, Gold);
         }
 
@@ -325,7 +326,7 @@ namespace MagnetEscape
                 string[] actions = {
                     "항상 오른쪽으로 이동합니다. 좌우 입력·후진은 없습니다.", "길게 누르면 높이, 짧게 누르면 낮게 점프합니다.",
                     "앞으로 짧게 대시합니다. 장애물 무적은 없습니다.",
-                    "공중에서 인력 / 척력으로 높이를 조절합니다. 전진은 유지됩니다.",
+                    "공중 자력 조절. 레일은 Q로 잡고 Space/E로 도약합니다.",
                     "체크포인트부터 재도전. 충돌 +1, 시간은 유지됩니다.",
                     "시간·충돌·체크포인트를 초기화하고 처음부터 시작합니다.", "일시정지 / 계속하기. M으로 음소거를 전환합니다."
                 };

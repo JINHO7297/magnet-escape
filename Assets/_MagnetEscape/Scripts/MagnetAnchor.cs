@@ -76,7 +76,7 @@ namespace MagnetEscape
             float radius = player != null ? Mathf.Min(range, player.MagnetReach) : range;
             if (!Mathf.Approximately(radius, drawnRadius) || drawnTransform != transform.localToWorldMatrix) DrawRing(radius);
             bool selected = player != null && player.MagnetEnabled && player.MagnetTarget == transform;
-            bool active = selected && player.CanMove && !player.Grounded && player.MagnetMode != 0 && !player.IsDashing;
+            bool active = selected && player.CanMove && !player.Grounded && player.MagnetMode != 0 && !player.IsDashing && !player.IsGrinding;
             Color color = active && player.MagnetMode < 0 ? new Color(1f, 0.75f, 0.3f) : new Color(0.35f, 0.95f, 0.85f);
             color.a = active ? 0.65f : selected ? 0.35f : 0.12f;
             ring.startColor = ring.endColor = color;

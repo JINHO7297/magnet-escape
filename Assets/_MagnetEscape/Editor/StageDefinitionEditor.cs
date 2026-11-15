@@ -9,11 +9,11 @@ namespace MagnetEscape.Editor
         private static readonly string[] Fields =
         {
             "StartPosition", "ExitPosition", "Platforms", "MovingPlatforms", "Spikes",
-            "Saws", "Magnets", "Checkpoints", "Hints"
+            "Saws", "Magnets", "Checkpoints", "Hints", "Rails"
         };
         private static readonly string[] Labels =
         {
-            "Start", "Exit", "Platforms", "Moving platforms", "Spikes", "Saws", "Magnets", "Checkpoints", "Hints"
+            "Start", "Exit", "Platforms", "Moving platforms", "Spikes", "Saws", "Magnets", "Checkpoints", "Hints", "자석 레일"
         };
         private bool preview = true;
         private bool hintRanges;
@@ -66,7 +66,7 @@ namespace MagnetEscape.Editor
             if (group < 2) return property;
             if (property.arraySize == 0) return null;
             element = Mathf.Clamp(element, 0, property.arraySize - 1);
-            return property.GetArrayElementAtIndex(element).FindPropertyRelative("Position");
+            return property.GetArrayElementAtIndex(element).FindPropertyRelative(Fields[group] == "Rails" ? "Start" : "Position");
         }
 
         private void DrawScene(SceneView view)
@@ -100,7 +100,7 @@ namespace MagnetEscape.Editor
         private bool HasSecondaryHandle()
         {
             string field = Fields[group];
-            return field == "MovingPlatforms" || field == "Saws" || field == "Checkpoints" || field == "Magnets" || field == "Hints";
+            return field == "Rails" || field == "MovingPlatforms" || field == "Saws" || field == "Checkpoints" || field == "Magnets" || field == "Hints";
         }
 
         private void DrawSecondaryHandle(Vector2 center)
@@ -110,6 +110,21 @@ namespace MagnetEscape.Editor
             if (array.arraySize == 0) return;
             SerializedProperty item = array.GetArrayElementAtIndex(element);
             string field = Fields[group];
+            if (field == "Rails")
+            {
+                SerializedProperty end = item.FindPropertyRelative("End");
+                Handles.color = Color.cyan;
+                Handles.DrawLine(center, end.vector2Value);
+                EditorGUI.BeginChangeCheck();
+                Vector3 moved = Handles.PositionHandle(end.vector2Value, Quaternion.identity);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    end.vector2Value = new Vector2(Mathf.Max(center.x + 0.5f, moved.x), moved.y);
+                    serializedObject.ApplyModifiedProperties();
+                    Repaint();
+                }
+                return;
+            }
             if (field == "MovingPlatforms" || field == "Saws" || field == "Checkpoints")
             {
                 string offsetName = field == "Checkpoints" ? "SpawnOffset" : "Travel";
@@ -175,6 +190,12 @@ namespace MagnetEscape.Editor
             }
             foreach (StageDefinition.HintPlacement item in layout.Hints)
                 if (item != null) IncludeBox(ref bounds, item.Position, hintRanges ? item.Range * 2f : 1f, hintRanges ? item.Range * 2f : 1f);
+            if (layout.Rails != null)
+                foreach (StageDefinition.RailPlacement rail in layout.Rails)
+                {
+                    IncludeBox(ref bounds, rail.Start, rail.CatchRange * 2f, rail.CatchRange * 2f);
+                    IncludeBox(ref bounds, rail.End, rail.CatchRange * 2f, rail.CatchRange * 2f);
+                }
             bounds.Expand(new Vector3(6f, 4f, 1f));
             bounds.size = new Vector3(Mathf.Max(12f, bounds.size.x), Mathf.Max(10f, bounds.size.y), 1f);
             return bounds;
@@ -236,6 +257,13 @@ namespace MagnetEscape.Editor
                 Handles.DrawLine(item.Position, item.Position + item.SpawnOffset);
                 Box(item.Position + item.SpawnOffset, 0.7f, 0.9f, new Color(0.3f, 1f, 0.5f, 0.4f), string.Empty);
             }
+            if (layout.Rails != null)
+                foreach (StageDefinition.RailPlacement rail in layout.Rails)
+                {
+                    Handles.color = Color.cyan;
+                    Handles.DrawLine(rail.Start, rail.End);
+                    Handles.Label(rail.Start + Vector2.up * 0.3f, "자석 레일 / Q");
+                }
             if (!hintRanges) return;
             for (int i = 0; i < layout.Hints.Length; i++)
             {

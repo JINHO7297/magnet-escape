@@ -58,12 +58,12 @@ namespace MagnetEscape
             // used by a neutral dash, rather than a platform's world velocity.
             float horizontalSpeed = motor.HorizontalSpeedRelativeToGround;
             visual.flipX = motor.FacingDirection < 0f;
-            visual.sprite = motor.IsDashing ? dash : !motor.Grounded ? (body.velocity.y > 0f ? jump : fall)
+            visual.sprite = motor.IsDashing || motor.IsGrinding ? dash : !motor.Grounded ? (body.velocity.y > 0f ? jump : fall)
                 : Mathf.Abs(horizontalSpeed) > 0.2f ? run[Mathf.FloorToInt(Time.time * 12f) % run.Length] : idle;
             visual.color = motor.MagnetMode > 0 ? new Color(1f, 0.7f, 0.9f) : motor.MagnetMode < 0 ? new Color(1f, 0.9f, 0.55f) : Color.white;
-            trail.emitting = motor.CanMove && motor.IsDashing;
+            trail.emitting = motor.CanMove && (motor.IsDashing || motor.IsGrinding);
             if (!motor.CanMove) trail.Clear();
-            tether.enabled = motor.CanMove && !motor.Grounded && !motor.IsDashing && motor.MagnetMode != 0 && motor.MagnetTarget != null;
+            tether.enabled = motor.CanMove && !motor.Grounded && !motor.IsDashing && !motor.IsGrinding && motor.MagnetMode != 0 && motor.MagnetTarget != null;
             if (tether.enabled)
             {
                 tether.SetPosition(0, transform.position);

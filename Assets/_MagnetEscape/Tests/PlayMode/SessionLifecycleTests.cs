@@ -622,6 +622,126 @@ namespace MagnetEscape.Tests
             Object.Destroy(obstacle);
         }
 
+        [UnityTest]
+        public IEnumerator RailRequiresAttractInputAndSupportsReleaseAndJumpLaunch()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            MagneticRail rail = CreateRail();
+            player.ResetAt(new Vector2(100f, 8f));
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.False);
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.True);
+            Assert.That(body.velocity.x, Is.GreaterThan(7f));
+            Assert.That(body.gravityScale, Is.Zero);
+            SetMotorField(player, "magnetMode", 0);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.False);
+            Assert.That(body.gravityScale, Is.EqualTo(3f));
+            player.ResetAt(new Vector2(100f, 8f));
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            SetMotorField(player, "jumpQueued", true);
+            SetMotorField(player, "jumpHeld", true);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.False);
+            Assert.That(body.velocity.y, Is.GreaterThan(10f));
+            Assert.That(body.velocity.x, Is.GreaterThan(0f));
+            Object.Destroy(rail.gameObject);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RailRepelEndAndFreezeReleaseTheBoardWithoutReversingIt()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            MagneticRail rail = CreateRail();
+            foreach (int exit in new[] { 0, 1, 2 })
+            {
+                player.ResetAt(new Vector2(100f, 8f));
+                SetMotorField(player, "magnetMode", 1);
+                player.SendMessage("FixedUpdate");
+                Assert.That(player.IsGrinding, Is.True);
+                if (exit == 0) SetMotorField(player, "magnetMode", -1);
+                else if (exit == 1) body.position = new Vector2(111f, 8f);
+                else player.SetFrozen(true);
+                player.SendMessage("FixedUpdate");
+                Assert.That(player.IsGrinding, Is.False);
+                Assert.That(body.gravityScale, Is.EqualTo(3f));
+                if (exit == 0) Assert.That(body.velocity.y, Is.GreaterThan(10f));
+                if (exit != 2) Assert.That(body.velocity.x, Is.GreaterThan(0f));
+                player.SetFrozen(false);
+            }
+            Object.Destroy(rail.gameObject);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RailCannotProtectThePlayerFromHazards()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            player.ResetAt(new Vector2(100f, 8f));
+            MagneticRail rail = CreateRail();
+            GameObject danger = new GameObject("Rail danger");
+            danger.transform.position = new Vector2(100.5f, 8f);
+            danger.AddComponent<BoxCollider2D>().isTrigger = true;
+            danger.AddComponent<Hazard>();
+            Physics2D.SyncTransforms();
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(session.Deaths, Is.EqualTo(1));
+            Assert.That(player.IsGrinding, Is.False);
+            Assert.That(player.CanMove, Is.False);
+            Object.Destroy(danger);
+            Object.Destroy(rail.gameObject);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator InclinedRailCarriesTheBoardThroughPhysicsAndDashDetaches()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = player.DashEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            MagneticRail rail = CreateRail();
+            rail.Configure(new Vector2(99f, 7.55f), new Vector2(110f, 8.65f), 1.1f);
+            player.ResetAt(new Vector2(100f, 8.1f));
+            for (int step = 0; step < 20; step++)
+            {
+                SetMotorField(player, "magnetMode", 1);
+                player.SendMessage("FixedUpdate");
+                yield return new WaitForFixedUpdate();
+            }
+            Assert.That(player.IsGrinding, Is.True);
+            Assert.That(body.position.x, Is.GreaterThan(103f));
+            Assert.That(body.position.y, Is.GreaterThan(8.3f));
+            session.SetPaused(true);
+            Vector2 stopped = body.position;
+            yield return new WaitForSecondsRealtime(0.08f);
+            Assert.That(body.position, Is.EqualTo(stopped));
+            session.SetPaused(false);
+            SetMotorField(player, "dashQueued", true);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.False);
+            Assert.That(player.IsDashing, Is.True);
+            Assert.That(body.velocity.x, Is.EqualTo(19f).Within(0.01f));
+            Object.Destroy(rail.gameObject);
+        }
+
+        private static MagneticRail CreateRail()
+        {
+            GameObject obj = new GameObject("Test magnetic rail");
+            MagneticRail rail = obj.AddComponent<MagneticRail>();
+            rail.Configure(new Vector2(99f, 7.55f), new Vector2(110f, 7.55f), 1.1f);
+            return rail;
+        }
+
         private static void SetMotorField(PlayerMotor player, string name, object value)
         {
             typeof(PlayerMotor).GetField(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)

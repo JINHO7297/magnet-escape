@@ -21,6 +21,11 @@ namespace MagnetEscape
         [SerializeField, Range(0.1f, 1f)] private float jumpReleaseMultiplier = 0.45f;
         [SerializeField, Range(0.1f, 1f)] private float shortJumpMultiplier = 0.5f;
         [SerializeField, Min(0.01f)] private float groundProbeDistance = 0.08f;
+        [Header("Magnetic rail")]
+        [SerializeField] private bool railEnabled;
+        [SerializeField, Min(1f)] private float railSpeedMultiplier = 1.35f;
+        private MagneticRail grindRail;
+        private float railLockout;
         private Rigidbody2D body;
         private BoxCollider2D shape;
         private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
@@ -46,6 +51,8 @@ namespace MagnetEscape
         public bool CanMove { get; set; } = true;
         public bool DashEnabled { get => dashEnabled; set => dashEnabled = value; }
         public bool MagnetEnabled { get => magnetEnabled; set => magnetEnabled = value; }
+        public bool RailEnabled { get => railEnabled; set => railEnabled = value; }
+        public bool IsGrinding => grindRail != null;
         public float Cooldown => cooldown;
         public int MagnetMode => magnetMode;
         public bool IsDashing => dashStepActive;
@@ -90,15 +97,17 @@ namespace MagnetEscape
             checkJumpReleaseOnResume = false;
             jumpHeld = held;
             dashQueued |= Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
-            magnetMode = MagnetEnabled ? (Input.GetKey(KeyCode.E) ? -1 : Input.GetKey(KeyCode.Q) ? 1 : 0) : 0;
+            magnetMode = (MagnetEnabled || RailEnabled) ? (Input.GetKey(KeyCode.E) ? -1 : Input.GetKey(KeyCode.Q) ? 1 : 0) : 0;
         }
 
         private void FixedUpdate()
         {
             float dt = Time.fixedDeltaTime;
             cooldown = Mathf.Max(0f, cooldown - dt);
+            railLockout = Mathf.Max(0f, railLockout - dt);
             if (!CanMove || (GameSession.Active != null && GameSession.Active.ChangingScene))
             {
+                ReleaseRail();
                 body.velocity = Vector2.zero;
                 body.gravityScale = gravityScale;
                 dashRemaining = 0f;
@@ -115,6 +124,7 @@ namespace MagnetEscape
             jumpQueued = false;
             if (dashQueued && DashEnabled && cooldown <= 0f)
             {
+                ReleaseRail();
                 dashDirection = Vector2.right;
                 dashRemaining = dashDuration;
                 cooldown = dashCooldown;
@@ -136,13 +146,15 @@ namespace MagnetEscape
                 cutJump = false;
                 return;
             }
+            bool railLaunch;
+            if (StepRail(out railLaunch)) return;
             body.gravityScale = gravityScale;
             Vector2 velocity = body.velocity;
             velocity.x = RunSpeed;
             if (grounded && velocity.y <= supportVelocity.y + 0.1f) velocity.y = supportVelocity.y;
-            if (jumpBuffer > 0f && coyote > 0f)
+            if (railLaunch || (jumpBuffer > 0f && coyote > 0f))
             {
-                velocity.y = (jumpHeld ? jumpSpeed : jumpSpeed * shortJumpMultiplier) + supportVelocity.y;
+                velocity.y = (railLaunch || jumpHeld ? jumpSpeed : jumpSpeed * shortJumpMultiplier) + supportVelocity.y;
                 jumpBuffer = 0f;
                 coyote = 0f;
                 if (!jumpHeld) cutJump = false;
@@ -186,6 +198,50 @@ namespace MagnetEscape
             if (SweepHazard(velocity)) return;
             body.velocity = velocity;
             previousVerticalSpeed = velocity.y;
+        }
+
+        private bool StepRail(out bool launch)
+        {
+            launch = false;
+            float boardOffset = shape.bounds.extents.y;
+            if (grindRail != null)
+            {
+                launch = jumpBuffer > 0f || magnetMode < 0;
+                if (!RailEnabled || !grindRail.Covers(body.position.x) || magnetMode != 1 || launch)
+                    ReleaseRail();
+            }
+            if (grindRail == null && !launch && RailEnabled && !Grounded && magnetMode == 1 && railLockout <= 0f)
+            {
+                float nearest = float.PositiveInfinity;
+                foreach (MagneticRail rail in MagneticRail.All)
+                {
+                    if (!rail.CanCatch(body.position, boardOffset)) continue;
+                    float distance = Mathf.Abs(body.position.y - boardOffset - rail.HeightAt(body.position.x));
+                    if (distance >= nearest) continue;
+                    grindRail = rail;
+                    nearest = distance;
+                }
+                if (grindRail != null)
+                    Session?.Feedback(body.position, Color.cyan, GameAudio.Cue.MagnetAttract);
+            }
+            if (grindRail == null) return false;
+            body.gravityScale = 0f;
+            float speed = RunSpeed * Mathf.Max(1f, railSpeedMultiplier);
+            Vector2 velocity = new Vector2(speed, grindRail.Slope * speed);
+            if (SweepHazard(velocity)) return true;
+            body.position = new Vector2(body.position.x, grindRail.HeightAt(body.position.x) + boardOffset);
+            body.velocity = velocity;
+            previousVerticalSpeed = velocity.y;
+            coyote = 0f;
+            cutJump = false;
+            return true;
+        }
+
+        private void ReleaseRail()
+        {
+            if (grindRail != null) railLockout = 0.2f;
+            grindRail = null;
+            body.gravityScale = gravityScale;
         }
 
         private bool IsGrounded()
@@ -239,6 +295,8 @@ namespace MagnetEscape
 
         public void ResetAt(Vector2 position)
         {
+            ReleaseRail();
+            railLockout = 0f;
             // While simulated is false Unity rebuilds the body from its Transform
             // when re-enabled. Move both so respawning cannot restore the death
             // location, and the camera/trail see the new spawn in this frame.
@@ -275,6 +333,7 @@ namespace MagnetEscape
             body.simulated = !frozen;
             if (frozen)
             {
+                ReleaseRail();
                 dashRemaining = 0f;
                 dashStepActive = false;
                 body.gravityScale = gravityScale;

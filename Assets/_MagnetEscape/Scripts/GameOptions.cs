@@ -11,6 +11,7 @@ namespace MagnetEscape
         {
             if (Application.isEditor || displayApplied) return;
             displayApplied = true;
+            Application.targetFrameRate = 60;
             bool fullscreen = PlayerPrefs.GetInt("MagnetEscape.Fullscreen", 1) != 0;
             ApplyDisplayMode(fullscreen);
         }

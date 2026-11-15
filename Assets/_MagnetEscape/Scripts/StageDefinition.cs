@@ -18,6 +18,7 @@ namespace MagnetEscape
         public float FallDeathHeight = -7f;
         [Range(0f, 1f)] public float RespawnDelay = 0.2f;
         public RectPlacement[] Platforms = Array.Empty<RectPlacement>();
+        public RailPlacement[] Rails = Array.Empty<RailPlacement>();
         public MovingPlacement[] MovingPlatforms = Array.Empty<MovingPlacement>();
         public RectPlacement[] Spikes = Array.Empty<RectPlacement>();
         public SawPlacement[] Saws = Array.Empty<SawPlacement>();
@@ -46,6 +47,14 @@ namespace MagnetEscape
         {
             public Vector2 Position;
             [Min(0.1f)] public float Width = 3f;
+        }
+
+        [Serializable]
+        public sealed class RailPlacement
+        {
+            public Vector2 Start;
+            public Vector2 End;
+            [Min(0.1f)] public float CatchRange = 1.1f;
         }
 
         [Serializable]

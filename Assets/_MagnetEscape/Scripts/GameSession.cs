@@ -122,6 +122,12 @@ namespace MagnetEscape
                 platformBounds.center += (Vector3)moving.Travel;
                 bounds.Encapsulate(platformBounds);
             }
+            foreach (MagneticRail rail in MagneticRail.All)
+            {
+                if (rail.gameObject.scene != gameObject.scene) continue;
+                bounds.Encapsulate(rail.StartPoint);
+                bounds.Encapsulate(rail.EndPoint + Vector2.up);
+            }
             foreach (MagnetAnchor anchor in MagnetAnchor.All)
             {
                 if (anchor.gameObject.scene == gameObject.scene)
