@@ -61,20 +61,20 @@
 기존 Task 1~3은 재구현하지 않는다. 최신 요청에 따라 Unity 검수 보류를 해제하고 지정 버전에서 실행한다. 현재 clean develop/a2d8de7, 원격 동일. 현재 체크아웃을 유지한다.
 
 ### Task 4: 지정 Unity에서 첫 실행과 컴파일/기존 회귀 수정
-- [ ] Unity 2022.3.62f1 설치·활성화 확인 후 `python3 Tools/unity_tasks.py test` 실행. 컴파일 또는 기존 테스트 실패를 원인별로 수정한다.
-- [ ] Python 전체 21건·에셋 무결성·diff 확인, TASKS/PROGRESS/README의 환경·실행 결과 갱신, 커밋·푸시.
+- [x] Unity 2022.3.62f1 설치·활성화 확인 후 `python3 Tools/unity_tasks.py test` 실행. 컴파일 또는 기존 테스트 실패를 원인별로 수정한다.
+- [x] Python 전체 21건·에셋 무결성·diff 확인, TASKS/PROGRESS/README의 환경·실행 결과 갱신, 커밋·푸시.
 
 ### Task 5: 러너 물리 조작과 상태 복귀
-- [ ] 기존 PlayMode 파일에 가변 점프·전방 대시/쿨다운·상하 인력/척력·부활 후 전진 회귀를 먼저 추가해 실행. 테스트에서만 입력 필드를 설정하며 런타임 입력 프레임워크는 추가하지 않는다.
-- [ ] 재현된 실제 결함만 기존 PlayerMotor/GameSession에서 수정, 전체 Unity/Python 검사·diff·기록 후 커밋·푸시.
+- [x] 기존 PlayMode 파일에 가변 점프·전방 대시/쿨다운·상하 인력/척력·부활 후 전진 회귀를 먼저 추가해 실행. 테스트에서만 입력 필드를 설정하며 런타임 입력 프레임워크는 추가하지 않는다.
+- [x] 재현된 실제 결함만 기존 PlayerMotor/GameSession에서 수정, 전체 Unity/Python 검사·diff·기록 후 커밋·푸시.
 
 ### Task 6: 원본 4코스의 완주·체크포인트 준비 거리
-- [ ] 실제 Unity 물리에서 코스별 점프/대시/자력 경로를 실행해 완주와 체크포인트 재출발을 확인한다. 자동 경로 검증과 사람 키보드 플레이는 구별해 기록한다.
-- [ ] 완주를 막는 배치/조작 결함을 Stage1~4.asset 또는 Motor에서 수정. 기존 GUID 유지, 검사·기록·커밋·푸시.
+- [x] 실제 Unity 물리에서 코스별 점프/대시/자력 경로를 실행해 완주와 체크포인트 재출발을 확인한다. 자동 경로 검증과 사람 키보드 플레이는 구별해 기록한다.
+- [x] 완주를 막는 배치/조작 결함을 Stage1~4.asset 또는 Motor에서 수정. 기존 GUID 유지, 검사·기록·커밋·푸시.
 
 ### Task 7: macOS 제출 실행본
-- [ ] 지정 버전에서 `python3 Tools/unity_tasks.py build-mac --package`, 앱 아키텍처·실행 로그 확인. 실제 UI/키보드 플레이 가능 범위 확인, 제출 문서 갱신.
-- [ ] 미검증 항목과 바로 다음 작업 기록. 전체 완료는 필수 기능과 네 코스 실제 검수 전 선언하지 않는다.
+- [x] 지정 버전에서 `python3 Tools/unity_tasks.py build-mac --package`, 앱 아키텍처·실행 로그 확인. 실제 UI/키보드 플레이 가능 범위 확인, 제출 문서 갱신.
+- [x] 미검증 항목과 바로 다음 작업 기록. 전체 완료는 필수 기능과 네 코스 실제 검수 전 선언하지 않는다.
 
 Review Focus: 바닥/벽 접촉과 대시 마지막 스텝, 자력 해제/범위 이탈, 정지 중 버튼 해제, 체크포인트 후 회피 거리, 기록 키 분리와 사용자 기록 보존. 각 단계는 위 공유 PlayerMotor/GameSession 인터페이스와 원본 StageDefinition을 그대로 사용한다.
 
@@ -82,24 +82,32 @@ Follow-up execution: Task4/5 implemented and verified (c17fff8), Task6 automatic
 
 
 ### Task 8: 한국어와 큰 화면 (추가 사용자 요청)
-- [ ] GameHud/GameSession/StageInfo/Stage1~4 안내 번역, Mac 한글 폰트 명시, GameOptions 첫 전체 화면·큰 창 모드, 창 크기 변경 허용. 실제 빌드에서 글자/레이아웃/화면 크기 확인.
-- [ ] 리뷰 Important: 원본 플레이 테스트는 Build Settings의 모든 원본 경로를 검사해 편집 리비전이면 키/씬 변경 전에 건너뛴다. 실제 대체 GUID/경로 fixture로 skip 확인.
-- [ ] 전체 Unity/Python 검사·기록·커밋·푸시.
+- [x] GameHud/GameSession/StageInfo/Stage1~4 안내 번역, Mac 한글 폰트 명시, GameOptions 첫 전체 화면·큰 창 모드, 창 크기 변경 허용. 실제 빌드에서 글자/레이아웃/화면 크기 확인.
+- [x] 리뷰 Important: 원본 플레이 테스트는 Build Settings의 모든 원본 경로를 검사해 편집 리비전이면 키/씬 변경 전에 건너뛴다. 실제 대체 GUID/경로 fixture로 skip 확인.
+- [x] 전체 Unity/Python 검사·기록·커밋·푸시.
 
 ### Task 9: 자석 레일 그라인드
 Files: MagneticRail.cs(.meta), PlayerMotor/PlayerVisual/StageDefinition/StageBootstrap/GameSession/GameHud, 기존 PlayMode 테스트.
 Interface: MagneticRail.Configure(start,end,catchRange), CanCatch(position,boardOffset), HeightAt(x), All 목록. PlayerMotor.RailEnabled/IsGrinding, 기존 Q/E/Space/Shift 입력·SetFrozen/ResetAt 사용. StageDefinition.Rails(Start,End,CatchRange) 배열.
-- [ ] 먼저 실제 레일 포착·속도·Space/E 도약·Q 해제·끝점 이탈·동결/부활 초기화 회귀를 작성하고 실패 확인.
-- [ ] 직선/경사 레일 표현과 Motor의 제한된 레일 상태를 구현한다. 기본 전진7, 그라인드 배율1.35, 포착 범위1.1, 재포착 잠금0.2초. 자력은 수평을 뒤집지 않는다.
-- [ ] 전체 테스트·diff·기록·커밋·푸시.
+- [x] 먼저 실제 레일 포착·속도·Space/E 도약·Q 해제·끝점 이탈·동결/부활 초기화 회귀를 작성하고 실패 확인.
+- [x] 직선/경사 레일 표현과 Motor의 제한된 레일 상태를 구현한다. 기본 전진7, 그라인드 배율1.35, 포착 범위1.1, 재포착 잠금0.2초. 자력은 수평을 뒤집지 않는다.
+- [x] 전체 테스트·diff·기록·커밋·푸시.
 
 ### Task 10: 길어진 4코스와 기록 분리
 Files: Stage1~4.asset, StageRecords/랭크·생명주기 테스트, README/GOAL/TASKS/PROGRESS.
-- [ ]248/320/380/480 길이·42/54/64/82초 기준으로 확장하고 2코스부터 레일을 배치, CP1초 준비 거리·난이도 점증 유지. v2 기록 prefix로 이전 기록 보존.
-- [ ] 실제 Unity 네 코스 무사망 경로·모든 CP·필수 조작 회귀 후 Mac 앱/ZIP 재빌드·한국어/큰 화면 확인. 완주 미확인 상태를 완료로 표시하지 않는다.
+- [x]248/320/380/480 길이·42/54/64/82초 기준으로 확장하고 2코스부터 레일을 배치, CP1초 준비 거리·난이도 점증 유지. v2 기록 prefix로 이전 기록 보존.
+- [x] 실제 Unity 네 코스 무사망 경로·모든 CP·필수 조작 회귀 후 Mac 앱/ZIP 재빌드·한국어/큰 화면 확인. 완주 미확인 상태를 완료로 표시하지 않는다.
 
 ### Task 11: 정지 화면의 키보드 접근과 제출 문서
-- [ ] 실제 실행본에서 정지 중 R이 무시됨(116.43초·65회 화면 유지)을 재현. GameSession의 R/Backspace를 Paused guard 이전으로 옮겨 기존 정책대로 처리. Enter 재개·Tab 선택, H/T/C 정보 화면, F11 화면 전환을 기존 GameHud/GameOptions로 연결한다.
-- [ ] 실제 키 입력으로 재현/수정 확인, 전체49건 회귀·새 Universal 빌드/ZIP·문서2페이지 렌더 QA, 기록·커밋·푸시.
+- [x] 실제 실행본에서 정지 중 R이 무시됨(116.43초·65회 화면 유지)을 재현. GameSession의 R/Backspace를 Paused guard 이전으로 옮겨 기존 정책대로 처리. Enter 재개·Tab 선택, H/T/C 정보 화면, F11 화면 전환을 기존 GameHud/GameOptions로 연결한다.
+- [x] 실제 키 입력으로 재현/수정 확인, 전체49건 회귀·새 Universal 빌드/ZIP·문서2페이지 렌더 QA, 기록·커밋·푸시.
 
 Latest execution ledger: Task8 Korean/large display verified and shipped656c01d; Task9 core784e423 plus reviewed fixes ee8671b, all four new regression failures RED→GREEN; Task10 expanded source routes/29CP/v2 prefix verified and shippedaff7724; Task11 Unity49/Python21 and actual native R/Backspace/Enter/Tab/H/T/F11 + short Space→Q route verified, Universal build065006_UTC_4a253086 errors0/warnings0, DOCX2 pages rendered/visually inspected. Remaining: complete keyboard/human four-course run and standalone completed-record relaunch, audio feel/other hardware, previously noted edge boundaries. Overall completion is not claimed.
+
+
+### Task 12: 실제 키보드 완주·남은 조작 경계·알림 가림 마감
+- [x] 최신 Universal에서 CUA 실제 키로4코스 결승, 재도전 포함 결과와4/4 저장 재실행 확인(작업67).
+- [x] PlayMode에 마지막 대시 벽/바닥 접촉·범위 내 자력 해제·정지 중 Space 해제·하강 레일 자연 끝을 추가해 실행. 모터 동작은 실패가 재현될 때만 수정.
+- [x] 실제 화면에서 재현한 CP 정지 알림/HUD 겹침을 GameHud 기존 전경 알림 위치만 하단으로 옮겨 보완. 전체 테스트·Universal 재빌드 후 같은 화면 확인, TASKS/PROGRESS와 최신 제출 경로 갱신·커밋/푸시.
+
+Task12 execution: 작업67의 실제 키보드4결승·기록 재실행, 작업68의53건+연결선 필터1건/최신072336_UTC_52ab5b3a Universal/CP 알림 화면/기획서2페이지 모두 확인. 사람의 난이도·오디오 체감 및 다른 Mac은 추가 검수로 남긴다. 과거 ledger의 미검증 문구는 당시 이력이다.

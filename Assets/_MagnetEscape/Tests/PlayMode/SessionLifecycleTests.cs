@@ -845,6 +845,140 @@ namespace MagnetEscape.Tests
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator FinalDashStepStopsAtAWallButNotAtTheSupportingFloor()
+        {
+            PlayerMotor player = session.Player;
+            player.DashEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            GameObject solid = new GameObject("Final dash step solid");
+            solid.layer = LayerMask.NameToLayer("Ground");
+            BoxCollider2D obstacle = solid.AddComponent<BoxCollider2D>();
+            foreach (bool wall in new[] { true, false })
+            {
+                solid.transform.position = wall ? new Vector2(103.4f, 8f) : new Vector2(103f, 7.3f);
+                obstacle.size = wall ? new Vector2(0.5f, 4f) : new Vector2(12f, 0.5f);
+                player.ResetAt(new Vector2(100f, 8f));
+                Physics2D.SyncTransforms();
+                SetMotorField(player, "dashQueued", true);
+                for (int step = 0; step < 8; step++)
+                {
+                    player.SendMessage("FixedUpdate");
+                    yield return new WaitForFixedUpdate();
+                    if (step < 7) Assert.That(player.IsDashing, Is.True, "Contact must occur on the final step.");
+                }
+                yield return null; // Receive the final physics step's collision callbacks.
+                Assert.That(player.IsDashing, Is.EqualTo(!wall), "Only a facing wall cancels the last dash step.");
+                Assert.That(body.gravityScale, Is.EqualTo(wall ? 3f : 0f));
+                Assert.That(player.Cooldown, Is.GreaterThan(0f));
+                Assert.That(session.Deaths, Is.Zero);
+                if (wall) Assert.That(body.position.x, Is.LessThan(102.85f));
+                player.SendMessage("FixedUpdate");
+                Assert.That(player.IsDashing, Is.False);
+                Assert.That(body.gravityScale, Is.EqualTo(3f));
+            }
+            Object.Destroy(solid);
+        }
+
+        [UnityTest]
+        public IEnumerator ReleasingMagnetInsideRangeStopsForceAndItsActivePresentation()
+        {
+            PlayerMotor player = session.Player;
+            player.MagnetEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            GameObject obj = new GameObject("In-range magnet release");
+            MagnetAnchor anchor = obj.AddComponent<MagnetAnchor>();
+            obj.transform.position = new Vector2(100f, 11f);
+            anchor.Configure(7f, 1f);
+            foreach (int mode in new[] { 1, -1 })
+            {
+                player.ResetAt(new Vector2(100f, 8f));
+                Physics2D.SyncTransforms();
+                SetMotorField(player, "magnetMode", mode);
+                player.SendMessage("FixedUpdate");
+                Assert.That(body.velocity.y * mode, Is.GreaterThan(0f));
+                Assert.That(anchor.Contains(body.position, player.MagnetReach), Is.True);
+                anchor.SendMessage("Update");
+                LineRenderer ring = obj.GetComponent<LineRenderer>();
+                Assert.That(ring.startColor.a, Is.EqualTo(0.65f).Within(0.01f));
+                Assert.That(ring.startWidth, Is.EqualTo(0.05f).Within(0.001f));
+                PlayerVisual visual = player.GetComponent<PlayerVisual>();
+                // SendMessage dispatches to every component on the GameObject,
+                // including motor.Update, which would replace the test command with headless Input.
+                var updateVisual = typeof(PlayerVisual).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                updateVisual.Invoke(visual, null);
+                LineRenderer tether = player.GetComponent<LineRenderer>();
+                Assert.That(tether.enabled, Is.True);
+                Assert.That(tether.GetPosition(0), Is.EqualTo(player.transform.position));
+                Assert.That(tether.GetPosition(1), Is.EqualTo(obj.transform.position));
+                SetMotorField(player, "magnetMode", 0);
+                body.velocity = Vector2.zero;
+                player.SendMessage("FixedUpdate");
+                Assert.That(body.velocity, Is.EqualTo(new Vector2(7f, 0f)));
+                Assert.That(body.gravityScale, Is.EqualTo(3f));
+                anchor.SendMessage("Update");
+                Assert.That(ring.startColor.a, Is.EqualTo(0.35f).Within(0.01f), "The selected ring stays visible without the active force highlight.");
+                Assert.That(ring.startWidth, Is.EqualTo(0.025f).Within(0.001f));
+                updateVisual.Invoke(visual, null);
+                Assert.That(tether.enabled, Is.False, "Releasing Q/E removes the active force connection inside range.");
+            }
+            Object.Destroy(obj);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator JumpReleasedDuringPauseCutsAscentOnTheFirstResumedStep()
+        {
+            PlayerMotor player = session.Player;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            player.ResetAt(new Vector2(100f, 8f));
+            body.velocity = new Vector2(7f, 10f);
+            SetMotorField(player, "jumpHeld", true);
+            session.SetPaused(true);
+            player.SendMessage("Update"); // Headless Input reports Space released, while physics is paused.
+            Assert.That(body.velocity.y, Is.EqualTo(10f));
+            session.SetPaused(false);
+            player.SendMessage("Update");
+            player.SendMessage("FixedUpdate");
+            Assert.That(body.velocity.y, Is.EqualTo(4.5f).Within(0.01f));
+            Assert.That(body.velocity.x, Is.EqualTo(7f));
+            player.SendMessage("Update");
+            player.SendMessage("FixedUpdate");
+            Assert.That(body.velocity.y, Is.EqualTo(4.5f).Within(0.01f), "The release cut is applied once.");
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator DescendingRailNaturallyEndsAndRestoresForwardFlight()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            MagneticRail rail = CreateRail();
+            rail.Configure(new Vector2(99f, 7.65f), new Vector2(103f, 7.25f), 1.1f);
+            player.ResetAt(new Vector2(100f, 8f));
+            SetMotorField(player, "magnetMode", 1);
+            bool caught = false;
+            for (int step = 0; step < 22; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                caught |= player.IsGrinding;
+                if (player.IsGrinding)
+                {
+                    Assert.That(body.velocity.x, Is.EqualTo(9.45f).Within(0.01f));
+                    Assert.That(body.velocity.y, Is.LessThan(0f));
+                }
+                yield return new WaitForFixedUpdate();
+            }
+            Assert.That(caught, Is.True);
+            Assert.That(player.IsGrinding, Is.False, "Movement must naturally cross the end without teleporting.");
+            Assert.That(body.position.x, Is.GreaterThan(103f));
+            Assert.That(body.velocity.x, Is.EqualTo(7f).Within(0.01f));
+            Assert.That(body.gravityScale, Is.EqualTo(3f));
+            Assert.That(session.Deaths, Is.Zero);
+            Object.Destroy(rail.gameObject);
+        }
+
         private static MagneticRail CreateRail()
         {
             GameObject obj = new GameObject("Test magnetic rail");

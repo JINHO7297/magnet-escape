@@ -127,8 +127,10 @@ namespace MagnetEscape
                 if (!HasOverlay && session.Stage > 0 && (session.Paused || session.Finished)
                     && string.IsNullOrEmpty(session.CourseError) && !string.IsNullOrEmpty(session.Notice))
                 {
-                    Panel(new Rect(170, 18, 620, 50));
-                    Label(new Rect(188, 30, 584, 32), session.Notice, text, Gold);
+                    // Keep time/deaths visible when a checkpoint or transition
+                    // notice is drawn in front of the pause/result overlay.
+                    Panel(new Rect(170, 492, 620, 44));
+                    Label(new Rect(188, 500, 584, 32), session.Notice, text, Gold);
                 }
                 if (session.ChangingScene)
                 {
@@ -212,7 +214,7 @@ namespace MagnetEscape
                 string budget = pace == "C" ? "결승까지 도전!" : session.RankTimeRemaining.ToString("F1") + "초 남음";
                 Label(new Rect(32, 113, 230, 24), "예상 등급 " + pace + "  /  " + budget, small, pace == "S" ? Gold : Mint);
             }
-            if (!string.IsNullOrEmpty(session.Notice))
+            if (!session.Paused && !session.Finished && !string.IsNullOrEmpty(session.Notice))
             {
                 Panel(new Rect(280, 104, 400, 38));
                 Label(new Rect(296, 112, 370, 25), session.Notice, text, Gold);
