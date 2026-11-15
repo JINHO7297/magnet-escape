@@ -26,7 +26,10 @@ namespace MagnetEscape
         private Vector2 uiOffset;
         private void Awake() => session = GetComponent<GameSession>();
 
-        private void OpenRecords()
+        public void OpenHelp() => overlay = Overlay.Controls;
+        public void OpenCredits() => overlay = Overlay.Credits;
+
+        public void OpenRecords()
         {
             recordWarning = null;
             overlay = Overlay.Records;
@@ -175,7 +178,7 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(710, 474, 90, 32), "제작 정보", button)) overlay = Overlay.Credits;
             if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "게임 종료", button)) session.QuitGame();
             DisplayModeButton(new Rect(52, 510, 230, 26));
-            Label(new Rect(530, 516, 380, 20), "1~4: 코스 선택   |   M: 음소거", small);
+            Label(new Rect(530, 516, 380, 20), "1~4 선택 · H 도움말 · T 기록 · M 음소거", small);
         }
 
         private void Hud()
@@ -240,10 +243,10 @@ namespace MagnetEscape
             Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.65f));
             Panel(new Rect(260, 90, 440, 400));
             Label(new Rect(292, 113, 380, 55), "일시정지", title, Mint);
-            if (GUI.Button(new Rect(292, 174, 376, 38), "계속하기  /  Esc", button)) session.SetPaused(false);
-            if (GUI.Button(new Rect(292, 222, 376, 38), "체크포인트부터  /  충돌 +1", button)) session.RetryCheckpoint();
-            if (GUI.Button(new Rect(292, 270, 376, 38), "코스 처음부터", button)) session.LoadStage(session.Stage);
-            if (GUI.Button(new Rect(292, 318, 376, 38), "코스 선택", button)) session.ShowSelection();
+            if (GUI.Button(new Rect(292, 174, 376, 38), "계속하기  /  Enter · Esc", button)) session.SetPaused(false);
+            if (GUI.Button(new Rect(292, 222, 376, 38), "체크포인트부터  /  Backspace", button)) session.RetryCheckpoint();
+            if (GUI.Button(new Rect(292, 270, 376, 38), "코스 처음부터  /  R", button)) session.LoadStage(session.Stage);
+            if (GUI.Button(new Rect(292, 318, 376, 38), "코스 선택  /  Tab", button)) session.ShowSelection();
             if (GUI.Button(new Rect(292, 365, 118, 30), "도움말", button)) overlay = Overlay.Controls;
             if (GUI.Button(new Rect(420, 365, 118, 30), "기록", button)) OpenRecords();
             if (GUI.Button(new Rect(548, 365, 120, 30), "제작 정보", button)) overlay = Overlay.Credits;
@@ -254,7 +257,7 @@ namespace MagnetEscape
         private void DisplayModeButton(Rect rect)
         {
             if (Application.isEditor) return;
-            if (GUI.Button(rect, Screen.fullScreen ? "창 모드로 전환" : "전체 화면으로 전환", button))
+            if (GUI.Button(rect, Screen.fullScreen ? "창 모드 / F11" : "전체 화면 / F11", button))
                 GameOptions.ToggleFullscreen();
         }
 
@@ -328,7 +331,7 @@ namespace MagnetEscape
                     "앞으로 짧게 대시합니다. 장애물 무적은 없습니다.",
                     "공중 자력 조절. 레일은 Q로 잡고 Space/E로 도약합니다.",
                     "체크포인트부터 재도전. 충돌 +1, 시간은 유지됩니다.",
-                    "시간·충돌·체크포인트를 초기화하고 처음부터 시작합니다.", "일시정지 / 계속하기. M으로 음소거를 전환합니다."
+                    "시간·충돌·체크포인트를 초기화하고 처음부터 시작합니다.", "정지 / 재개. H 도움말 · T 기록 · C 제작 정보."
                 };
                 for (int i = 0; i < keys.Length; i++)
                 {

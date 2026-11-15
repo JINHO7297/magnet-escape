@@ -175,6 +175,7 @@ namespace MagnetEscape
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.M)) GameOptions.ToggleMute();
+            if (Input.GetKeyDown(KeyCode.F11)) GameOptions.ToggleFullscreen();
             if (ChangingScene) return;
             if (Input.GetKeyDown(KeyCode.Escape) && hud.CloseOverlay()) return;
             if (hud.HasOverlay) return;
@@ -182,6 +183,14 @@ namespace MagnetEscape
             {
                 if (Input.GetKeyDown(KeyCode.Escape)) ShowSelection();
                 else if (Input.GetKeyDown(KeyCode.R)) LoadStage(Stage);
+                return;
+            }
+            if (Input.GetKeyDown(KeyCode.H) || Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.C))
+            {
+                if (Stage > 0 && !Finished) SetPaused(true);
+                if (Input.GetKeyDown(KeyCode.H)) hud.OpenHelp();
+                else if (Input.GetKeyDown(KeyCode.T)) hud.OpenRecords();
+                else hud.OpenCredits();
                 return;
             }
             if (Stage == 0)
@@ -197,9 +206,14 @@ namespace MagnetEscape
                 return;
             }
             if (Player == null) return;
-            if (Paused) return;
             if (Input.GetKeyDown(KeyCode.R)) { LoadStage(Stage); return; }
             if (!Finished && Input.GetKeyDown(KeyCode.Backspace)) { RetryCheckpoint(); return; }
+            if (Paused)
+            {
+                if (Input.GetKeyDown(KeyCode.Return)) SetPaused(false);
+                else if (Input.GetKeyDown(KeyCode.Tab)) ShowSelection();
+                return;
+            }
             if (Finished)
             {
                 if (Input.GetKeyDown(KeyCode.Return))

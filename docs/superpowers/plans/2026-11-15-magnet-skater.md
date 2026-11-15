@@ -97,3 +97,9 @@ Interface: MagneticRail.Configure(start,end,catchRange), CanCatch(position,board
 Files: Stage1~4.asset, StageRecords/랭크·생명주기 테스트, README/GOAL/TASKS/PROGRESS.
 - [ ]248/320/380/480 길이·42/54/64/82초 기준으로 확장하고 2코스부터 레일을 배치, CP1초 준비 거리·난이도 점증 유지. v2 기록 prefix로 이전 기록 보존.
 - [ ] 실제 Unity 네 코스 무사망 경로·모든 CP·필수 조작 회귀 후 Mac 앱/ZIP 재빌드·한국어/큰 화면 확인. 완주 미확인 상태를 완료로 표시하지 않는다.
+
+### Task 11: 정지 화면의 키보드 접근과 제출 문서
+- [ ] 실제 실행본에서 정지 중 R이 무시됨(116.43초·65회 화면 유지)을 재현. GameSession의 R/Backspace를 Paused guard 이전으로 옮겨 기존 정책대로 처리. Enter 재개·Tab 선택, H/T/C 정보 화면, F11 화면 전환을 기존 GameHud/GameOptions로 연결한다.
+- [ ] 실제 키 입력으로 재현/수정 확인, 전체49건 회귀·새 Universal 빌드/ZIP·문서2페이지 렌더 QA, 기록·커밋·푸시.
+
+Latest execution ledger: Task8 Korean/large display verified and shipped656c01d; Task9 core784e423 plus reviewed fixes ee8671b, all four new regression failures RED→GREEN; Task10 expanded source routes/29CP/v2 prefix verified and shippedaff7724; Task11 Unity49/Python21 and actual native R/Backspace/Enter/Tab/H/T/F11 + short Space→Q route verified, Universal build065006_UTC_4a253086 errors0/warnings0, DOCX2 pages rendered/visually inspected. Remaining: complete keyboard/human four-course run and standalone completed-record relaunch, audio feel/other hardware, previously noted edge boundaries. Overall completion is not claimed.

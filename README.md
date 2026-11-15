@@ -14,7 +14,7 @@ git clone --branch develop https://github.com/JINHO7297/magnet-escape.git
 
 Unity Hub에서 2022.3.62f1을 설치하고 이 폴더를 프로젝트로 추가합니다. Apple Silicon에서도 2022의 Intel Package Manager 때문에 Rosetta 2가 필요했습니다. `Assets/_MagnetEscape/Scenes/StageSelect.unity`를 열어 Play한 뒤 Game 뷰를 클릭합니다. Active Input Handling은 Input Manager (Old) 또는 Both입니다.
 
-Mac 실행본은 처음에 전체 화면으로 열립니다. 선택/정지 화면에서 창 모드로 바꾸면 화면에 맞는 최대1600×900 창을 사용하며 창 크기도 조절할 수 있습니다. 기본60FPS 상한과 SafeArea 비례 UI를 사용합니다. 한글은 Apple SD Gothic Neo 등 OS 시스템 폰트로 표시합니다.
+Mac 실행본은 처음에 전체 화면으로 열립니다. 선택/정지 화면에서 창 모드로 바꾸면 화면에 맞는 최대1600×900 창을 사용하며 창 크기도 조절할 수 있습니다. 정지 중에도 R 재시작·Backspace 재도전이 가능합니다. 기본60FPS 상한과 SafeArea 비례 UI를 사용합니다. 한글은 Apple SD Gothic Neo 등 OS 시스템 폰트로 표시합니다.
 
 ## 조작
 
@@ -29,6 +29,9 @@ Mac 실행본은 처음에 전체 화면으로 열립니다. 선택/정지 화�
 | Backspace | 체크포인트 재도전: 충돌 +1, 시간 유지 |
 | R / Esc | 전체 재시작 / 일시정지·계속하기 |
 | M / 1~4 | 음소거 / 선택 화면에서 코스 선택 |
+| H / T / C | 도움말 / 기록 / 제작 정보 |
+| F11 | 전체 화면·큰 창 전환 |
+| 정지 중 Enter / Tab | 계속하기 / 코스 선택 |
 
 2코스부터 대시와 레일, 3코스부터 공중 자력을 사용합니다. 청록→보라 레일 근처에서 점프하며 Q를 유지하면 보드가 붙어 **35% 빠르게** 전진합니다. Space/E로 도약하거나 Q를 놓아 분리하고, Shift로 바로 대시할 수도 있습니다. 레일 진입 중에도 고체를 통과할 수 없으며 위험물에 닿으면 사망합니다. 정지·사망·클리어·전환 중에는 전진하지 않습니다.
 
@@ -70,4 +73,4 @@ Unity 결과는 `artifacts/tests/<실행 ID>/`, 빌드는 `Builds/<실행 ID>/`�
 
 출력은 Universal `MagnetEscape.app`, `MagnetEscape-macOS.zip`, `PLAYING.txt`입니다. ZIP에는 앱·한글 안내·CREDITS.md만 넣으며 개발 로그와 개인 경로가 포함된 빌드 요약은 넣지 않습니다. 산출물은 Git 제외입니다. 실제 앱/ZIP 생성·두 아키텍처 포함·Apple Silicon의 한글 전체 화면은 확인했습니다. 최신 검수본 경로와 세부 미검증은 SUBMISSION.md/PROGRESS.md를 확인하세요.
 
-목표·이력: GOAL.md, TASKS.md, PROGRESS.md. 설계·계획: docs/superpowers. 제출 기획서: docs/Magnet_Skater_Game_Design.docx(초기 기획서; 레일/확장 후속 요구는 최신 GOAL/설계를 우선).
+목표·이력: GOAL.md, TASKS.md, PROGRESS.md. 설계·계획: docs/superpowers. 제출 기획서: docs/Magnet_Skater_Game_Design.docx(레일·확장 코스와 검증 현황을 반영한 A4 2페이지).

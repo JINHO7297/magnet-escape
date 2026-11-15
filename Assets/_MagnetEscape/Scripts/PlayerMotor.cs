@@ -353,8 +353,8 @@ namespace MagnetEscape
 
         public void ClearInput(bool preserveJumpRelease = false)
         {
-            // A release can occur while Update is suspended by pause. Preserve only
-            // that held-jump state, never a queued jump, dash or magnet command.
+            // Preserve pending jump release and held Q/E levels through pause,
+            // while always discarding queued jump and dash edges.
             checkJumpReleaseOnResume = preserveJumpRelease && (checkJumpReleaseOnResume || jumpHeld || cutJump);
             jumpQueued = dashQueued = cutJump = jumpHeld = false;
             jumpBuffer = 0f;

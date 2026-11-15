@@ -1,45 +1,39 @@
-> 최신 기획은 자동 전진 스케이터다. 제출 기획서: docs/Magnet_Skater_Game_Design.docx. 구 네임스페이스/출력 파일명은 참조 호환을 위해 유지한다. 기존 문서의 누적 안내보다 README/GOAL의 최신 조작을 우선한다.
+# 마그넷 스케이터 제출 자료
 
-# Magnet Skater 제출 자료 안내
+## 최신 실행본
 
-## 소스 프로젝트
+Unity2022.3.62f1로 실제 생성한 Mac Universal 검수본:
 
-저장소의 develop 브랜치에 Assets, Packages, ProjectSettings와 실행 설명이 포함되어 있다. Unity 2022.3.62f1로 연다. Library, Temp, Logs, 개인 설정, 로컬 테스트 로그는 제출 소스에 포함하지 않는다.
+- `Builds/20261115_065006_UTC_4a253086/MagnetEscape.app`
+- `Builds/20261115_065006_UTC_4a253086/MagnetEscape-macOS.zip`
+- 같은 폴더의 `PLAYING.txt`: 한글 조작 안내
 
-## 게임 구성
+ZIP에는 앱·PLAYING.txt·CREDITS.md가 들어 있으며 개발 로그와 개인 경로를 포함한 빌드 요약은 제외했다. 산출물은 Git 제외 정책에 따라 로컬에만 있다. 소스는 develop에서 받는다. 최신 커밋은 PROGRESS.md 및 git log로 확인한다.
 
-- Stage 1 / Alley Start: 자동 전진·점프 타이밍·체크포인트.
-- Stage 2 / Rooftop Rush: 긴 틈·전방 대시·순찰 드론·공사 장애물.
-- Stage 3 / Sky Rail: 공중 수직 인력·척력·전진 유지.
-- Stage 4 / Skyline Challenge: 모든 기술을 조합한 코스.
+이 실행본은 한국어·전체 화면/큰 창·레일 그라인드·확장4코스·v2 기록·정지 메뉴 단축키를 포함한다. 실행 파일과 UnityPlayer 양쪽에 x86_64/arm64 슬라이스가 있으며 Apple Silicon에서 실행했다. 실제 Intel 하드웨어·다른 Mac·서명/공증 배포는 검증하지 않았다.
 
-선택 화면에서 모든 코스에 접근할 수 있다. 안내·크레딧·음량은 선택/일시정지 화면에 있다. 독립 실행판에는 종료 버튼이 있다. 자세한 키 조작과 기록 정책은 README.md에 있다.
+## 기말과제 소스와 기획서
 
-## 코스 수정
+- Unity 버전: **2022.3.62f1**. Assets/Packages/ProjectSettings와 README를 제출 소스로 사용한다.
+- `docs/Magnet_Skater_Game_Design.docx`: 레일·확장 길이·실제 검증 현황을 반영한 A4 2페이지. 원본 구조를 유지해 수정했고 한글 폰트를 지정해 두 페이지 렌더를 확인했다.
+- README.md: 실제 조작·시작·편집·검사·빌드.
+- GOAL.md: 확정 및 후속 기획·완료 조건.
+- TASKS.md / PROGRESS.md: 실행 결과·이력·미검증 항목.
+- CREDITS.md: 그래픽·소리·도구 출처.
 
-Resources/Stages/Stage1~Stage4.asset이 원본이다. 에셋 선택 후 Scene preview, Move in Scene, Frame Entire Course 도구로 좌표를 편집하도록 구현했다. 필요하면 편집용 씬 복사본을 생성할 수 있으며 기존 복사본은 자동 변경하지 않는다.
+Library/Temp/Logs/UserSettings/개인 설정과 테스트 임시 씬은 제출 소스에 넣지 않는다. 기존 씬/.meta GUID를 유지한다. 편집본을 새로 만들 때는 기존 Tools > Magnet Escape 메뉴를 사용하며 원본은 Resources/Stages/Stage1~4.asset이다.
 
-## macOS 실행본 만들기
-
-Mac Unity 설치·활성화 후 다음 명령을 사용한다.
+## 재빌드
 
 ```bash
-python3 Tools/unity_tasks.py build-mac
-# 앱·안내·크레딧을 ZIP으로도 묶기
+python3 Tools/unity_tasks.py test
 python3 Tools/unity_tasks.py build-mac --package
 ```
 
-실제로 빌드가 성공하면 Builds/<실행 ID>/에 MagnetEscape.app, PLAYING.txt, MagnetEscape.build.txt와 build.log가 남도록 작성했다. 제출 대상에 맞게 앱과 PLAYING.txt를 함께 묶는다. 출력 폴더는 Git에 포함되지 않는다. `--package`를 지정하면 macOS의 ditto로 앱 번들 권한·심볼릭 링크·메타데이터를 보존해 MagnetEscape-macOS.zip에 앱·PLAYING.txt·CREDITS.md를 묶도록 구현했다. 빌드 로그와 개인 경로를 담은 개발 요약은 배포 ZIP에 넣지 않는다. 원본 앱은 보존하고 임시 복사본만 정리한다. 실제 패키지 생성과 다른 Mac에서의 실행은 미검증이다.
+생성 폴더의 앱·한글 안내·크레딧 ZIP을 사용한다. 출력 파일명 MagnetEscape는 기존 도구 호환용이며 게임 표시 이름은 Magnet Skater/마그넷 스케이터다.
 
-현재 저장소에는 검증된 macOS 실행본을 포함하지 않는다. 빌드 코드 작성과 실제 빌드 성공은 별개이며, 현재 환경에서는 Unity 실행·앱 생성·서명·공증·다른 Mac 실행을 확인하지 않았다. 미검증 항목은 TASKS.md와 PROGRESS.md에 남겨 두었다.
+## 검수 범위
 
-## 포함된 문서
+실제 Unity49건(Edit18/Play31)과 Python21건 통과. 4코스 자동 무사망 경로35.34/41.96/49.44/63.88초, 레일 포함 경로, 모든29개 CP 부활 후 무입력1초 준비 거리, 기록 prefix 분리·랭크를 검증했다.
 
-- README.md: 시작 방법·조작·코스 편집·빌드.
-- GOAL.md: 기획 범위와 완료 조건.
-- TASKS.md / PROGRESS.md: 구현 상태·보류 검증·변경 이력.
-- CREDITS.md: 이미지·사운드·도구 출처.
-
-## 2026-11-15 실제 빌드 현황
-
-Unity2022.3.62f1 Universal 앱·ZIP을 실제 생성했다. 한국어/전체 화면 확인본은 `Builds/20261115_015646_UTC_c84d1840/MagnetEscape-macOS.zip`이다. Apple Silicon에서 실행 화면을 확인했으며 실제 Intel 하드웨어/다른 Mac 배포는 미검증이다. 추가 요청인 레일 기능과 긴 코스 작업 중이므로 이 파일은 중간 검수본이다. 빌드 산출물은 Git 제외 정책을 유지한다.
+독립 실행본에서는 한글·큰 화면, 실제 키 입력의 코스 진입·정지·재시작·재도전·정보 화면·화면 전환, Space→Q 첫 레일 구간 무사망 통과를 확인했다. 시간을 맞춘 키보드 전체 완주 자동화는 완주하지 못했으므로 성공으로 세지 않는다. 사람의4코스 완주·세부 조작감·실행본 클리어 기록의 앱 재실행 보존·다른 Mac은 남은 실제 검수다. 전체 완료로 선언하지 않는다.
