@@ -15,14 +15,14 @@ MonoBehaviour:
   Number: 4
   DisplayName: 스카이라인 도전
   Lesson: 모든 기술을 조합해 끝까지 질주하세요.
-  ParTime: 40
+  ParTime: 82
   StartPosition:
     x: 0.0
     y: 1.0
   PlayerPrefab:
     fileID: 0
   ExitPosition:
-    x: 228.0
+    x: 480.0
     y: 0.8
   DashEnabled: 1
   MagnetEnabled: 1
@@ -53,6 +53,26 @@ MonoBehaviour:
       x: 213.0
       y: -0.5
     Width: 38.0
+  - Position:
+      x: 261.0
+      y: -0.5
+    Width: 38.0
+  - Position:
+      x: 309.0
+      y: 0.0
+    Width: 38.0
+  - Position:
+      x: 357.0
+      y: -0.5
+    Width: 38.0
+  - Position:
+      x: 405.0
+      y: 0.5
+    Width: 38.0
+  - Position:
+      x: 459.0
+      y: -0.5
+    Width: 50.0
   MovingPlatforms: []
   Spikes:
   - Position:
@@ -79,6 +99,26 @@ MonoBehaviour:
       x: 218.0
       y: 0.15
     Width: 1.6
+  - Position:
+      x: 256.0
+      y: 0.15000000000000002
+    Width: 1.4
+  - Position:
+      x: 306.0
+      y: 0.65
+    Width: 1.4
+  - Position:
+      x: 352.0
+      y: 0.15000000000000002
+    Width: 1.4
+  - Position:
+      x: 401.0
+      y: 1.15
+    Width: 1.4
+  - Position:
+      x: 468.0
+      y: 0.15000000000000002
+    Width: 1.4
   Saws:
   - Position:
       x: 58.0
@@ -104,6 +144,46 @@ MonoBehaviour:
       y: 0.6
     Period: 3.8
     Phase: 0
+  - Position:
+      x: 267.0
+      y: 2.3
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
+    Phase: 0
+  - Position:
+      x: 318.0
+      y: 2.8
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
+    Phase: 0
+  - Position:
+      x: 365.0
+      y: 2.3
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
+    Phase: 0
+  - Position:
+      x: 414.0
+      y: 3.1
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
+    Phase: 0
+  - Position:
+      x: 474.0
+      y: 2.3
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
+    Phase: 0
   Magnets:
   - Position:
       x: 68.0
@@ -125,6 +205,31 @@ MonoBehaviour:
       y: 4.8
     Range: 7.0
     Strength: 1.25
+  - Position:
+      x: 237.0
+      y: 4.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 285.0
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 333.0
+      y: 4.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 381.0
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 429.0
+      y: 4.5
+    Range: 7
+    Strength: 1.25
   Checkpoints:
   - Position:
       x: 38.0
@@ -140,6 +245,36 @@ MonoBehaviour:
       y: 0.6
   - Position:
       x: 198.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 246.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 294.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 342.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 390.0
+      y: 1.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 438.0
       y: 0.4
     SpawnOffset:
       x: 0.0
@@ -185,3 +320,81 @@ MonoBehaviour:
       y: 1.5
     Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
+  - Position:
+      x: 246.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 294.0
+      y: 2.0
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 342.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 390.0
+      y: 2.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 438.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 30.0
+      y: 1.8
+    Message: '레일 그라인드: 공중에서 Q를 누르고 청록 레일에 접근하세요. Space나 E로 도약, Q를 놓으면 분리됩니다.'
+    Range: 6
+  - Position:
+      x: 248.0
+      y: 2.0
+    Message: '청록색 레일 위에서는 더 빠르게 질주합니다. 끝나기 전에 도약해 다음 구간으로 연결하세요.'
+    Range: 6
+  Rails:
+  - Start:
+      x: 39.0
+      y: 1.7
+    End:
+      x: 52.0
+      y: 2.5
+    CatchRange: 1.1
+  - Start:
+      x: 244.0
+      y: 2.0
+    End:
+      x: 270.0
+      y: 2.7
+    CatchRange: 1.1
+  - Start:
+      x: 293.0
+      y: 2.2
+    End:
+      x: 317.0
+      y: 2.9
+    CatchRange: 1.1
+  - Start:
+      x: 341.0
+      y: 1.8
+    End:
+      x: 366.0
+      y: 2.5
+    CatchRange: 1.1
+  - Start:
+      x: 389.0
+      y: 2.7
+    End:
+      x: 413.0
+      y: 3.2
+    CatchRange: 1.1
+  - Start:
+      x: 439.0
+      y: 1.6
+    End:
+      x: 459.0
+      y: 2.9
+    CatchRange: 1.1

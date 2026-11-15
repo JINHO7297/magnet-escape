@@ -28,7 +28,7 @@ namespace MagnetEscape.Tests
             savedInts.Clear();
             for (int stage = 1; stage <= 4; stage++)
             {
-                string key = "MagnetSkater.Stage" + stage;
+                string key = "MagnetSkater.v2.Stage" + stage;
                 if (PlayerPrefs.HasKey(key + ".Time")) savedTimes[key + ".Time"] = PlayerPrefs.GetFloat(key + ".Time");
                 foreach (string suffix in new[] { ".TimeDeaths", ".Rank" })
                     if (PlayerPrefs.HasKey(key + suffix)) savedInts[key + suffix] = PlayerPrefs.GetInt(key + suffix);
@@ -52,7 +52,7 @@ namespace MagnetEscape.Tests
             yield return null;
             for (int stage = 1; stage <= 4; stage++)
             {
-                string key = "MagnetSkater.Stage" + stage;
+                string key = "MagnetSkater.v2.Stage" + stage;
                 foreach (string suffix in new[] { ".Time", ".TimeDeaths", ".Rank" }) PlayerPrefs.DeleteKey(key + suffix);
             }
             foreach (var pair in savedTimes) PlayerPrefs.SetFloat(pair.Key, pair.Value);
@@ -496,6 +496,7 @@ namespace MagnetEscape.Tests
                 float jumpedAt = -100f;
                 float lastJumpX = -100f;
                 bool gapJump = false;
+                int grindSteps = 0;
                 float deadline = Time.realtimeSinceStartup + 60f;
                 Time.timeScale = 5f;
                 while (!session.Finished && Time.realtimeSinceStartup < deadline)
@@ -549,13 +550,34 @@ namespace MagnetEscape.Tests
                         if (player.MagnetTarget != null) mode = player.MagnetTarget.position.y > body.position.y ? 1 : -1;
                         else if (closest != null) mode = closest.transform.position.y > body.position.y ? 1 : -1;
                     }
+                    if (player.RailEnabled && !onFloor)
+                    {
+                        Bounds shape = player.GetComponent<BoxCollider2D>().bounds;
+                        foreach (MagneticRail rail in MagneticRail.All)
+                            if (rail.CanCatch(shape.center, shape.extents.y)) { mode = 1; break; }
+                        if (player.IsGrinding)
+                        {
+                            grindSteps++;
+                            mode = 1;
+                            foreach (RotatingSaw drone in Object.FindObjectsOfType<RotatingSaw>())
+                            {
+                                float ahead = drone.transform.position.x - body.position.x;
+                                if (ahead > 1.7f && ahead < 2.2f && Mathf.Abs(drone.transform.position.y - body.position.y) < 1.2f)
+                                {
+                                    SetMotorField(player, "jumpQueued", true);
+                                    SetMotorField(player, "jumpHeld", true);
+                                }
+                            }
+                        }
+                    }
                     SetMotorField(player, "magnetMode", mode);
                     player.SendMessage("FixedUpdate");
                     yield return new WaitForFixedUpdate();
                 }
                 Assert.That(session.Finished, Is.True, "Stage " + stage + " did not reach the real ExitGate at x=" + body.position.x);
                 Assert.That(session.Deaths, Is.Zero);
-                Debug.Log("Forward route Stage " + stage + ": " + session.Elapsed.ToString("F2") + "s, no deaths");
+                if (stage >= 2) Assert.That(grindSteps, Is.GreaterThan(0), "The route must exercise authored rails too.");
+                Debug.Log("Forward route Stage " + stage + ": " + session.Elapsed.ToString("F2") + "s, no deaths, rail steps=" + grindSteps);
                 Time.timeScale = 1f;
             }
         }

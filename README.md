@@ -1,66 +1,61 @@
-# Magnet Skater
+# 마그넷 스케이터 (Magnet Skater)
 
-자석 보드를 타고 도심을 자동 전진하는 **2D 러너형 플랫폼 액션**. Space 점프·Shift 전방 대시·Q/E 공중 자력으로 틈과 장애물을 피하며 유한한 4코스를 완주합니다. 퍼즐·전투·발전소·공장 탈출 스토리는 사용하지 않습니다.
+자석 보드로 도심을 질주하는 2D 자동 전진 플랫폼 액션입니다. **가변 점프·전방 대시·공중 수직 자력·자석 레일 그라인드/도약**을 조합해 유한한 4코스를 완주합니다. 한국어 메뉴와 첫 실행 전체 화면을 지원합니다.
 
-이 저장소는 기존 Magnet Escape에서 새 기획으로 전환 중입니다. **Unity 컴파일·자동 물리 경로의 4코스 무사망 완주는 확인했습니다. 사람의 키보드 완주·다른 Mac 배포 실행은 추가 검수 중이며, 한국어·전체 화면 실행본 생성은 확인했습니다.** 기존 네임스페이스/폴더/씬/일부 파일명은 GUID 호환을 위해 유지합니다.
+Unity **2022.3.62f1**, C#, 레거시 Input을 사용합니다. 현재 검수 환경은 macOS Apple Silicon + Rosetta 2입니다. Unity 버전·기존 씬/프리팹/.meta GUID를 유지하며 내부 MagnetEscape 이름과 일부 출력 파일명은 호환용입니다.
 
-- Unity: **2022.3.62f1** (버전 변경 없음), C#, 레거시 Input
-- 개발/현재 검수: macOS Apple Silicon, Unity 2022.3.62f1 + Rosetta 2
-- 최신 기획: [설계](docs/superpowers/specs/2026-11-15-magnet-skater-design.md), [전환 계획](docs/superpowers/plans/2026-11-15-magnet-skater.md), [A4 2장 기획서](docs/Magnet_Skater_Game_Design.docx)
+2026-11-15 실제 Unity 검사 **EditMode18 + PlayMode31 =49건**, Python21건 통과. 확장 4코스의 실제 엔진 물리·위험물·레일·결승을 통과하는 자동 무사망 경로와 29개 체크포인트 부활 후 준비 거리를 확인했습니다. 자동 경로 검사는 키보드 입력 수집을 대신 공급하므로 사람이 네 코스를 직접 완주한 검수와는 구분합니다. 실제 Intel 하드웨어/다른 Mac과 모든 세부 조작감은 추가 검수 대상입니다.
 
-## Mac에서 열기
+## 시작
 
 ```bash
 git clone --branch develop https://github.com/JINHO7297/magnet-escape.git
 ```
 
-Unity Hub에서 2022.3.62f1을 설치하고 이 저장소 폴더를 프로젝트로 추가합니다. `Assets/_MagnetEscape/Scenes/StageSelect.unity`를 열어 Play한 뒤 Game 뷰를 클릭합니다. Active Input Handling은 Input Manager (Old) 또는 Both를 사용합니다. 메뉴에서 코스를 선택하면 자동 전진을 시작합니다.
+Unity Hub에서 2022.3.62f1을 설치하고 이 폴더를 프로젝트로 추가합니다. Apple Silicon에서도 2022의 Intel Package Manager 때문에 Rosetta 2가 필요했습니다. `Assets/_MagnetEscape/Scenes/StageSelect.unity`를 열어 Play한 뒤 Game 뷰를 클릭합니다. Active Input Handling은 Input Manager (Old) 또는 Both입니다.
+
+Mac 실행본은 처음에 전체 화면으로 열립니다. 선택/정지 화면에서 창 모드로 바꾸면 화면에 맞는 최대1600×900 창을 사용하며 창 크기도 조절할 수 있습니다. 기본60FPS 상한과 SafeArea 비례 UI를 사용합니다. 한글은 Apple SD Gothic Neo 등 OS 시스템 폰트로 표시합니다.
 
 ## 조작
 
 | 입력 | 동작 |
 | --- | --- |
 | 기본 이동 | 오른쪽 자동 전진. A/D·방향키로 정지/후진하지 않음 |
-| Space | 가변 높이 점프. 짧게 누르면 낮게 점프 |
-| Shift | 오른쪽 전방 대시. 쿨다운 필요, 장애물 무적 없음 |
-| Q / E | 공중에서 자석 쪽/반대쪽 수직 궤적 조절. 수평 전진 유지 |
-| Backspace | 체크포인트 재시도: 사망 +1, 시간 유지 |
-| R / Esc | 전체 재시작 / 일시정지·재개 |
+| Space | 길게 누르면 높이, 짧게 누르면 낮게 점프. 레일에서는 도약 |
+| Shift | 짧은 전방 대시. 쿨다운 필요, 장애물 무적 없음 |
+| Q | 공중 인력. 레일에 접근하면 붙잡아 그라인드 |
+| E | 공중 척력. 레일에서는 위로 도약 |
+| Q 놓기 | 레일에서 분리 |
+| Backspace | 체크포인트 재도전: 충돌 +1, 시간 유지 |
+| R / Esc | 전체 재시작 / 일시정지·계속하기 |
 | M / 1~4 | 음소거 / 선택 화면에서 코스 선택 |
 
-상단 자석에는 Q가 상승·E가 하강 방향, 하단 자석에는 E가 상승·Q가 하강 방향입니다. 범위 밖에서는 힘이 없고 놓으면 일반 중력으로 돌아옵니다. 기본 추진이 수평 속도를 유지하며 자력은 공중 수직 속도만 바꿉니다. 정지·사망·결과·전환 중에는 자동 전진을 멈춥니다.
+2코스부터 대시와 레일, 3코스부터 공중 자력을 사용합니다. 청록→보라 레일 근처에서 점프하며 Q를 유지하면 보드가 붙어 **35% 빠르게** 전진합니다. Space/E로 도약하거나 Q를 놓아 분리하고, Shift로 바로 대시할 수도 있습니다. 레일 진입 중에도 고체를 통과할 수 없으며 위험물에 닿으면 사망합니다. 정지·사망·클리어·전환 중에는 전진하지 않습니다.
 
-## 4코스와 기록
+공중 자력은 위쪽 자석에서 Q 상승/E 하강, 아래쪽 자석에서 E 상승/Q 하강입니다. 범위 밖에서는 힘이 없고 놓으면 일반 중력으로 돌아옵니다. 자력은 수평 전진을 멈추거나 뒤집지 않습니다. 레일은 별도의 한정된 포착 범위를 사용합니다.
 
-| 코스 | 핵심 | 길이 / 초기 S 기준 |
-| --- | --- | --- |
-| ALLEY START | 점프 타이밍 | 124 / 22초 |
-| ROOFTOP RUSH | 점프＋전방 대시 | 160 / 28초 |
-| SKY RAIL | 상하 자석과 공중 궤적 | 180 / 32초 |
-| SKYLINE CHALLENGE | 모든 기술 연속 사용 | 228 / 40초 |
+## 확장 4코스
 
-기본 코스는 정지 대기형 이동 발판 대신 고정 옥상·틈·상하 자석·순찰 드론을 사용합니다. 실제 난이도·점프 여유·출발/부활 준비 거리·랭크 기준 적합성은 플레이 확인이 필요합니다.
+| 코스 | 핵심 | 길이 / 초기 S 기준 | 체크포인트 |
+| --- | --- | --- | --- |
+| 도심 골목 | 자동 전진·점프·높이가 다른 착지 | 248 / 42초 | 6 |
+| 옥상 질주 | 긴 틈·대시·레일 입문·드론 | 320 / 54초 | 7 |
+| 공중 레일 | 상하 자력·경사 레일·도약 연결 | 380 / 64초 | 8 |
+| 스카이라인 도전 | 모든 기술과 긴 후반 구간 | 480 / 82초 | 8 |
 
-장애물 접촉/낙사는 사망 1회, 최근 체크포인트에서 0.2초 뒤 부활합니다. 체크포인트는 세션 한정이며 전체 재시작/코스 전환 시 초기화합니다. 부활 대기 중에는 시간이 흐르고, 정지/클리어 후에는 멈춥니다. S는 기준 이내 무사망, A는 기준 1.5배 이내·2회 이하, B는 2배 이내·5회 이하, 나머지는 C입니다. RANK PACE는 현재 가능한 랭크와 남은 시간을 표시합니다.
+기존 대비 약2배 길이입니다. 고정 지형과 총17개 레일을 사용하며 무한/무작위 맵·전투·퍼즐은 없습니다. 자동 경로는 약35.34/41.96/49.44/63.88초에 무사망 완주했고 2~4코스에서는 실제 레일도 사용했습니다. 모든 CP는 실제 부활 후 무입력1초(약7unit) 전진해도 추가 사망이 없고 지상에 있음을 확인했습니다. 사람의 체감 난이도는 별도 검수합니다.
 
-러너 기록은 `MagnetSkater.Stage` 키로 저장합니다. 구 `MagnetEscape.Stage` 기록은 삭제하지 않고 별도로 남깁니다. 편집본/리비전은 씬 경로별로 기록을 분리하고 최고 시간·해당 사망 횟수·독립 최고 랭크를 저장합니다. RECORDS에서 선택한 코스만 확인 후 초기화하며, 미저장 씬은 기록에 쓰지 않습니다.
+충돌/낙사는 사망1회, 체크포인트에서0.2초 후 부활합니다. CP는 세션 한정이며 R/코스 전환 시 초기화합니다. 부활 대기 중 시간은 흐르고 정지/결과 중에는 멈춥니다. S는 기준 이내 무사망, A는1.5배·2회 이하, B는2배·5회 이하, 나머지는 C입니다.
 
-## 코스 편집과 호환
+확장판 기록은 `MagnetSkater.v2.Stage`에 저장합니다. 이전 짧은 러너 `MagnetSkater.Stage`와 수동 조작 `MagnetEscape.Stage` 기록은 삭제·혼합하지 않습니다. 편집 리비전 기록은 씬 경로별로 분리합니다. 최고 시간·해당 충돌 수·최고 등급을 독립 저장하며, 기록 화면에서 선택한 코스만 확인 후 초기화할 수 있습니다.
 
-코스 배치는 `Resources/Stages/Stage1~4.asset`의 StageDefinition에 있습니다. 파일 경로/Number/GUID를 유지하고 위치·장애물·자석·체크포인트·ParTime을 Inspector에서 조절합니다. 원본 씬은 StageBootstrap으로 Play 때 생성합니다.
+## 코스 편집
 
-기존 **Tools > Magnet Escape** 메뉴명은 호환을 위해 유지합니다.
+원본 배치는 `Resources/Stages/Stage1~4.asset`입니다. Inspector의 Platforms/Spikes/Saws/Magnets/Checkpoints/Rails를 편집합니다. Rails에는 Start/End/CatchRange를 지정하며 오른쪽으로 진행하는 직선/경사를 사용합니다. Scene 미리보기·시작/끝 핸들·Undo를 지원합니다. 기존 `Tools > Magnet Escape` 메뉴에서 새 편집 리비전을 만들고 빌드 코스를 선택할 수 있습니다. 기존 편집본은 덮어쓰지 않습니다.
 
-- Create Fresh Course Revision: 기존 편집본을 덮어쓰지 않고 새 4코스 생성
-- Use Selected Revision in Build / Use Generated Source Stages in Build: 사용할 코스 세트 전환
-- Create Editable Stage Copies: 기존 파일 보존
-- Create Player Prefab from Selected Robot: 선택한 캐릭터 프리팹 저장(메뉴/파일명은 이전 이름)
+프리팹은 root PlayerMotor·Dynamic/Simulated Rigidbody2D·enabled/non-trigger BoxCollider2D가 필요합니다. 빈 값이면 기본 스케이터를 만듭니다. 오프셋/배율이 있는 충돌체도 실제 하단으로 레일에 정렬합니다. 내부 `robot_*`, `saw`, `factory_backdrop`은 스케이터/드론/도심 이미지이며 기존 이름과 .meta를 유지합니다.
 
-Scene 뷰 미리보기·이동/끝점/반경 핸들·Undo를 사용할 수 있도록 구현했습니다. 실제 도구 실행은 Unity 검수 전입니다. 기존 편집본은 자동 갱신되지 않으며 새 자동 전진에서 완주를 보장하지 않습니다. 원본 러너 코스나 새 리비전을 사용하세요.
-
-PlayerPrefab은 root PlayerMotor·Dynamic/Simulated Rigidbody2D·enabled/non-trigger BoxCollider2D가 필요합니다. 빈 값이면 기본 스케이터를 만듭니다. 루트 Trail/LineRenderer는 표준 효과로 재사용하므로 별도 장식은 자식에 둡니다. 내부 `robot_*`, `saw`, `factory_backdrop` 파일은 이제 스케이터/드론/도심 이미지이며 이름과 .meta는 참조 보존을 위해 유지합니다.
-
-## 검사와 Mac 빌드
+## 검사·Mac 빌드
 
 ```bash
 python3 Tools/validate_project.py
@@ -69,16 +64,10 @@ python3 Tools/unity_tasks.py test
 python3 Tools/unity_tasks.py build-mac --package
 ```
 
-첫 실행은 전체 화면이며 한글 메뉴를 사용합니다. 선택·정지 화면에서 창 모드로 바꾸면 화면에 맞춘 최대1600×900 창을 사용하며 크기 조절도 가능합니다. macOS의 Apple SD Gothic Neo 등 시스템 한글 폰트를 사용합니다.
+첫 두 명령은 정적/Python 검사이며 Unity 컴파일·플레이 검사가 아닙니다. Unity 테스트/빌드는 설치와 활성화가 필요하고 `UNITY_EDITOR` 또는 `--unity`로 경로를 지정할 수 있습니다. `--dry-run`은 실행 검증이 아닙니다. 에셋 복사 검사는 Unity 테스트 종료 후 실행합니다.
 
-첫 두 명령은 로컬 Python/에셋 검사를 실행합니다. 뒤 두 명령은 실제 Unity 설치·활성화가 필요합니다. `UNITY_EDITOR` 또는 `--unity`로 Editor 경로를 지정할 수 있습니다. `--dry-run`은 명령만 보여주며 성공 검증이 아닙니다.
+Unity 결과는 `artifacts/tests/<실행 ID>/`, 빌드는 `Builds/<실행 ID>/`에 저장됩니다. PlayMode 테스트는 빌드 설정에 원본4코스가 있을 때 실행하고 편집 리비전이면 기록/씬 변경 전에 건너뜁니다. 테스트 정상 종료 시 기존 기록을 복원하지만 Unity 강제 종료까지 복원을 보장하지는 않습니다.
 
-Unity 2022.3.62f1 실제 검사에서 **EditMode 18 + PlayMode 23 = 41건**이 통과했습니다(2026-11-15). 자동 입력 명령으로 실제 물리·위험물·결승을 통과하는 4코스 경로와 가변 점프·대시·수직 자력·체크포인트 부활을 포함합니다. 11개 체크포인트에서 부활 후 무입력 1초(약7unit) 준비 거리와 대시 중 위험물 사망, 구 기록 분리도 통과했습니다. 사람이 키보드로 완주했다는 뜻은 아닙니다. Apple Silicon에서도 2022의 Intel Package Manager 실행을 위해 Rosetta 2가 필요했습니다. XML/로그는 `artifacts/tests/<실행 ID>/`에 저장됩니다. Python CLI 테스트는 가짜 Unity 실행 파일을 사용해 결과 처리만 검사합니다.
+출력은 Universal `MagnetEscape.app`, `MagnetEscape-macOS.zip`, `PLAYING.txt`입니다. ZIP에는 앱·한글 안내·CREDITS.md만 넣으며 개발 로그와 개인 경로가 포함된 빌드 요약은 넣지 않습니다. 산출물은 Git 제외입니다. 실제 앱/ZIP 생성·두 아키텍처 포함·Apple Silicon의 한글 전체 화면은 확인했습니다. 최신 검수본 경로와 세부 미검증은 SUBMISSION.md/PROGRESS.md를 확인하세요.
 
-Mac 빌드는 Intel/Apple Silicon Universal을 요청하고 기존 제품명/아키텍처를 복원합니다. 표시 제품명은 Magnet Skater지만 호환되는 CLI/메뉴 출력 파일명은 `MagnetEscape.app`, 패키지명은 `MagnetEscape-macOS.zip`입니다. 빌드 폴더에 PLAYING.txt·요약·로그를 남기고 배포 ZIP에는 앱·PLAYING.txt·CREDITS.md만 담습니다. 2026-11-15 Unity2022.3.62f1로 앱·ZIP 생성에 성공했습니다. 실행 파일/UnityPlayer 양쪽 x86_64+arm64 포함, Apple Silicon에서 한글 전체 화면·선택·점프·정지/재개 표시를 확인했습니다. 실제 Intel 하드웨어 실행과 다른 Mac 배포는 미검증입니다. 추가 요청한 레일 기능·긴 코스는 후속 구현 중이므로 현재 실행본을 최종 제출판으로 표시하지 않습니다.
-
-## 남은 실제 검수
-
-키보드 입력을 통한 4코스 완주와 난이도, 실제 도심/스케이터 표시와 UI/오디오, 기록 재실행, 편집본/프리팹, Mac Universal 빌드·실행을 확인해야 합니다. 전체 완료는 이 검수 전 선언하지 않습니다.
-
-작업 목록은 [TASKS.md](TASKS.md), 실제 검사와 이력은 [PROGRESS.md](PROGRESS.md)를 확인하세요. 코드는 `Assets/_MagnetEscape`, 선택적 픽셀 아트 생성기는 `Tools/generate_art.py`에 있습니다. 재생성에만 Pillow가 필요하며 게임 런타임에는 Python이 필요하지 않습니다.
+목표·이력: GOAL.md, TASKS.md, PROGRESS.md. 설계·계획: docs/superpowers. 제출 기획서: docs/Magnet_Skater_Game_Design.docx(초기 기획서; 레일/확장 후속 요구는 최신 GOAL/설계를 우선).

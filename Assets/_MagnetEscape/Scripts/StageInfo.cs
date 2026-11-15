@@ -43,7 +43,7 @@ namespace MagnetEscape
             switch (stage)
             {
                 case 1: return "자동 전진과 점프 타이밍을 익히세요.";
-                case 2: return "점프와 대시로 옥상을 건너세요.";
+                case 2: return "점프·대시·레일 도약으로 옥상을 건너세요.";
                 case 3: return "공중 자력으로 비행 궤적을 조절하세요.";
                 default: return "모든 기술을 조합해 결승에 도달하세요.";
             }

@@ -15,14 +15,14 @@ MonoBehaviour:
   Number: 3
   DisplayName: 공중 레일
   Lesson: 공중 자력으로 비행 궤적을 조절하세요.
-  ParTime: 32
+  ParTime: 64
   StartPosition:
     x: 0.0
     y: 1.0
   PlayerPrefab:
     fileID: 0
   ExitPosition:
-    x: 180.0
+    x: 380.0
     y: 0.8
   DashEnabled: 1
   MagnetEnabled: 1
@@ -49,6 +49,26 @@ MonoBehaviour:
       x: 162.0
       y: -0.5
     Width: 44.0
+  - Position:
+      x: 209.0
+      y: -0.5
+    Width: 32.0
+  - Position:
+      x: 251.0
+      y: 0.0
+    Width: 32.0
+  - Position:
+      x: 293.0
+      y: 0.0
+    Width: 32.0
+  - Position:
+      x: 335.5
+      y: -0.5
+    Width: 33.0
+  - Position:
+      x: 373.0
+      y: -0.5
+    Width: 22.0
   MovingPlatforms: []
   Spikes:
   - Position:
@@ -66,6 +86,26 @@ MonoBehaviour:
   - Position:
       x: 166.0
       y: 0.15
+    Width: 1.4
+  - Position:
+      x: 206.0
+      y: 0.15000000000000002
+    Width: 1.4
+  - Position:
+      x: 248.0
+      y: 0.65
+    Width: 1.4
+  - Position:
+      x: 290.0
+      y: 0.65
+    Width: 1.4
+  - Position:
+      x: 333.0
+      y: 0.15000000000000002
+    Width: 1.4
+  - Position:
+      x: 373.0
+      y: 0.15000000000000002
     Width: 1.4
   Saws: []
   Magnets:
@@ -89,6 +129,31 @@ MonoBehaviour:
       y: -2.5
     Range: 7.0
     Strength: 1.25
+  - Position:
+      x: 188.0
+      y: 4.2
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 230.0
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 272.0
+      y: 4.3
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 314.0
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 357.0
+      y: 4.5
+    Range: 7
+    Strength: 1.25
   Checkpoints:
   - Position:
       x: 33.0
@@ -104,6 +169,36 @@ MonoBehaviour:
       y: 0.6
   - Position:
       x: 145.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 197.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 239.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 281.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 323.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 364.0
       y: 0.4
     SpawnOffset:
       x: 0.0
@@ -149,3 +244,81 @@ MonoBehaviour:
       y: 1.5
     Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
+  - Position:
+      x: 197.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 239.0
+      y: 2.0
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 281.0
+      y: 2.0
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 323.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 364.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 30.0
+      y: 1.8
+    Message: '레일 그라인드: 공중에서 Q를 누르고 청록 레일에 접근하세요. Space나 E로 도약, Q를 놓으면 분리됩니다.'
+    Range: 6
+  - Position:
+      x: 199.0
+      y: 2.0
+    Message: '청록색 레일 위에서는 더 빠르게 질주합니다. 끝나기 전에 도약해 다음 구간으로 연결하세요.'
+    Range: 6
+  Rails:
+  - Start:
+      x: 35.0
+      y: 1.6
+    End:
+      x: 48.0
+      y: 2.2
+    CatchRange: 1.1
+  - Start:
+      x: 198.0
+      y: 2.0
+    End:
+      x: 218.0
+      y: 2.6
+    CatchRange: 1.1
+  - Start:
+      x: 239.0
+      y: 2.3
+    End:
+      x: 259.0
+      y: 1.8
+    CatchRange: 1.1
+  - Start:
+      x: 281.0
+      y: 2.2
+    End:
+      x: 301.0
+      y: 2.8
+    CatchRange: 1.1
+  - Start:
+      x: 323.0
+      y: 1.6
+    End:
+      x: 344.0
+      y: 2.7
+    CatchRange: 1.1
+  - Start:
+      x: 365.0
+      y: 1.9
+    End:
+      x: 376.0
+      y: 2.8
+    CatchRange: 1.1

@@ -101,7 +101,7 @@ namespace MagnetEscape
         private static string Key(int stage, string scenePath)
         {
             if (stage < 1 || stage > 4) throw new ArgumentOutOfRangeException(nameof(stage));
-            string key = "MagnetSkater.Stage" + stage;
+            string key = "MagnetSkater.v2.Stage" + stage;
             string path = string.IsNullOrEmpty(scenePath) ? SourcePath(stage) : scenePath.Replace('\\', '/');
             if (path == SourcePath(stage)) return key;
             // A deterministic identifier, unlike string.GetHashCode which can vary between runs.

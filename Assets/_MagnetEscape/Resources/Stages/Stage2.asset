@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: ''
   Number: 2
   DisplayName: 옥상 질주
-  Lesson: 점프와 대시로 옥상 사이를 건너세요.
-  ParTime: 28
+  Lesson: 점프·대시·레일 도약으로 옥상을 건너세요.
+  ParTime: 54
   StartPosition:
     x: 0.0
     y: 1.0
   PlayerPrefab:
     fileID: 0
   ExitPosition:
-    x: 160.0
+    x: 320.0
     y: 0.8
   DashEnabled: 1
   MagnetEnabled: 0
@@ -49,6 +49,22 @@ MonoBehaviour:
       x: 148.0
       y: -0.5
     Width: 32.0
+  - Position:
+      x: 186.0
+      y: -0.5
+    Width: 30.0
+  - Position:
+      x: 223.0
+      y: 0.0
+    Width: 30.0
+  - Position:
+      x: 260.0
+      y: 0.0
+    Width: 30.0
+  - Position:
+      x: 303.0
+      y: -0.5
+    Width: 42.0
   MovingPlatforms: []
   Spikes:
   - Position:
@@ -71,6 +87,22 @@ MonoBehaviour:
       x: 150.0
       y: 0.15
     Width: 1.4
+  - Position:
+      x: 185.0
+      y: 0.15000000000000002
+    Width: 1.4
+  - Position:
+      x: 222.0
+      y: 0.65
+    Width: 1.4
+  - Position:
+      x: 259.0
+      y: 0.65
+    Width: 1.4
+  - Position:
+      x: 306.0
+      y: 0.15000000000000002
+    Width: 1.4
   Saws:
   - Position:
       x: 53.0
@@ -87,6 +119,22 @@ MonoBehaviour:
       x: 0.0
       y: 0.6
     Period: 4
+    Phase: 0
+  - Position:
+      x: 194.0
+      y: 2.2
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
+    Phase: 0
+  - Position:
+      x: 268.0
+      y: 2.7
+    Travel:
+      x: 0.0
+      y: 0.5
+    Period: 3.8
     Phase: 0
   Magnets: []
   Checkpoints:
@@ -108,11 +156,35 @@ MonoBehaviour:
     SpawnOffset:
       x: 0.0
       y: 0.6
+  - Position:
+      x: 175.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 212.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 249.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 286.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
   Hints:
   - Position:
       x: 2.0
       y: 1.5
-    Message: '자동 전진: 보드는 항상 오른쪽으로 달립니다. Space를 길게 누르면 높이 점프합니다.'
+    Message: '레일: Space로 점프하며 Q를 누르면 청록 레일에 붙습니다. Q를 놓으면 분리, Space/E로 도약합니다.'
     Range: 5.5
   - Position:
       x: 9.0
@@ -139,3 +211,69 @@ MonoBehaviour:
       y: 1.5
     Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
+  - Position:
+      x: 175.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 212.0
+      y: 2.0
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 249.0
+      y: 2.0
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 286.0
+      y: 1.5
+    Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
+    Range: 6
+  - Position:
+      x: 30.0
+      y: 1.8
+    Message: '레일 그라인드: 공중에서 Q를 누르고 청록 레일에 접근하세요. Space나 E로 도약, Q를 놓으면 분리됩니다.'
+    Range: 6
+  - Position:
+      x: 177.0
+      y: 2.0
+    Message: '청록색 레일 위에서는 더 빠르게 질주합니다. 끝나기 전에 도약해 다음 구간으로 연결하세요.'
+    Range: 6
+  Rails:
+  - Start:
+      x: 7.0
+      y: 1.4
+    End:
+      x: 18.0
+      y: 2.2
+    CatchRange: 1.1
+  - Start:
+      x: 36.0
+      y: 1.4
+    End:
+      x: 49.0
+      y: 1.8
+    CatchRange: 1.1
+  - Start:
+      x: 174.0
+      y: 1.6
+    End:
+      x: 194.0
+      y: 2.3
+    CatchRange: 1.1
+  - Start:
+      x: 212.0
+      y: 1.9
+    End:
+      x: 231.0
+      y: 1.5
+    CatchRange: 1.1
+  - Start:
+      x: 249.0
+      y: 2.0
+    End:
+      x: 268.0
+      y: 2.8
+    CatchRange: 1.1
