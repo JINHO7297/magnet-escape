@@ -584,3 +584,12 @@
 - PlayerVisual.cs/MagnetAnchor.cs: 지상에서는 자력선/작동 강조를 표시하지 않는다. 자동 전진/정지/사망 UnityTest를 코드 변경 전에 추가했으나 Unity가 없어 RED/GREEN은 실행하지 않았다.
 - 실제 검사: Python 21/21, 에셋 무결성(63 GUID·5 씬·16 PNG), C# 24파일 구문, 공백 검사 PASS. Unity 컴파일/실제 키 입력/새 테스트는 미검증이다.
 - 변경: 위 런타임 3파일·기존 PlayMode 테스트·AGENTS/TASKS/PROGRESS. 다음은 4코스·기록을 러너에 맞춘다.
+
+
+## 2026-11-15 — Magnet Skater 전환 2: 4코스와 기록
+
+- 조작 단계 3918761 커밋·푸시 후 4개 StageDefinition을 골목/옥상/공중 레일/스카이라인으로 재배치했다. 길이는 124/160/180/228, 초기 S 기준은 22/28/32/40초다. 실제 난이도나 기준 시간 적합성은 미검증이다.
+- 정지 대기형 이동 발판은 기본 새 코스에서 사용하지 않고, 점프/대시로 넘을 간격·상하 자석·공중 순찰 장애물로 구성했다. 체크포인트 뒤 준비 거리를 확보하고 시작/출구/힌트도 새 조작에 맞췄다. 기존 편집본은 변경하지 않았다.
+- StageRecords의 prefix를 MagnetSkater.Stage로 분리했다. 이전 MagnetEscape 기록은 삭제·혼합하지 않는다. 기존 테스트 백업 키와 랭크 경계 예시는 새 기준에 맞췄다.
+- 변경: Stage1~4.asset, StageInfo.cs, StageRecords.cs, 기존 Rank/PlayMode 테스트, TASKS/PROGRESS/계획. GUID 유지. 실제 Python 21/21·에셋 무결성·공백 PASS. Unity 테스트·완주는 미실행이다.
+- 다음: 기존 스프라이트 파일/GUID를 유지한 스케이터·도심 표현, 새 UI/빌드 안내/문서.

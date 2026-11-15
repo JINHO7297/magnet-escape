@@ -13,105 +13,175 @@ MonoBehaviour:
   m_Name: Stage4
   m_EditorClassIdentifier: ''
   Number: 4
-  DisplayName: LAST EXIT
-  Lesson: Combine every skill. Leave the factory.
-  ParTime: 65
-  StartPosition: {x: 0.0, y: 1.0}
-  PlayerPrefab: {fileID: 0}
-  ExitPosition: {x: 81.0, y: 1.2}
+  DisplayName: SKYLINE CHALLENGE
+  Lesson: Keep your rhythm to the final finish.
+  ParTime: 40
+  StartPosition:
+    x: 0.0
+    y: 1.0
+  PlayerPrefab:
+    fileID: 0
+  ExitPosition:
+    x: 228.0
+    y: 0.8
   DashEnabled: 1
   MagnetEnabled: 1
   FallDeathHeight: -7
   RespawnDelay: 0.2
   Platforms:
-  - Position: {x: 1.0, y: -0.5}
-    Width: 8.0
-  - Position: {x: 14.0, y: 0.0}
-    Width: 5.0
-  - Position: {x: 26.0, y: 0.0}
-    Width: 6.0
-  - Position: {x: 39.0, y: 0.0}
-    Width: 6.0
-  - Position: {x: 47.0, y: 1.0}
-    Width: 4.0
-  - Position: {x: 62.0, y: 0.0}
-    Width: 6.0
-  - Position: {x: 69.0, y: 1.0}
-    Width: 3.0
-  - Position: {x: 79.0, y: 0.0}
-    Width: 6.0
-  MovingPlatforms:
-  - Position: {x: 8.0, y: -0.5}
-    Travel: {x: 2.0, y: 1.5}
-    Period: 4.0
-    Width: 3.0
-  - Position: {x: 32.0, y: 0.0}
-    Travel: {x: 1.0, y: 2.0}
-    Period: 4.0
-    Width: 3.0
-  - Position: {x: 53.0, y: 0.5}
-    Travel: {x: 3.0, y: 1.0}
-    Period: 4.0
-    Width: 3.0
+  - Position:
+      x: 11.5
+      y: -0.5
+    Width: 29.0
+  - Position:
+      x: 48.0
+      y: -0.5
+    Width: 28.0
+  - Position:
+      x: 87.0
+      y: -0.5
+    Width: 30.0
+  - Position:
+      x: 128.0
+      y: -0.5
+    Width: 32.0
+  - Position:
+      x: 168.5
+      y: -0.5
+    Width: 31.0
+  - Position:
+      x: 213.0
+      y: -0.5
+    Width: 38.0
+  MovingPlatforms: []
   Spikes:
-  - Position: {x: 15.0, y: 0.65}
-    Width: 0.8
-  - Position: {x: 27.0, y: 0.65}
-    Width: 1.0
-  - Position: {x: 69.0, y: 1.65}
-    Width: 0.8
+  - Position:
+      x: 16.0
+      y: 0.15
+    Width: 1.4
+  - Position:
+      x: 50.0
+      y: 0.15
+    Width: 1.6
+  - Position:
+      x: 88.0
+      y: 0.15
+    Width: 1.4
+  - Position:
+      x: 132.0
+      y: 0.15
+    Width: 1.6
+  - Position:
+      x: 170.0
+      y: 0.15
+    Width: 1.4
+  - Position:
+      x: 218.0
+      y: 0.15
+    Width: 1.6
   Saws:
-  - Position: {x: 20.0, y: 1.0}
-    Travel: {x: 1.2, y: 0.5}
-    Period: 4.0
-    Phase: 0.0
-  - Position: {x: 38.0, y: 1.8}
-    Travel: {x: 0.0, y: 0.9}
-    Period: 3.8
-    Phase: 0.0
-  - Position: {x: 61.0, y: 1.5}
-    Travel: {x: 0.0, y: 0.9}
-    Period: 4.5
-    Phase: 0.0
-  - Position: {x: 78.0, y: 2.1}
-    Travel: {x: 1.0, y: 0.0}
+  - Position:
+      x: 58.0
+      y: 2.3
+    Travel:
+      x: 0.0
+      y: 0.6
     Period: 3.6
-    Phase: 0.0
+    Phase: 0
+  - Position:
+      x: 98.0
+      y: 2.4
+    Travel:
+      x: 0.0
+      y: 0.7
+    Period: 4
+    Phase: 0
+  - Position:
+      x: 178.0
+      y: 2.4
+    Travel:
+      x: 0.0
+      y: 0.6
+    Period: 3.8
+    Phase: 0
   Magnets:
-  - Position: {x: 20.0, y: 4.0}
+  - Position:
+      x: 68.0
+      y: 4.2
     Range: 7.0
-    Strength: 1.0
-  - Position: {x: 34.0, y: 5.0}
+    Strength: 1.2
+  - Position:
+      x: 108.0
+      y: 4.5
     Range: 7.0
-    Strength: 1.0
-  - Position: {x: 55.0, y: 5.0}
+    Strength: 1.25
+  - Position:
+      x: 148.0
+      y: -2.5
     Range: 7.0
-    Strength: 1.1
-  - Position: {x: 73.0, y: 5.0}
+    Strength: 1.2
+  - Position:
+      x: 189.0
+      y: 4.8
     Range: 7.0
-    Strength: 1.0
+    Strength: 1.25
   Checkpoints:
-  - Position: {x: 13.0, y: 0.9}
-    SpawnOffset: {x: 0.0, y: 1.0}
-  - Position: {x: 25.0, y: 0.9}
-    SpawnOffset: {x: 0.0, y: 1.0}
-  - Position: {x: 46.0, y: 1.9}
-    SpawnOffset: {x: 0.0, y: 1.0}
-  - Position: {x: 63.0, y: 0.9}
-    SpawnOffset: {x: 0.0, y: 1.0}
+  - Position:
+      x: 38.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 116.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 198.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
   Hints:
-  - Position: {x: 1.0, y: 1.0}
-    Message: 'Final route: combine moving platforms, jumps, dash and magnetic momentum.'
-    Range: 4.5
-  - Position: {x: 13.0, y: 1.0}
-    Message: Save the checkpoint before crossing the magnetic gap.
-    Range: 4.5
-  - Position: {x: 26.0, y: 1.0}
-    Message: Your dash is reusable after cooldown. Plan one safe landing at a time.
-    Range: 4.5
-  - Position: {x: 46.0, y: 2.0}
-    Message: The last machinery section is ahead. Use the high magnet to stay above the saw.
-    Range: 4.5
-  - Position: {x: 64.0, y: 1.0}
-    Message: Final stretch. Jump over the spikes, then use the last magnet to escape.
-    Range: 4.5
+  - Position:
+      x: 2.0
+      y: 1.5
+    Message: 'AUTO RUN: the board always moves right. SPACE jumps; hold for height.'
+    Range: 5.5
+  - Position:
+      x: 9.0
+      y: 1.5
+    Message: Read the next obstacle early. Jump over barriers; falling or touching them resets you.
+    Range: 5.5
+  - Position:
+      x: 18.0
+      y: 1.5
+    Message: SHIFT dashes forward. It does not protect you from barriers or drones.
+    Range: 5.5
+  - Position:
+      x: 14.0
+      y: 1.5
+    Message: While airborne, Q pulls vertically toward a magnet; E pushes vertically away. Forward speed stays constant.
+    Range: 5.5
+  - Position:
+      x: 38.0
+      y: 1.5
+    Message: 'Above magnet: Q lifts / E lowers. Below magnet: E lifts / Q lowers. Release to fall normally.'
+    Range: 5.5
+  - Position:
+      x: 39.0
+      y: 1.5
+    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Range: 5.5
+  - Position:
+      x: 117.0
+      y: 1.5
+    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Range: 5.5
+  - Position:
+      x: 199.0
+      y: 1.5
+    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Range: 5.5

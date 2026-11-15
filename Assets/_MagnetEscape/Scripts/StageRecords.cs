@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 namespace MagnetEscape
 {
     // Record sets follow the actual build scene, so edited revisions do not share scores.
-    // The original five source scenes retain their existing PlayerPrefs keys.
+    // The runner uses its own prefix; old manual-control records remain untouched.
     public static class StageRecords
     {
         public readonly struct Record
@@ -101,7 +101,7 @@ namespace MagnetEscape
         private static string Key(int stage, string scenePath)
         {
             if (stage < 1 || stage > 4) throw new ArgumentOutOfRangeException(nameof(stage));
-            string key = "MagnetEscape.Stage" + stage;
+            string key = "MagnetSkater.Stage" + stage;
             string path = string.IsNullOrEmpty(scenePath) ? SourcePath(stage) : scenePath.Replace('\\', '/');
             if (path == SourcePath(stage)) return key;
             // A deterministic identifier, unlike string.GetHashCode which can vary between runs.

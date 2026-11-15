@@ -32,10 +32,10 @@
 ### Task 2: 4코스와 기록 분리
 **Files:** Resources/Stages/Stage1~4.asset, StageInfo.cs, StageRecords.cs, 기존 PlayMode 테스트 키.
 **Interfaces:** 기존 StageDefinition 스키마·Scene 이름 유지, MagnetSkater 기록 prefix.
-- [ ] 골목/옥상/공중 레일/스카이라인 배치. 각 체크포인트 뒤 준비거리 확보, 정지 대기 배제.
-- [ ] 안내를 자동 전진/전방 대시/수직 자력으로 교체, 새 기록 키와 테스트 백업 키 일치.
-- [ ] 기존 Python/에셋 검사·배치 읽기 검토, 실제 완주 미검증 기록.
-- [ ] 기록 갱신·커밋·푸시.
+- [x] 골목/옥상/공중 레일/스카이라인 배치. 각 체크포인트 뒤 준비거리 확보, 정지 대기 배제.
+- [x] 안내를 자동 전진/전방 대시/수직 자력으로 교체, 새 기록 키와 테스트 백업 키 일치.
+- [x] 기존 Python/에셋 검사·배치 읽기 검토, 실제 완주 미검증 기록.
+- [x] 기록 갱신·커밋·푸시.
 
 ### Task 3: 도심 표현·UI·문서
 **Files:** Tools/generate_art.py, Resources/Art/*.png (기존 GUID), GameHud.cs, Editor/MacBuild.cs, README/GOAL/AGENTS/TASKS/PROGRESS/CREDITS/SUBMISSION.
@@ -51,3 +51,5 @@
 - Ruling: 기존 승인된 develop에서 직접 작업한다. 원본 상태는 clean이고 부모 커밋은 61fe3cd다.
 
 - Task 1: implementation written; Python/asset/syntax checks pass; Unity RED/GREEN and play unverified per user directive.
+
+- Task 2: data/record migration written; Python 21/21 and asset checks pass; course completion and rank tuning unverified.

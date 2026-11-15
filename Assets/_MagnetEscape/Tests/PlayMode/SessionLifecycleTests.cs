@@ -9,7 +9,7 @@ namespace MagnetEscape.Tests
     // Exercise existing gameplay state without synthetic keyboard input or changing motor code.
     public sealed class SessionLifecycleTests
     {
-        private const string Key = "MagnetEscape.Stage1";
+        private const string Key = "MagnetSkater.Stage1";
         private bool hadTime;
         private bool hadDeaths;
         private bool hadRank;
