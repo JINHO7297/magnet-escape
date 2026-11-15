@@ -703,3 +703,8 @@
 - DOCX 검수 문단을Unity53건·실제 키 입력4결승·재실행 보존으로 갱신. documents 스킬의 bundled runtime/renderer·기존 한글 폰트 경로로2페이지를 렌더하고 두 PNG를 직접 확인했다(`artifacts/design-final-review/`). 표/그림/문단/한글/페이지 수 정상. README/GOAL/AGENTS/TASKS/SUBMISSION/계획 갱신.
 - 사용한 스킬: systematic-debugging·test-driven-development·verification-before-completion, 기존 실행 계획, documents. 사용자 자율 진행 승인과 확정 기획을 유지했다.
 - 남은 실제 검수는 사람의 난이도·오디오 체감과 실제 Intel/다른 Mac이다. 다음 시작점은 최신 앱에서 사람1→4코스 플레이 피드백 수집, 그리고 확보된 다른 기기 실행이다. 필수 조작·4코스 도달·저장 검수는 완료했으나 미실행 항목까지 전체 완료로 표시하지 않는다.
+
+## 2026-11-15 축제 경로 제작 코어 작업69
+- 사용자 승인: 짧은 축제 스토리·직접 경로 만들기·난이도별 추가코스, 이어 별도 무한 점수/랭킹 모드. 계획 festival-routes.md에 확장 기록.
+- RouteShaper(+새meta), StageDefinition.Routes, StageBootstrap 생성, GameSession.RoutesBuilt 연결. Q상층 그라인드/E저층 실제 다리 선택, 플레이어10unit 앞에서만 동작·1unit 이내 변경 차단. 정지/사망/클리어/전환 차단. 자력 모터 수치 변경 없음.
+- 먼저 새2건 작성 후 타입 미구현 CS0246 확인(144635_UTC_f3edc6a3), 구현 후 Play37/37 PASS(144745_UTC_d384f50f). 실제 다리15스텝 착지·상층 포착/가속 확인. 정적65GUID·diff PASS. 아직 코스에 배치 전이며 UI/12코스/무한 모드는 다음 단위.

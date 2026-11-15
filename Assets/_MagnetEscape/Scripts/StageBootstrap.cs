@@ -77,7 +77,7 @@ namespace MagnetEscape
             }
             session.Player.DashEnabled = layout.DashEnabled;
             session.Player.MagnetEnabled = layout.MagnetEnabled;
-            session.Player.RailEnabled = layout.Rails != null && layout.Rails.Length > 0;
+            session.Player.RailEnabled = (layout.Rails != null && layout.Rails.Length > 0) || (layout.Routes != null && layout.Routes.Length > 0);
             session.Player.enabled = true;
             player.SetActive(true);
 
@@ -88,6 +88,12 @@ namespace MagnetEscape
                 {
                     GameObject rail = new GameObject("자석 레일");
                     rail.AddComponent<MagneticRail>().Configure(item.Start, item.End, item.CatchRange);
+                }
+            if (layout.Routes != null)
+                foreach (StageDefinition.RoutePlacement item in layout.Routes)
+                {
+                    GameObject route = new GameObject(item.Label);
+                    route.AddComponent<RouteShaper>().Configure(item.Start, item.UpperEnd, item.LowerEnd, item.Label);
                 }
             foreach (StageDefinition.MovingPlacement item in layout.MovingPlatforms)
                 Moving(item.Position.x, item.Position.y, item.Travel, item.Period, item.Width);

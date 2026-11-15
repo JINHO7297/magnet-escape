@@ -8,6 +8,9 @@ namespace MagnetEscape
     {
         [Range(1, 4)] public int Number = 1;
         public string DisplayName;
+        [TextArea] public string OpeningMessage;
+        [TextArea] public string EndingMessage;
+        public RoutePlacement[] Routes = Array.Empty<RoutePlacement>();
         [TextArea] public string Lesson;
         [Min(1f)] public float ParTime = 35f;
         public Vector2 StartPosition = Vector2.up;
@@ -40,6 +43,13 @@ namespace MagnetEscape
             if (!collider.enabled || collider.isTrigger)
                 return "Player prefab requires an enabled, non-trigger root BoxCollider2D to stand on platforms.";
             return null;
+        }
+
+        [Serializable]
+        public sealed class RoutePlacement
+        {
+            public Vector2 Start, UpperEnd, LowerEnd;
+            public string Label = "자성 광고판";
         }
 
         [Serializable]

@@ -979,6 +979,66 @@ namespace MagnetEscape.Tests
             Object.Destroy(rail.gameObject);
         }
 
+        [UnityTest]
+        public IEnumerator ShapedRoutesRequireNearbyInputAndBuildRealDistinctPaths()
+        {
+            var obj = new GameObject("Route shaping regression");
+            RouteShaper route = obj.AddComponent<RouteShaper>();
+            route.Configure(new Vector2(108f, 8f), new Vector2(122f, 11f), new Vector2(122f, 8f), "광고판");
+            PlayerMotor player = session.Player;
+            player.ResetAt(new Vector2(90f, 8f));
+            Assert.That(route.TryShape(player, 1), Is.False, "Remote construction is forbidden.");
+            player.ResetAt(new Vector2(103f, 8f));
+            Assert.That(route.TryShape(player, 0), Is.False);
+            Assert.That(route.TryShape(player, 1), Is.True);
+            Assert.That(route.Rail.EndPoint, Is.EqualTo(new Vector2(122f, 11f)));
+            Assert.That(route.Rail.enabled, Is.True);
+            Assert.That(route.Bridge.enabled, Is.False);
+            Assert.That(route.TryShape(player, -1), Is.True);
+            Assert.That(route.Bridge.enabled, Is.True);
+            Assert.That(route.Bridge.isTrigger, Is.False);
+            Assert.That(route.Bridge.gameObject.layer, Is.EqualTo(LayerMask.NameToLayer("Ground")));
+            Assert.That(route.Rail.enabled, Is.False);
+            session.SetPaused(true);
+            Assert.That(route.TryShape(player, 1), Is.False);
+            session.SetPaused(false);
+            player.ResetAt(new Vector2(108f, 8f));
+            Assert.That(route.TryShape(player, 1), Is.False, "No moving geometry under an occupied route.");
+            player.ResetAt(new Vector2(103f, 8f));
+            session.Die();
+            Assert.That(route.TryShape(player, 1), Is.False);
+            Object.Destroy(obj);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator ConstructedBridgeSupportsRealPhysicsAndUpperRailCanBeRidden()
+        {
+            var obj = new GameObject("Playable shaped route");
+            RouteShaper route = obj.AddComponent<RouteShaper>();
+            route.Configure(new Vector2(108f, 7.55f), new Vector2(122f, 9.55f), new Vector2(122f, 7.55f), "철제 다리");
+            PlayerMotor player = session.Player;
+            player.ResetAt(new Vector2(103f, 8f));
+            Assert.That(route.TryShape(player, -1), Is.True);
+            player.ResetAt(new Vector2(110f, 8.1f));
+            for (int step = 0; step < 15; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return new WaitForFixedUpdate();
+            }
+            Assert.That(player.Grounded, Is.True);
+            Assert.That(session.Deaths, Is.Zero);
+            player.ResetAt(new Vector2(103f, 8f));
+            Assert.That(route.TryShape(player, 1), Is.True);
+            player.RailEnabled = true;
+            player.ResetAt(new Vector2(109f, 8.3f));
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.True);
+            Assert.That(player.GetComponent<Rigidbody2D>().velocity.x, Is.GreaterThan(player.RunSpeed));
+            Object.Destroy(obj);
+        }
+
         private static MagneticRail CreateRail()
         {
             GameObject obj = new GameObject("Test magnetic rail");

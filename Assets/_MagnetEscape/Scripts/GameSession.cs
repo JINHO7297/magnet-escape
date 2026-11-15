@@ -8,6 +8,8 @@ namespace MagnetEscape
     {
         public static GameSession Active { get; private set; }
         public int Stage;
+        public int RoutesBuilt { get; private set; }
+        public void RouteBuilt() { RoutesBuilt++; }
         public PlayerMotor Player;
         public SpriteRenderer FactoryWall;
         public bool Paused { get; private set; }
