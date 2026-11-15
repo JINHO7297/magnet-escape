@@ -74,3 +74,5 @@ Unity 결과는 `artifacts/tests/<실행 ID>/`, 빌드는 `Builds/<실행 ID>/`�
 출력은 Universal `MagnetEscape.app`, `MagnetEscape-macOS.zip`, `PLAYING.txt`입니다. ZIP에는 앱·한글 안내·CREDITS.md만 넣으며 개발 로그와 개인 경로가 포함된 빌드 요약은 넣지 않습니다. 산출물은 Git 제외입니다. 실제 앱/ZIP 생성·두 아키텍처 포함·Apple Silicon의 한글 전체 화면은 확인했습니다. 최신 검수본 경로와 세부 미검증은 SUBMISSION.md/PROGRESS.md를 확인하세요.
 
 목표·이력: GOAL.md, TASKS.md, PROGRESS.md. 설계·계획: docs/superpowers. 제출 기획서: docs/Magnet_Skater_Game_Design.docx(레일·확장 코스와 검증 현황을 반영한 A4 2페이지).
+
+실행본 실제 키보드 후속 검수: CUA의 일반 키 입력으로4코스 결승 도달, 결과35.35/73.15/65.04/72.32초(충돌0/14/10/7). 후반 코스는 CP 재도전을 포함한다. 정상 종료·재실행 후 네 기록과 완주4/4 유지도 확인했다. 사람의 직접 조작/난이도·오디오 검수와는 구분하며 세부 결과는 PROGRESS 작업67에 있다.
