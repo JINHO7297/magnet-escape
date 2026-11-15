@@ -1,9 +1,8 @@
-"""Original pixel art for Magnet Escape. Optional authoring dependency: Pillow.
+"""Original pixel art for Magnet Skater (legacy asset filenames preserve GUID references). Optional authoring dependency: Pillow.
 Run from any directory; generated PNGs are committed and require no Python at runtime.
 """
 from pathlib import Path
 from PIL import Image, ImageDraw
-import math
 
 OUT = Path(__file__).resolve().parents[1] / 'Assets/_MagnetEscape/Resources/Art'
 OUT.mkdir(parents=True, exist_ok=True)
@@ -23,55 +22,44 @@ def save(image, name):
     image.save(OUT / (name + '.png'))
 
 
-def robot(name, pose, frame=0):
+def skater(name, pose, frame=0):
     image, d = canvas((48, 64))
     bob = frame % 2 if pose == 'run' else 0
-    d.rectangle((12, 5 + bob, 35, 30 + bob), fill=INK)
-    d.rectangle((14, 7 + bob, 33, 28 + bob), fill=LIGHT)
-    d.rectangle((15, 8 + bob, 32, 12 + bob), fill='#d7e4e0')
-    d.rectangle((15, 15 + bob, 35, 25 + bob), fill=INK)
-    d.rectangle((22, 18 + bob, 26, 21 + bob), fill=CYAN)
-    d.rectangle((30, 18 + bob, 34, 21 + bob), fill=CYAN)
-    d.rectangle((21, 1 + bob, 24, 6 + bob), fill=STEEL)
-    d.rectangle((20, 0 + bob, 25, 2 + bob), fill=YELLOW)
-    d.rectangle((13, 30 + bob, 34, 48 + bob), fill=INK)
-    d.rectangle((15, 32 + bob, 32, 46 + bob), fill=STEEL)
-    # Horseshoe magnet on chest.
-    d.rectangle((19, 34 + bob, 22, 42 + bob), fill='#ff6d7a')
-    d.rectangle((27, 34 + bob, 30, 42 + bob), fill=CYAN)
-    d.rectangle((20, 41 + bob, 29, 44 + bob), fill=LIGHT)
-    d.rectangle((19, 33 + bob, 22, 35 + bob), fill=LIGHT)
-    d.rectangle((27, 33 + bob, 30, 35 + bob), fill=LIGHT)
+    crouch = 7 if pose == 'dash' else 0
+    head = 6 + bob + crouch
+    # Helmet, face and jacket: original skater silhouette facing right.
+    d.ellipse((15, head, 33, head + 17), fill=INK)
+    d.rectangle((18, head + 9, 33, head + 20), fill='#efbb91')
+    d.rectangle((15, head + 3, 34, head + 10), fill=CYAN)
+    d.rectangle((29, head + 12, 32, head + 14), fill=INK)
+    d.line((20, head + 20, 28, 40), fill=CYAN, width=11)
+    d.line((24, head + 23, 36, 36 if pose != 'jump' else 25), fill=LIGHT, width=5)
+    if pose == 'fall':
+        d.line((22, 31, 9, 18), fill=LIGHT, width=5)
+        d.rectangle((6, 14, 11, 20), fill='#efbb91')
+    d.line((25, 39, 18, 52), fill=INK, width=7)
+    d.line((27, 40, 33, 52), fill=INK, width=7)
+    if pose == 'run' and frame % 2:
+        d.line((24, 40, 9, 53), fill=INK, width=6)
+    d.rectangle((13, 51, 22, 54), fill=LIGHT)
+    d.rectangle((28, 51, 38, 54), fill=LIGHT)
+    # Magnetic board remains visible in every airborne pose.
+    board = 55 if pose != 'jump' else 54
+    d.rounded_rectangle((6, board, 43, board + 5), radius=2, fill=CYAN)
+    d.rectangle((11, board + 5, 15, board + 8), fill=INK)
+    d.rectangle((33, board + 5, 37, board + 8), fill=INK)
     if pose == 'dash':
-        d.rectangle((1, 33, 13, 38), fill=CYAN)
-        d.rectangle((3, 42, 12, 45), fill=LIGHT)
-        d.rectangle((33, 32, 43, 37), fill=STEEL)
-        legs = [(14, 49, 23, 54), (26, 47, 40, 52)]
-    elif pose == 'jump':
-        d.rectangle((7, 24, 12, 38), fill=STEEL)
-        d.rectangle((35, 23, 40, 37), fill=STEEL)
-        legs = [(13, 48, 21, 54), (27, 47, 35, 53)]
-    elif pose == 'fall':
-        d.rectangle((7, 17, 12, 35), fill=STEEL)
-        d.rectangle((35, 17, 40, 35), fill=STEEL)
-        legs = [(15, 48, 22, 59), (27, 48, 34, 59)]
-    else:
-        d.rectangle((7, 32 + bob, 12, 45 + bob), fill=STEEL)
-        d.rectangle((35, 32 + bob, 40, 45 + bob), fill=STEEL)
-        step = [0, 3, 0, -3][frame % 4] if pose == 'run' else 0
-        legs = [(15 - step, 48 + bob, 22 - step, 59), (27 + step, 48 + bob, 34 + step, 59)]
-    for x1, y1, x2, y2 in legs:
-        d.rectangle((x1, y1, x2, y2), fill=INK)
-        d.rectangle((x1 + 1, y1, x2 - 1, y2 - 3), fill=STEEL)
-        d.rectangle((x1 - 2, y2 - 3, x2 + 2, y2), fill=LIGHT)
+        d.line((0, 36, 11, 36), fill=CYAN, width=3)
+        d.line((0, 45, 9, 45), fill=YELLOW, width=2)
     save(image, name)
 
 
-robot('robot_idle', 'idle')
+# Names are kept for serialized/prefab compatibility; these are now skater frames.
+skater('robot_idle', 'idle')
 for i in range(4):
-    robot('robot_run_' + str(i), 'run', i)
+    skater('robot_run_' + str(i), 'run', i)
 for pose in ['jump', 'fall', 'dash']:
-    robot('robot_' + pose, pose)
+    skater('robot_' + pose, pose)
 
 image, d = canvas((64, 32))
 d.rectangle((0, 0, 63, 31), fill=INK)
@@ -86,22 +74,20 @@ d.line((0, 30, 63, 30), fill='#223544', width=2)
 save(image, 'platform')
 
 image, d = canvas((32, 32))
-d.rectangle((0, 26, 31, 31), fill=STEEL)
-d.polygon([(1, 25), (15, 2), (29, 25)], fill=INK)
-d.polygon([(5, 24), (15, 5), (25, 24)], fill='#c7d6d9')
-d.polygon([(15, 5), (25, 24), (15, 24)], fill='#f07277')
+d.rectangle((0, 26, 31, 31), fill=INK)
+d.polygon([(2, 25), (15, 2), (28, 25)], fill='#ef7f3e')
+d.line((10, 12, 20, 12), fill='#fff0ce', width=3)
+d.line((6, 20, 25, 20), fill='#fff0ce', width=3)
 save(image, 'spike')
 
 image, d = canvas((64, 64))
-points = []
-for i in range(48):
-    angle = i * math.pi / 24
-    radius = 30 if i % 4 < 2 else 23
-    points.append((32 + math.cos(angle) * radius, 32 + math.sin(angle) * radius))
-d.polygon(points, fill=LIGHT, outline=INK)
-d.ellipse((13, 13, 51, 51), fill=STEEL, outline=INK, width=3)
-d.ellipse((23, 23, 41, 41), fill=YELLOW, outline=INK, width=3)
-d.rectangle((30, 27, 34, 37), fill=INK)
+# Patrol drone. Its circular sensor defines the existing hazard radius.
+d.ellipse((5, 5, 59, 59), fill='#d45e64', outline=INK, width=3)
+d.rounded_rectangle((13, 19, 51, 44), radius=6, fill=INK)
+d.rectangle((18, 24, 46, 32), fill=LIGHT)
+d.rectangle((26, 25, 35, 30), fill=YELLOW)
+d.line((1, 10, 25, 10), fill=INK, width=4)
+d.line((39, 10, 62, 10), fill=INK, width=4)
 save(image, 'saw')
 
 image, d = canvas((64, 64))
@@ -127,31 +113,24 @@ for active in [False, True]:
     save(image, 'checkpoint_on' if active else 'checkpoint_off')
 
 image, d = canvas((64, 128))
-d.rectangle((4, 0, 59, 127), fill=INK)
-d.rectangle((9, 5, 54, 126), fill=STEEL)
-d.rectangle((15, 20, 48, 124), fill='#153f43')
-d.rectangle((18, 22, 45, 122), fill='#236c67')
-for y in range(24, 124, 8):
-    d.line((18, y, 45, y), fill='#2e847b')
-d.rectangle((15, 7, 48, 14), fill=CYAN)
-d.polygon([(23, 62), (34, 62), (34, 55), (44, 68), (34, 80), (34, 73), (23, 73)], fill=CYAN)
+d.rectangle((8, 0, 13, 127), fill=LIGHT)
+d.rectangle((13, 4, 61, 45), fill=CYAN)
+for y in range(4, 45, 8):
+    for x in range(13, 61, 8):
+        if ((x - 13) // 8 + (y - 4) // 8) % 2 == 0:
+            d.rectangle((x, y, min(x + 7, 61), min(y + 7, 45)), fill=INK)
+d.rectangle((0, 123, 30, 127), fill=INK)
 save(image, 'exit')
 
 image, d = canvas((512, 256))
-d.rectangle((0, 0, 511, 255), fill='#101d2b')
-for x in range(0, 512, 64):
-    d.line((x, 0, x, 256), fill='#172b39', width=2)
-    for y in range(0, 256, 64):
-        d.line((x, y, x + 64, y), fill='#172b39', width=2)
-for x in [30, 200, 380]:
-    d.rectangle((x, 48, x + 64, 255), fill='#1a2f3d')
-    d.rounded_rectangle((x + 3, 42, x + 61, 200), radius=20, fill='#213a48')
-    d.rectangle((x + 20, 24, x + 28, 55), fill='#294452')
-    for y in [78, 160]:
-        d.rectangle((x + 3, y, x + 61, y + 5), fill='#294452')
-d.line([(0, 30), (128, 30), (128, 110), (300, 110), (300, 0)], fill='#294452', width=8)
-for x in range(0, 512, 128):
-    d.rectangle((x + 5, 12, x + 28, 16), fill='#537b75')
+d.rectangle((0, 0, 511, 255), fill='#14283e')
+# Repeating city facades: decorative and non-colliding.
+for x, top, width in [(0, 20, 80), (86, 65, 66), (158, 5, 100), (264, 48, 76), (346, 12, 94), (446, 82, 65)]:
+    d.rectangle((x, top, x + width, 255), fill='#20394f')
+    d.rectangle((x, top, x + width, top + 3), fill='#31576c')
+    for wy in range(top + 16, 250, 28):
+        for wx in range(x + 10, x + width - 5, 20):
+            d.rectangle((wx, wy, wx + 7, wy + 10), fill='#427579' if (wx + wy) % 3 else '#bd9e64')
+d.line((0, 253, 511, 253), fill='#28485f', width=3)
 save(image, 'factory_backdrop')
-
-print('Generated', len(list(OUT.glob('*.png'))), 'original sprites.')
+print('Generated', len(list(OUT.glob('*.png'))), 'original skater/city sprites; legacy GUIDs retained.')

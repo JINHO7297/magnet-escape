@@ -67,7 +67,7 @@ namespace MagnetEscape
             }
             else
             {
-                player = Box("Magnet robot", layout.StartPosition, new Vector2(0.7f, 0.9f), Color.cyan, false);
+                player = Box("Magnet skater", layout.StartPosition, new Vector2(0.7f, 0.9f), Color.cyan, false);
                 GameArt.Apply(player, "robot_idle", 10);
                 Rigidbody2D body = player.AddComponent<Rigidbody2D>();
                 if (robotMaterial == null) robotMaterial = new PhysicsMaterial2D("Robot frictionless") { friction = 0f, bounciness = 0f };
@@ -126,7 +126,7 @@ namespace MagnetEscape
 
         private static GameObject Platform(float x, float y, float width)
         {
-            GameObject platform = Box("Factory platform", new Vector2(x, y), new Vector2(width, 0.6f), new Color(0.28f, 0.34f, 0.43f), false);
+            GameObject platform = Box("Rooftop platform", new Vector2(x, y), new Vector2(width, 0.6f), new Color(0.28f, 0.34f, 0.43f), false);
             platform.layer = LayerMask.NameToLayer("Ground");
             GameArt.Apply(platform, "platform", 0, true);
             return platform;
@@ -190,7 +190,7 @@ namespace MagnetEscape
 
         private static void Saw(float x, float y, Vector2 travel, float period, float phase)
         {
-            GameObject saw = Box("Rotating saw", new Vector2(x, y), Vector2.one, Color.white, true);
+            GameObject saw = Box("Patrol drone", new Vector2(x, y), Vector2.one, Color.white, true);
             // Keep the invisible box disabled immediately; use a matching circular trigger.
             saw.GetComponent<BoxCollider2D>().enabled = false;
             CircleCollider2D circle = saw.AddComponent<CircleCollider2D>();

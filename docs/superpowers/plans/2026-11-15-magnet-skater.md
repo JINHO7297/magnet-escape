@@ -40,11 +40,11 @@
 ### Task 3: 도심 표현·UI·문서
 **Files:** Tools/generate_art.py, Resources/Art/*.png (기존 GUID), GameHud.cs, Editor/MacBuild.cs, README/GOAL/AGENTS/TASKS/PROGRESS/CREDITS/SUBMISSION.
 **Interfaces:** 기존 스프라이트 파일명·크기·import 설정 유지.
-- [ ] 스케이터/보드·도심 배경·공사 장애물·드론·결승 표현 생성.
-- [ ] UI 제목·도움말·결과·Mac 안내를 실제 새 조작으로 통일.
-- [ ] 목표/규칙/실행법 갱신, 새 기획서 복사.
-- [ ] 전체 Python/에셋/C# 구문·문구·diff 검사 후 자체 리뷰, Unity 미검증 명시.
-- [ ] 기록 갱신·커밋·푸시 및 원격 SHA 확인.
+- [x] 스케이터/보드·도심 배경·공사 장애물·드론·결승 표현 생성.
+- [x] UI 제목·도움말·결과·Mac 안내를 실제 새 조작으로 통일.
+- [x] 목표/규칙/실행법 갱신, 새 기획서 복사.
+- [x] 전체 Python/에셋/C# 구문·문구·diff 검사 후 자체 리뷰, Unity 미검증 명시.
+- [x] 기록 갱신·커밋·푸시 및 원격 SHA 확인.
 
 ## Execution ledger
 - Ruling: 사용자가 이미 검수 보류/자율 연속 개발을 요청했으므로 새 승인 대기나 TDD 성공 주장을 하지 않는다.
@@ -53,3 +53,5 @@
 - Task 1: implementation written; Python/asset/syntax checks pass; Unity RED/GREEN and play unverified per user directive.
 
 - Task 2: data/record migration written; Python 21/21 and asset checks pass; course completion and rank tuning unverified.
+
+- Task 3: code/art/UI/docs conversion written; Python21, assets, syntax, metadata/placement/DOCX checks pass. Independent review: no Critical/Important; two copy fixes included. Unity32 and all actual play/build checks unexecuted.

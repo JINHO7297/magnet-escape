@@ -70,7 +70,7 @@ namespace MagnetEscape.Editor
             string previousArchitecture = EditorUserBuildSettings.GetPlatformSettings("Standalone", "OSXUniversal", "Architecture");
             try
             {
-                PlayerSettings.productName = "Magnet Escape";
+                PlayerSettings.productName = "Magnet Skater";
                 EditorUserBuildSettings.SetPlatformSettings("Standalone", "OSXUniversal", "Architecture", architecture);
                 report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
                 {
@@ -94,13 +94,13 @@ namespace MagnetEscape.Editor
             File.WriteAllText(Path.ChangeExtension(path, ".build.txt"), details);
             if (summary.result != BuildResult.Succeeded || summary.totalErrors > 0)
                 throw new BuildFailedException(details);
-            string guide = "MAGNET ESCAPE\n\nOpen " + Path.GetFileName(path) + " to play.\n\n"
-                + "A/D or arrows: move\nSpace: jump (hold for height)\nWASD + Shift: direction dash\n"
-                + "Q: attract / E: repel\nBackspace: retry checkpoint (+1 death, keeps timer)\n"
+            string guide = "MAGNET SKATER\n\nOpen " + Path.GetFileName(path) + " to play.\n\n"
+                + "AUTO RUN: the board always moves right\nSpace: jump (hold for height)\nShift: forward dash\n"
+                + "Q: vertical attract / E: vertical repel (airborne)\nBackspace: retry checkpoint (+1 death, keeps timer)\n"
                 + "R: restart stage\nEsc: pause / resume\nM: mute\n\n"
                 + "Help and credits are available from stage selection and pause.\n"
                 + "All four stages can be selected from the start. Dash begins in stage 2; magnet controls in stage 3.\n"
-                + "Gold rails show platforms. Red rails show saws. Green gates are exits.\n\n"
+                + "Red rails show drone routes. Green flags mark the finish.\n\n"
                 + "Best time, deaths on that run, and best rank are saved separately.\n"
                 + "Rank S requires no deaths and a clear time at or below the stage target.\n"
                 + "Source course targets below may differ from edited revisions; follow the in-game S target.\n";

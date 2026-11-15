@@ -168,7 +168,7 @@ MonoBehaviour:
   - Position:
       x: 38.0
       y: 1.5
-    Message: 'Above magnet: Q lifts / E lowers. Below magnet: E lifts / Q lowers. Release to fall normally.'
+    Message: 'Magnet above you: Q lifts / E lowers. Magnet below you: E lifts / Q lowers. Release to fall normally.'
     Range: 5.5
   - Position:
       x: 39.0

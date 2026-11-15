@@ -1,4 +1,6 @@
-# Magnet Escape 제출 자료 안내
+> 최신 기획은 자동 전진 스케이터다. 제출 기획서: docs/Magnet_Skater_Game_Design.docx. 구 네임스페이스/출력 파일명은 참조 호환을 위해 유지한다. 기존 문서의 누적 안내보다 README/GOAL의 최신 조작을 우선한다.
+
+# Magnet Skater 제출 자료 안내
 
 ## 소스 프로젝트
 
@@ -6,10 +8,10 @@
 
 ## 게임 구성
 
-- Stage 1 / Assembly Line: 기본 이동·짧은/긴 점프·체크포인트.
-- Stage 2 / Machine Hall: 이동 발판·방향 대시·순찰 톱날·가시.
-- Stage 3 / Magnetic Shaft: 인력·척력·자력 해제 후 이동.
-- Stage 4 / Last Exit: 모든 기술을 조합한 코스.
+- Stage 1 / Alley Start: 자동 전진·점프 타이밍·체크포인트.
+- Stage 2 / Rooftop Rush: 긴 틈·전방 대시·순찰 드론·공사 장애물.
+- Stage 3 / Sky Rail: 공중 수직 인력·척력·전진 유지.
+- Stage 4 / Skyline Challenge: 모든 기술을 조합한 코스.
 
 선택 화면에서 모든 코스에 접근할 수 있다. 안내·크레딧·음량은 선택/일시정지 화면에 있다. 독립 실행판에는 종료 버튼이 있다. 자세한 키 조작과 기록 정책은 README.md에 있다.
 

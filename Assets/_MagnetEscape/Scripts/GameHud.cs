@@ -134,8 +134,8 @@ namespace MagnetEscape
         private void Selection()
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0.02f, 0.04f, 0.06f, 0.72f));
-            Label(new Rect(48, 24, 870, 55), "MAGNET ESCAPE", title, Mint);
-            Label(new Rect(51, 82, 860, 30), "A small robot. An abandoned factory. Four routes to freedom.", text);
+            Label(new Rect(48, 24, 870, 55), "MAGNET SKATER", title, Mint);
+            Label(new Rect(51, 82, 860, 30), "Auto-run the rooftops. Jump, dash and ride the magnetic skyline.", text);
             if (!string.IsNullOrEmpty(session.Notice)) Label(new Rect(52, 112, 860, 20), session.Notice, small, Gold);
             int completed = 0;
             for (int stage = 1; stage <= 4; stage++)
@@ -188,7 +188,7 @@ namespace MagnetEscape
             Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
             string magnet = !player.MagnetEnabled ? "MAGNET / LOCKED" : player.MagnetTarget == null ? "MAGNET / OUT OF RANGE"
-                : player.IsDashing ? "MAGNET / DASHING" : player.MagnetMode > 0 ? "Q / ATTRACTING"
+                : player.Grounded ? "MAGNET / JUMP TO USE" : player.IsDashing ? "MAGNET / DASHING" : player.MagnetMode > 0 ? "Q / ATTRACTING"
                 : player.MagnetMode < 0 ? "E / REPELLING" : "MAGNET / Q ATTRACT - E REPEL";
             Label(new Rect(240, 54, 530, 24), magnet, small, player.MagnetMode < 0 ? Gold : Mint);
             Label(new Rect(800, 54, 125, 24), session.HasCheckpoint ? "CP SAVED / " + session.CheckpointNumber : "NO CP YET", small, Gold);
@@ -213,8 +213,8 @@ namespace MagnetEscape
                 Label(new Rect(138, 425, 685, 44), session.Hint, text);
             }
             Fill(new Rect(20, 489, 920, 31), new Color(0.025f, 0.05f, 0.07f, 0.9f));
-            Label(new Rect(34, 497, 895, 22), "A/D: Move   Space: Jump   WASD + Shift: Dash   Q/E: Magnet   Backspace: Retry   R: Restart   Esc: Pause", small);
-            if (session.Respawning) Label(new Rect(370, 245, 250, 40), "REBOOTING...", heading, Gold);
+            Label(new Rect(34, 497, 895, 22), "AUTO RUN >   Space: Jump   Shift: Forward dash   Q/E: Air magnet   Backspace: Retry   R: Restart   Esc: Pause", small);
+            if (session.Respawning) Label(new Rect(370, 245, 250, 40), "BACK ON BOARD...", heading, Gold);
         }
 
         private void CourseFailure()
@@ -259,7 +259,7 @@ namespace MagnetEscape
             Vector3 screen = session.ViewCamera.WorldToScreenPoint(session.ExitPosition);
             float x = Mathf.Clamp((screen.x - uiOffset.x) / uiScale, 70f, 890f);
             float y = Mathf.Clamp((Screen.height - screen.y - uiOffset.y) / uiScale, 166f, 392f);
-            string direction = viewport.x > 1f ? "EXIT >" : viewport.x < 0f ? "< EXIT" : viewport.y > 1f ? "EXIT ^" : "EXIT v";
+            string direction = viewport.x > 1f ? "GOAL >" : viewport.x < 0f ? "< GOAL" : viewport.y > 1f ? "GOAL ^" : "GOAL v";
             Panel(new Rect(x - 44f, y - 16f, 88f, 32f));
             Label(new Rect(x - 32f, y - 8f, 78f, 24f), direction, small, Mint);
         }
@@ -268,7 +268,7 @@ namespace MagnetEscape
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.65f));
             Panel(new Rect(230, 87, 500, 375));
-            Label(new Rect(263, 108, 450, 36), session.Stage == 4 ? "FACTORY ESCAPED" : "STAGE CLEAR", heading, Mint);
+            Label(new Rect(263, 108, 450, 36), session.Stage == 4 ? "CHALLENGE COMPLETE" : "STAGE CLEAR", heading, Mint);
             Label(new Rect(267, 154, 410, 70), "RANK  " + session.Rank, title, Gold);
             Label(new Rect(270, 226, 420, 30), "TIME " + session.Elapsed.ToString("F2") + "s     /     DEATHS " + session.Deaths, text);
             string record = !session.RecordSaved ? (session.PracticeRun ? "PRACTICE RUN / RECORD NOT SAVED" : "RECORD COULD NOT BE SAVED")
@@ -293,7 +293,7 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(266, 360, 207, 40), "RETRY  /  R", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(487, 360, 207, 40), "STAGE SELECT", button)) session.ShowSelection();
             Label(new Rect(270, 418, 425, 25), !session.RecordSaved ? (session.PracticeRun ? "This run does not affect your saved records." : "The stage is clear, but its record was not saved.")
-                : session.Stage == 4 ? "You made it outside. Every route is replayable." : "Your best time and best rank are saved separately.", small);
+                : session.Stage == 4 ? "Skyline complete. Chase a cleaner run!" : "Your best time and best rank are saved separately.", small);
         }
 
         private void Volume(float x, float y)
@@ -309,17 +309,17 @@ namespace MagnetEscape
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0f, 0f, 0f, 0.8f));
             Panel(new Rect(100, 40, 760, 460));
-            string caption = overlay == Overlay.Controls ? "HOW TO ESCAPE" : overlay == Overlay.Records ? "COURSE RECORDS"
-                : overlay == Overlay.ResetRecord ? "CLEAR THIS RECORD?" : "MAGNET ESCAPE";
+            string caption = overlay == Overlay.Controls ? "HOW TO SKATE" : overlay == Overlay.Records ? "COURSE RECORDS"
+                : overlay == Overlay.ResetRecord ? "CLEAR THIS RECORD?" : "MAGNET SKATER";
             Label(new Rect(130, 64, 700, 55), caption, title, Mint);
             if (overlay == Overlay.Controls)
             {
-                Label(new Rect(132, 125, 690, 25), "Reach the green exit. New abilities are introduced one stage at a time.", small);
-                string[] keys = { "A / D or arrows", "SPACE", "WASD + SHIFT", "Q / E", "BACKSPACE", "R", "ESC" };
+                Label(new Rect(132, 125, 690, 25), "Auto-run to the finish. Jump early and read the course ahead.", small);
+                string[] keys = { "AUTO RUN >", "SPACE", "SHIFT", "Q / E", "BACKSPACE", "R", "ESC" };
                 string[] actions = {
-                    "Move left and right.", "Hold for height. Release early for a short jump.",
-                    "Dash in the held direction. Watch the cooldown bar.",
-                    "Attract / repel. Release to coast after a magnetic launch.",
+                    "The board moves right automatically. No steering or reverse.", "Hold for height. Release early for a short jump.",
+                    "Dash forward. Barriers and drones are still dangerous.",
+                    "Airborne: pull / push vertically. Forward speed stays constant.",
                     "Retry your checkpoint. Adds one death; keeps the timer.",
                     "Restart the stage with a new timer and death count.", "Pause / resume. M toggles sound."
                 };
@@ -328,7 +328,7 @@ namespace MagnetEscape
                     Label(new Rect(132, 160 + i * 37, 210, 30), keys[i], text, Gold);
                     Label(new Rect(350, 160 + i * 37, 475, 34), actions[i], small);
                 }
-                Label(new Rect(132, 423, 690, 22), "Gold rails: platforms. Red rails: saws. Cyan circles: magnetic range.", small);
+                Label(new Rect(132, 423, 690, 22), "Red rails: drone routes. Cyan circles: magnet range. Green flags: finish.", small);
             }
             else if (overlay == Overlay.Records)
             {
@@ -378,9 +378,9 @@ namespace MagnetEscape
             }
             else
             {
-                Label(new Rect(132, 130, 680, 55), "A small robot escapes an abandoned factory through four precision platforming courses.", text);
+                Label(new Rect(132, 130, 680, 55), "Ride a magnetic board through four auto-running city courses.", text);
                 Label(new Rect(132, 213, 680, 30), "PROJECT  /  JINHO7297", heading, Gold);
-                Label(new Rect(132, 263, 680, 30), "ART  /  Original robot and factory pixel art", text);
+                Label(new Rect(132, 263, 680, 30), "ART  /  Original skater and city pixel art", text);
                 Label(new Rect(132, 306, 680, 30), "SOUND  /  Original synthesized effects", text);
                 Label(new Rect(132, 349, 680, 30), "BUILT WITH  /  Unity", text);
                 Label(new Rect(132, 401, 680, 30), "Thank you for playing. Every course is replayable.", text, Mint);

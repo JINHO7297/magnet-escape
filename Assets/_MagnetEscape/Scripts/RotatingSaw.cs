@@ -4,7 +4,7 @@ namespace MagnetEscape
     [RequireComponent(typeof(Rigidbody2D))]
     public sealed class RotatingSaw : MonoBehaviour
     {
-        [SerializeField] private float rotationSpeed = -180f;
+        [SerializeField] private float rotationSpeed = 0f;
         [SerializeField] private Vector2 travel;
         [SerializeField, Min(0.5f)] private float period = 3.5f;
         [SerializeField] private float phase;

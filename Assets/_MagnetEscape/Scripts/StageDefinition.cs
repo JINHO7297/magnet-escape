@@ -34,6 +34,8 @@ namespace MagnetEscape
                 return "Player prefab requires root PlayerMotor, BoxCollider2D and Rigidbody2D components.";
             if (body.bodyType != RigidbodyType2D.Dynamic || !body.simulated)
                 return "Player prefab requires a dynamic Rigidbody2D with Simulated enabled.";
+            if ((body.constraints & RigidbodyConstraints2D.FreezePosition) != 0)
+                return "Player prefab position must be unlocked for auto-run and jumping.";
             if (!collider.enabled || collider.isTrigger)
                 return "Player prefab requires an enabled, non-trigger root BoxCollider2D to stand on platforms.";
             return null;
