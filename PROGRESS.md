@@ -648,3 +648,11 @@
 - 전체 Unity2022: EditMode18/18 + PlayMode27/27 =45 PASS (`artifacts/tests/20261115_020657_UTC_b369e083/`). Python21/21·에셋64GUID·diff PASS. Unity 종료와 동시에 Python 복사가 겹친 한 실행은 임시 InitTestScene 삭제 경합으로1error였고, 엔진 종료 후 재실행21/21 PASS. 제품 결함으로 잘못 보고하지 않는다. 앞으로 에셋 복사 검사는 Unity 테스트 종료 후 실행한다.
 - GameOptions에 standalone60FPS 상한을 두어 큰 화면 메뉴에서 무제한 렌더링을 피했다. 새 빌드에서 실제 화면 확인 필요.
 - 레일 코어는 구현/엔진 검수했고 현재 원본 코스에는 아직 배치하지 않았다. 다음 단위에서2~4코스에 배치하고 전체 길이를248/320/380/480으로 확장, 기준42/54/64/82초·v2 기록분리·새 완주/CP 회귀 및 Universal 재빌드. 사람의 조작감·마지막 대시 접촉 등 기존 미검증 경계도 남는다.
+
+
+## 2026-11-15 — 레일 독립 리뷰와 충돌·정지·프리팹 보완
+
+- 784e423은 먼저 로컬 커밋하고 독립 리뷰 완료 전 푸시를 보류했다. 리뷰 Important3건 모두 실제 재현: 1) 진입 수직 보정 중 얇은 Hazard/고체 발판 통과, 2) pause resume의 ClearInput으로 수집된 Q 유지 상태 소실, 3) collider offset/scale 무시. 새4건을 실행해 기존27PASS/4FAIL 확인(`021139_UTC_10929c8d`).
+- PlayerMotor: 실제 충돌체 center/min.y로 포착·높이를 계산, 진입 보정 경로의 위험물/고체 Cast 후 보정된 위치에서 전방 Hazard Cast. 정지 중 Update에서 Q/E held level만 수집하고 pause/resume ClearInput은 해당 level을 유지하며 점프/대시 edge는 지운다. 사망/Reset은 완전 초기화.
+- RED→GREEN: 경로 중간 Hazard 사망1, 고체 발판 진입 차단, 수집된 Q 유지/해제 분기, offset(.3,.6)·scale(1.2,1.5)의 board bottom7.55/root7.325 정렬 모두 통과. Unity18+31=49/49 PASS(`artifacts/tests/20261115_021247_UTC_7f9d7107/`), Python21/21·에셋64GUID·diff PASS. 물리 키 이벤트를 합성한 테스트로 주장하지 않는다.
+- Critical 없음. 리뷰 한계: 자연스러운 레일 끝 마지막 스텝·하강 경사의 사람 체감은 후속 코스/화면 검수로 남긴다. 동일 리뷰 재요청 대신 실패4건과 전체 회귀로 수정 확인. 다음은 길어진 코스와 실제 배치/완주 검수.

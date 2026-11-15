@@ -90,14 +90,17 @@ namespace MagnetEscape
 
         private void Update()
         {
-            if (!CanMove || Time.timeScale == 0f || (GameSession.Active != null && GameSession.Active.ChangingScene)) return;
+            if (!CanMove || (GameSession.Active != null && GameSession.Active.ChangingScene)) return;
+            // Held levels still update during pause; queued jump/dash edges do not.
+            // A menu can resume after Update, before the next physics step.
+            magnetMode = (MagnetEnabled || RailEnabled) ? (Input.GetKey(KeyCode.E) ? -1 : Input.GetKey(KeyCode.Q) ? 1 : 0) : 0;
+            if (Time.timeScale == 0f) return;
             jumpQueued |= Input.GetKeyDown(KeyCode.Space);
             bool held = Input.GetKey(KeyCode.Space);
             cutJump |= Input.GetKeyUp(KeyCode.Space) || (checkJumpReleaseOnResume && !held);
             checkJumpReleaseOnResume = false;
             jumpHeld = held;
             dashQueued |= Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
-            magnetMode = (MagnetEnabled || RailEnabled) ? (Input.GetKey(KeyCode.E) ? -1 : Input.GetKey(KeyCode.Q) ? 1 : 0) : 0;
         }
 
         private void FixedUpdate()
@@ -203,11 +206,12 @@ namespace MagnetEscape
         private bool StepRail(out bool launch)
         {
             launch = false;
-            float boardOffset = shape.bounds.extents.y;
+            Bounds bounds = shape.bounds;
+            Vector2 board = new Vector2(bounds.center.x, bounds.min.y);
             if (grindRail != null)
             {
                 launch = jumpBuffer > 0f || magnetMode < 0;
-                if (!RailEnabled || !grindRail.Covers(body.position.x) || magnetMode != 1 || launch)
+                if (!RailEnabled || !grindRail.Covers(board.x) || magnetMode != 1 || launch)
                     ReleaseRail();
             }
             if (grindRail == null && !launch && RailEnabled && !Grounded && magnetMode == 1 && railLockout <= 0f)
@@ -215,8 +219,8 @@ namespace MagnetEscape
                 float nearest = float.PositiveInfinity;
                 foreach (MagneticRail rail in MagneticRail.All)
                 {
-                    if (!rail.CanCatch(body.position, boardOffset)) continue;
-                    float distance = Mathf.Abs(body.position.y - boardOffset - rail.HeightAt(body.position.x));
+                    if (!rail.CanCatch(bounds.center, bounds.extents.y)) continue;
+                    float distance = Mathf.Abs(board.y - rail.HeightAt(board.x));
                     if (distance >= nearest) continue;
                     grindRail = rail;
                     nearest = distance;
@@ -228,13 +232,45 @@ namespace MagnetEscape
             body.gravityScale = 0f;
             float speed = RunSpeed * Mathf.Max(1f, railSpeedMultiplier);
             Vector2 velocity = new Vector2(speed, grindRail.Slope * speed);
+            Vector2 correction = Vector2.up * (grindRail.HeightAt(board.x) - board.y);
+            if (!RailEntryClear(correction))
+            {
+                ReleaseRail();
+                return !CanMove;
+            }
+            body.position += correction;
+            // Check the forward route from the corrected collider pose too.
             if (SweepHazard(velocity)) return true;
-            body.position = new Vector2(body.position.x, grindRail.HeightAt(body.position.x) + boardOffset);
             body.velocity = velocity;
             previousVerticalSpeed = velocity.y;
             coyote = 0f;
             cutJump = false;
             return true;
+        }
+
+        private bool RailEntryClear(Vector2 motion)
+        {
+            float distance = motion.magnitude;
+            if (distance < 0.001f) return true;
+            Vector2 direction = motion / distance;
+            int count = shape.Cast(direction, hazardFilter, sweepHits, distance);
+            float blocking = float.PositiveInfinity;
+            float danger = float.PositiveInfinity;
+            for (int i = 0; i < count; i++)
+            {
+                Collider2D other = sweepHits[i].collider;
+                if (other == null) continue;
+                if (other.GetComponent<Hazard>() != null)
+                    danger = Mathf.Min(danger, sweepHits[i].distance);
+                else if (!other.isTrigger && Vector2.Dot(sweepHits[i].normal, direction) < -0.5f)
+                    blocking = Mathf.Min(blocking, sweepHits[i].distance);
+            }
+            if (danger <= Mathf.Min(distance, blocking) + 0.001f)
+            {
+                Session?.Die();
+                return false;
+            }
+            return blocking > distance + 0.001f;
         }
 
         private void ReleaseRail()
@@ -322,7 +358,9 @@ namespace MagnetEscape
             checkJumpReleaseOnResume = preserveJumpRelease && (checkJumpReleaseOnResume || jumpHeld || cutJump);
             jumpQueued = dashQueued = cutJump = jumpHeld = false;
             jumpBuffer = 0f;
-            magnetMode = 0;
+            // Preserve the current Q/E level across pause/resume. Paused Update
+            // refreshes it, so releasing Q while paused still detaches on resume.
+            if (!preserveJumpRelease) magnetMode = 0;
             audibleMagnetMode = 0;
         }
 

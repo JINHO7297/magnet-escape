@@ -734,6 +734,95 @@ namespace MagnetEscape.Tests
             Object.Destroy(rail.gameObject);
         }
 
+        [UnityTest]
+        public IEnumerator RailCaptureCannotSkipAnInterveningHazard()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            player.ResetAt(new Vector2(100f, 8f));
+            MagneticRail rail = CreateRail();
+            rail.Configure(new Vector2(99f, 5.55f), new Vector2(110f, 5.55f), 3f);
+            GameObject danger = new GameObject("Thin hazard between board and rail");
+            danger.transform.position = new Vector2(100f, 7f);
+            danger.AddComponent<BoxCollider2D>().size = new Vector2(2f, 0.08f);
+            danger.GetComponent<BoxCollider2D>().isTrigger = true;
+            danger.AddComponent<Hazard>();
+            Physics2D.SyncTransforms();
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(session.Deaths, Is.EqualTo(1));
+            Assert.That(player.IsGrinding, Is.False);
+            Object.Destroy(danger);
+            Object.Destroy(rail.gameObject);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator RailCaptureIsBlockedBySolidGround()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            player.ResetAt(new Vector2(100f, 8f));
+            MagneticRail rail = CreateRail();
+            rail.Configure(new Vector2(99f, 5.55f), new Vector2(110f, 5.55f), 3f);
+            GameObject floor = new GameObject("Floor between board and rail");
+            floor.layer = LayerMask.NameToLayer("Ground");
+            floor.transform.position = new Vector2(100f, 7f);
+            floor.AddComponent<BoxCollider2D>().size = new Vector2(2f, 0.08f);
+            Physics2D.SyncTransforms();
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.False);
+            Assert.That(player.GetComponent<Rigidbody2D>().position.y, Is.EqualTo(8f).Within(0.01f));
+            Object.Destroy(floor);
+            Object.Destroy(rail.gameObject);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator PauseResumePreservesCollectedHeldMagnetState()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            MagneticRail rail = CreateRail();
+            foreach (bool held in new[] { true, false })
+            {
+                player.ResetAt(new Vector2(100f, 8f));
+                SetMotorField(player, "magnetMode", 1);
+                player.SendMessage("FixedUpdate");
+                Assert.That(player.IsGrinding, Is.True);
+                session.SetPaused(true);
+                // Model the held level collected by motor Update while paused.
+                // This does not synthesize a physical key event.
+                SetMotorField(player, "magnetMode", held ? 1 : 0);
+                yield return new WaitForSecondsRealtime(0.02f);
+                session.SetPaused(false);
+                player.SendMessage("FixedUpdate");
+                Assert.That(player.IsGrinding, Is.EqualTo(held));
+            }
+            Object.Destroy(rail.gameObject);
+        }
+
+        [UnityTest]
+        public IEnumerator RailAlignsTheActualBottomOfAnOffsetScaledCollider()
+        {
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            BoxCollider2D shape = player.GetComponent<BoxCollider2D>();
+            shape.offset = new Vector2(0.3f, 0.6f);
+            player.transform.localScale = new Vector3(1.2f, 1.5f, 1f);
+            player.ResetAt(new Vector2(100f, 8f));
+            MagneticRail rail = CreateRail();
+            Physics2D.SyncTransforms();
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.True);
+            Assert.That(player.GetComponent<Rigidbody2D>().position.y, Is.EqualTo(7.325f).Within(0.02f));
+            Assert.That(shape.bounds.min.y, Is.EqualTo(7.55f).Within(0.02f));
+            Object.Destroy(rail.gameObject);
+            yield break;
+        }
+
         private static MagneticRail CreateRail()
         {
             GameObject obj = new GameObject("Test magnetic rail");
