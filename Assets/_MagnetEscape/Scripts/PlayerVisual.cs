@@ -63,7 +63,7 @@ namespace MagnetEscape
             visual.color = motor.MagnetMode > 0 ? new Color(1f, 0.7f, 0.9f) : motor.MagnetMode < 0 ? new Color(1f, 0.9f, 0.55f) : Color.white;
             trail.emitting = motor.CanMove && motor.IsDashing;
             if (!motor.CanMove) trail.Clear();
-            tether.enabled = motor.CanMove && !motor.IsDashing && motor.MagnetMode != 0 && motor.MagnetTarget != null;
+            tether.enabled = motor.CanMove && !motor.Grounded && !motor.IsDashing && motor.MagnetMode != 0 && motor.MagnetTarget != null;
             if (tether.enabled)
             {
                 tether.SetPosition(0, transform.position);

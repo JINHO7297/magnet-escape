@@ -24,10 +24,10 @@
 ### Task 1: 러너 조작
 **Files:** PlayerMotor.cs, Tests/PlayMode/SessionLifecycleTests.cs, TASKS.md, PROGRESS.md
 **Interfaces:** PlayerMotor.RunSpeed(float 읽기 속성), 기존 ResetAt/SetFrozen/Session.
-- [ ] 자동 전진·일시정지/재개 연동 UnityTest를 먼저 작성한다. Unity 부재로 미실행 기록.
-- [ ] 수평 입력 제거, 전방 대시, 수직 자력, 기본 전진 속도 유지 구현.
-- [ ] python3 Tools/validate_project.py, Python 회귀, C# 구문·diff 검사.
-- [ ] 기록 갱신·커밋·푸시.
+- [x] 자동 전진·일시정지/재개 연동 UnityTest를 먼저 작성한다. Unity 부재로 미실행 기록.
+- [x] 수평 입력 제거, 전방 대시, 수직 자력, 기본 전진 속도 유지 구현.
+- [x] python3 Tools/validate_project.py, Python 회귀, C# 구문·diff 검사.
+- [x] 기록 갱신·커밋·푸시.
 
 ### Task 2: 4코스와 기록 분리
 **Files:** Resources/Stages/Stage1~4.asset, StageInfo.cs, StageRecords.cs, 기존 PlayMode 테스트 키.
@@ -49,3 +49,5 @@
 ## Execution ledger
 - Ruling: 사용자가 이미 검수 보류/자율 연속 개발을 요청했으므로 새 승인 대기나 TDD 성공 주장을 하지 않는다.
 - Ruling: 기존 승인된 develop에서 직접 작업한다. 원본 상태는 clean이고 부모 커밋은 61fe3cd다.
+
+- Task 1: implementation written; Python/asset/syntax checks pass; Unity RED/GREEN and play unverified per user directive.

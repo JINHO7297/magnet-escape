@@ -52,6 +52,28 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator AutoRunStartsWithoutDirectionInputAndStopsForPauseAndDeath()
+        {
+            PlayerMotor player = session.Player;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            player.enabled = true;
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+            Assert.That(body.velocity.x, Is.EqualTo(player.RunSpeed).Within(0.01f));
+            Assert.That(player.FacingDirection, Is.EqualTo(1f));
+            session.SetPaused(true);
+            Vector2 stopped = body.position;
+            yield return new WaitForSecondsRealtime(0.06f);
+            Assert.That(body.position, Is.EqualTo(stopped));
+            session.SetPaused(false);
+            yield return new WaitForFixedUpdate();
+            Assert.That(body.velocity.x, Is.GreaterThan(0f));
+            session.Die();
+            Assert.That(body.velocity, Is.EqualTo(Vector2.zero));
+            Assert.That(body.simulated, Is.False);
+        }
+
+        [UnityTest]
         public IEnumerator FourStagesLoadWithTheirAbilitiesAndRuntimeObjects()
         {
             for (int stage = 1; stage <= 4; stage++)

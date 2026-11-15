@@ -575,3 +575,12 @@
 - 변경: PlayerVisual.cs, SessionLifecycleTests.cs, README.md, TASKS.md, PROGRESS.md. 원본 4코스·씬·기존 GUID 유지.
 - 실제 검사: Python 21/21 PASS, 에셋 무결성 PASS, C# 24파일 구문 PASS(컴파일 아님), 공백 검사 PASS. 미검증: Unity 컴파일·콜백/부활 테스트·실제 로봇 표시·네 코스 완주·Mac 배포.
 - 이번 작업은 53→54→55→56 순서로 진행했다. 남은 실제 검수는 완료로 표시하지 않았고 이후 구현도 기존 기능과 중복되지 않는 실제 결함·마감 작업을 우선한다.
+
+
+## 2026-11-15 — Magnet Skater 전환 1: 조작
+
+- 사용자가 확정한 자동 전진 스케이터 기획으로 기존 프로젝트를 전환한다. 설계와 3단계 계획을 docs/superpowers에 기록(da89868)했다. 기존 승인대로 develop에서 직접 실행하고 Unity 검수 보류를 유지한다.
+- PlayerMotor.cs: 수평 입력 제거, RunSpeed 자동 전진, 오른쪽 대시. 자력은 공중 수직 속도만 변경해 후진/정지를 만들지 않는다. 기존 사망/정지/결과/전환 잠금·가변 점프·쿨다운을 유지한다.
+- PlayerVisual.cs/MagnetAnchor.cs: 지상에서는 자력선/작동 강조를 표시하지 않는다. 자동 전진/정지/사망 UnityTest를 코드 변경 전에 추가했으나 Unity가 없어 RED/GREEN은 실행하지 않았다.
+- 실제 검사: Python 21/21, 에셋 무결성(63 GUID·5 씬·16 PNG), C# 24파일 구문, 공백 검사 PASS. Unity 컴파일/실제 키 입력/새 테스트는 미검증이다.
+- 변경: 위 런타임 3파일·기존 PlayMode 테스트·AGENTS/TASKS/PROGRESS. 다음은 4코스·기록을 러너에 맞춘다.

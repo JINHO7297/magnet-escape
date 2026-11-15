@@ -5,7 +5,7 @@ namespace MagnetEscape
     [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
     public sealed class PlayerMotor : MonoBehaviour
     {
-        [SerializeField] private float moveSpeed = 7f;
+        [SerializeField, Min(0.1f)] private float moveSpeed = 7f;
         [SerializeField] private float jumpSpeed = 13f;
         [SerializeField, Min(0.1f)] private float gravityScale = 3f;
         [SerializeField] private float dashSpeed = 19f;
@@ -13,7 +13,6 @@ namespace MagnetEscape
         [SerializeField] private float dashCooldown = 0.75f;
         [SerializeField] private float magnetAcceleration = 34f;
         [SerializeField] private float magnetRange = 7f;
-        [SerializeField, Min(1f)] private float magneticAirControl = 24f;
         [SerializeField] private bool dashEnabled = true;
         [SerializeField] private bool magnetEnabled;
         [Header("Jump responsiveness")]
@@ -28,7 +27,6 @@ namespace MagnetEscape
         private readonly RaycastHit2D[] sweepHits = new RaycastHit2D[16];
         private ContactFilter2D groundFilter;
         private ContactFilter2D hazardFilter;
-        private Vector2 movement;
         private Vector2 dashDirection;
         private bool jumpQueued;
         private bool dashQueued;
@@ -40,12 +38,10 @@ namespace MagnetEscape
         private float dashRemaining;
         private bool dashStepActive;
         private float cooldown;
-        private float facing = 1f;
         private int magnetMode;
         private int audibleMagnetMode;
         private Vector2 supportVelocity;
         private MagnetAnchor targetAnchor;
-        private bool magneticMomentum;
         private float previousVerticalSpeed;
         public bool CanMove { get; set; } = true;
         public bool DashEnabled { get => dashEnabled; set => dashEnabled = value; }
@@ -57,7 +53,8 @@ namespace MagnetEscape
         public float DashReadyFraction => 1f - Mathf.Clamp01(cooldown / Mathf.Max(0.001f, dashCooldown));
         public Transform MagnetTarget => targetAnchor != null ? targetAnchor.transform : null;
         public float MagnetReach => magnetRange;
-        public float FacingDirection => facing;
+        public float RunSpeed => Mathf.Max(0.1f, moveSpeed);
+        public float FacingDirection => 1f;
         public float HorizontalSpeedRelativeToGround => body.velocity.x - (Grounded ? supportVelocity.x : 0f);
         private GameSession Session
         {
@@ -87,12 +84,6 @@ namespace MagnetEscape
         private void Update()
         {
             if (!CanMove || Time.timeScale == 0f || (GameSession.Active != null && GameSession.Active.ChangingScene)) return;
-            float horizontal = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1f : 0f)
-                - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f);
-            float vertical = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f)
-                - (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1f : 0f);
-            movement = new Vector2(horizontal, vertical);
-            if (movement.x != 0f) facing = Mathf.Sign(movement.x);
             jumpQueued |= Input.GetKeyDown(KeyCode.Space);
             bool held = Input.GetKey(KeyCode.Space);
             cutJump |= Input.GetKeyUp(KeyCode.Space) || (checkJumpReleaseOnResume && !held);
@@ -119,15 +110,13 @@ namespace MagnetEscape
                 Session?.Feedback((Vector2)transform.position + Vector2.down * 0.45f,
                     new Color(0.7f, 0.8f, 0.85f), GameAudio.Cue.Land);
             Grounded = grounded;
-            if (grounded) magneticMomentum = false;
             coyote = grounded ? Mathf.Max(coyoteTime, dt) : Mathf.Max(0f, coyote - dt);
             jumpBuffer = jumpQueued ? Mathf.Max(jumpBufferDuration, dt) : Mathf.Max(0f, jumpBuffer - dt);
             jumpQueued = false;
             if (dashQueued && DashEnabled && cooldown <= 0f)
             {
-                dashDirection = movement.sqrMagnitude > 0.01f ? movement.normalized : new Vector2(facing, 0f);
+                dashDirection = Vector2.right;
                 dashRemaining = dashDuration;
-                magneticMomentum = false;
                 cooldown = dashCooldown;
                 Session?.Feedback(transform.position, Color.cyan, GameAudio.Cue.Dash);
             }
@@ -140,7 +129,7 @@ namespace MagnetEscape
                 audibleMagnetMode = 0;
                 dashRemaining = Mathf.Max(0f, dashRemaining - dt);
                 body.gravityScale = 0f;
-                Vector2 dashVelocity = dashDirection * dashSpeed;
+                Vector2 dashVelocity = dashDirection * Mathf.Max(RunSpeed, dashSpeed);
                 if (SweepHazard(dashVelocity)) return;
                 body.velocity = dashVelocity;
                 previousVerticalSpeed = body.velocity.y;
@@ -149,10 +138,7 @@ namespace MagnetEscape
             }
             body.gravityScale = gravityScale;
             Vector2 velocity = body.velocity;
-            float desiredHorizontal = movement.x * moveSpeed + (grounded ? supportVelocity.x : 0f);
-            velocity.x = !grounded && magneticMomentum
-                ? Mathf.MoveTowards(velocity.x, desiredHorizontal, magneticAirControl * dt)
-                : desiredHorizontal;
+            velocity.x = RunSpeed;
             if (grounded && velocity.y <= supportVelocity.y + 0.1f) velocity.y = supportVelocity.y;
             if (jumpBuffer > 0f && coyote > 0f)
             {
@@ -183,19 +169,19 @@ namespace MagnetEscape
                     }
                 }
             }
-            if (targetAnchor != null && magnetMode != 0)
+            if (targetAnchor != null && magnetMode != 0 && !grounded)
             {
                 if (audibleMagnetMode != magnetMode)
                     Session?.PlayCue(magnetMode > 0 ? GameAudio.Cue.MagnetAttract : GameAudio.Cue.MagnetRepel);
                 audibleMagnetMode = magnetMode;
                 Vector2 direction = ((Vector2)targetAnchor.transform.position - body.position).normalized;
                 float acceleration = magnetAcceleration * targetAnchor.ForceMultiplier;
-                velocity += direction * (magnetMode * acceleration * dt);
-                velocity.x = body.velocity.x + direction.x * magnetMode * acceleration * dt + movement.x * moveSpeed * dt;
-                magneticMomentum = true;
+                // The board maintains forward propulsion. Magnetism changes only
+                // the vertical flight path; it cannot stop or reverse the runner.
+                velocity.y += direction.y * magnetMode * acceleration * dt;
             }
             else audibleMagnetMode = 0;
-            velocity.x = Mathf.Clamp(velocity.x, -18f, 18f);
+            velocity.x = RunSpeed;
             velocity.y = Mathf.Clamp(velocity.y, -22f, 20f);
             if (SweepHazard(velocity)) return;
             body.velocity = velocity;
@@ -262,9 +248,7 @@ namespace MagnetEscape
             dashStepActive = false;
             Grounded = false;
             targetAnchor = null;
-            magneticMomentum = false;
             supportVelocity = Vector2.zero;
-            facing = 1f;
             previousVerticalSpeed = 0f;
             GetComponent<PlayerVisual>()?.ResetTrail();
         }
@@ -274,7 +258,6 @@ namespace MagnetEscape
             // A release can occur while Update is suspended by pause. Preserve only
             // that held-jump state, never a queued jump, dash or magnet command.
             checkJumpReleaseOnResume = preserveJumpRelease && (checkJumpReleaseOnResume || jumpHeld || cutJump);
-            movement = Vector2.zero;
             jumpQueued = dashQueued = cutJump = jumpHeld = false;
             jumpBuffer = 0f;
             magnetMode = 0;
