@@ -16,3 +16,7 @@ TestResults*.xml
 work/
 __pycache__/
 artifacts/
+
+# Temporary scenes created by the Unity Test Runner
+Assets/InitTestScene*.unity
+Assets/InitTestScene*.unity.meta

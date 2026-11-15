@@ -239,6 +239,10 @@ namespace MagnetEscape
 
         public void ResetAt(Vector2 position)
         {
+            // While simulated is false Unity rebuilds the body from its Transform
+            // when re-enabled. Move both so respawning cannot restore the death
+            // location, and the camera/trail see the new spawn in this frame.
+            transform.position = new Vector3(position.x, position.y, transform.position.z);
             body.position = position;
             body.velocity = Vector2.zero;
             body.angularVelocity = 0f;

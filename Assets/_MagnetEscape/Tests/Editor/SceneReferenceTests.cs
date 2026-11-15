@@ -38,6 +38,13 @@ namespace MagnetEscape.Tests
         }
 
         [Test]
+        public void GroundLayerIsAvailableToRuntimePhysicsQueries()
+        {
+            Assert.That(LayerMask.NameToLayer("Ground"), Is.GreaterThanOrEqualTo(0));
+            Assert.That(LayerMask.GetMask("Ground"), Is.Not.Zero);
+        }
+
+        [Test]
         public void BuildStartsAtSelectionAndIncludesFourStages()
         {
             string[] expected = { "StageSelect", "Stage1", "Stage2", "Stage3", "Stage4" };

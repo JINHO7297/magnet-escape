@@ -9,27 +9,26 @@ namespace MagnetEscape.Tests
     // Exercise existing gameplay state without synthetic keyboard input or changing motor code.
     public sealed class SessionLifecycleTests
     {
-        private const string Key = "MagnetSkater.Stage1";
-        private bool hadTime;
-        private bool hadDeaths;
-        private bool hadRank;
-        private float time;
-        private int deaths;
-        private int rank;
+        private readonly System.Collections.Generic.Dictionary<string, float> savedTimes = new System.Collections.Generic.Dictionary<string, float>();
+        private readonly System.Collections.Generic.Dictionary<string, int> savedInts = new System.Collections.Generic.Dictionary<string, int>();
         private GameSession session;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
-            hadTime = PlayerPrefs.HasKey(Key + ".Time");
-            hadDeaths = PlayerPrefs.HasKey(Key + ".TimeDeaths");
-            hadRank = PlayerPrefs.HasKey(Key + ".Rank");
-            time = PlayerPrefs.GetFloat(Key + ".Time");
-            deaths = PlayerPrefs.GetInt(Key + ".TimeDeaths");
-            rank = PlayerPrefs.GetInt(Key + ".Rank");
+            savedTimes.Clear();
+            savedInts.Clear();
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                string key = "MagnetSkater.Stage" + stage;
+                if (PlayerPrefs.HasKey(key + ".Time")) savedTimes[key + ".Time"] = PlayerPrefs.GetFloat(key + ".Time");
+                foreach (string suffix in new[] { ".TimeDeaths", ".Rank" })
+                    if (PlayerPrefs.HasKey(key + suffix)) savedInts[key + suffix] = PlayerPrefs.GetInt(key + suffix);
+            }
             Time.timeScale = 1f;
             SceneManager.LoadScene("Stage1");
             yield return null;
+            yield return null; // Let GameSession.Start snapshot the initial spawn before test commands.
             session = GameSession.Active;
             Assert.That(session, Is.Not.Null);
             session.SetPaused(false);
@@ -42,12 +41,13 @@ namespace MagnetEscape.Tests
             Time.timeScale = 1f;
             SceneManager.LoadScene("StageSelect");
             yield return null;
-            if (hadTime) PlayerPrefs.SetFloat(Key + ".Time", time);
-            else PlayerPrefs.DeleteKey(Key + ".Time");
-            if (hadDeaths) PlayerPrefs.SetInt(Key + ".TimeDeaths", deaths);
-            else PlayerPrefs.DeleteKey(Key + ".TimeDeaths");
-            if (hadRank) PlayerPrefs.SetInt(Key + ".Rank", rank);
-            else PlayerPrefs.DeleteKey(Key + ".Rank");
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                string key = "MagnetSkater.Stage" + stage;
+                foreach (string suffix in new[] { ".Time", ".TimeDeaths", ".Rank" }) PlayerPrefs.DeleteKey(key + suffix);
+            }
+            foreach (var pair in savedTimes) PlayerPrefs.SetFloat(pair.Key, pair.Value);
+            foreach (var pair in savedInts) PlayerPrefs.SetInt(pair.Key, pair.Value);
             PlayerPrefs.Save();
         }
 
@@ -116,7 +116,8 @@ namespace MagnetEscape.Tests
             session.SetCheckpoint(CreateCheckpoint(new Vector2(-1f, 2f), 100));
             session.Die();
             yield return WaitForRespawn();
-            Assert.That(session.Player.transform.position.x, Is.EqualTo(2f).Within(0.05f));
+            Assert.That(session.Player.GetComponent<Rigidbody2D>().position.x, Is.EqualTo(2f).Within(0.05f), "Physics spawn");
+            Assert.That(session.Player.transform.position.x, Is.EqualTo(2f).Within(0.05f), "Rendered spawn must match physics before the next frame");
         }
 
         [UnityTest]
@@ -194,6 +195,20 @@ namespace MagnetEscape.Tests
             Assert.That(body.gravityScale, Is.EqualTo(configuredGravity));
             Assert.That(session.Player.Cooldown, Is.Zero);
             yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator FrozenRespawnKeepsTheNewPositionWhenSimulationResumes()
+        {
+            PlayerMotor player = session.Player;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            player.SetFrozen(true);
+            player.ResetAt(new Vector2(2f, 3f));
+            player.SetFrozen(false);
+            Assert.That(body.position.x, Is.EqualTo(2f).Within(0.01f));
+            Assert.That(player.transform.position.x, Is.EqualTo(2f).Within(0.01f));
+            yield return new WaitForFixedUpdate();
+            Assert.That(body.position.x, Is.EqualTo(2f).Within(0.01f));
         }
 
         [UnityTest]
@@ -358,6 +373,188 @@ namespace MagnetEscape.Tests
             Assert.That(rail.enabled, Is.True);
             saw.Configure(Vector2.zero, 4f, 0f);
             Assert.That(rail.enabled, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator HeldJumpRisesHigherThanReleasedJump()
+        {
+            PlayerMotor player = session.Player;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            float[] heights = new float[2];
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                player.ResetAt(new Vector2(0f, 0.25f));
+                Physics2D.SyncTransforms();
+                for (int step = 0; step < 5; step++)
+                {
+                    player.SendMessage("FixedUpdate");
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.That(player.Grounded, Is.True);
+                SetMotorField(player, "jumpHeld", true);
+                SetMotorField(player, "jumpQueued", true);
+                for (int step = 0; step < 42; step++)
+                {
+                    if (attempt == 0 && step == 2)
+                    {
+                        SetMotorField(player, "jumpHeld", false);
+                        SetMotorField(player, "cutJump", true);
+                    }
+                    player.SendMessage("FixedUpdate");
+                    yield return new WaitForFixedUpdate();
+                    heights[attempt] = Mathf.Max(heights[attempt], body.position.y);
+                }
+            }
+            Assert.That(heights[0], Is.GreaterThan(0.5f), "A tap must leave the floor.");
+            Assert.That(heights[1], Is.GreaterThan(heights[0] + 1f), "Holding Space must meaningfully increase height.");
+        }
+
+        [UnityTest]
+        public IEnumerator ForwardDashRejectsRepeatedRequestsUntilCooldownAndRespawnResetsIt()
+        {
+            PlayerMotor player = session.Player;
+            player.DashEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            player.ResetAt(new Vector2(0f, 4f));
+            SetMotorField(player, "dashQueued", true);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsDashing, Is.True);
+            Assert.That(body.velocity.x, Is.GreaterThan(player.RunSpeed));
+            Assert.That(body.velocity.y, Is.Zero);
+            for (int step = 0; step < 12; step++)
+            {
+                SetMotorField(player, "dashQueued", true);
+                player.SendMessage("FixedUpdate");
+                yield return new WaitForFixedUpdate();
+            }
+            Assert.That(player.IsDashing, Is.False, "Holding/repeating Shift cannot extend a dash.");
+            Assert.That(player.Cooldown, Is.GreaterThan(0f));
+            Assert.That(body.gravityScale, Is.EqualTo(3f));
+            session.Die();
+            yield return WaitForRespawn();
+            Assert.That(player.Cooldown, Is.Zero);
+            Assert.That(player.IsDashing, Is.False);
+            player.SendMessage("FixedUpdate");
+            Assert.That(body.velocity.x, Is.EqualTo(7f).Within(0.01f));
+        }
+
+        [UnityTest]
+        public IEnumerator AirMagnetChangesOnlyVerticalSpeedAndReleasesOutsideRange()
+        {
+            PlayerMotor player = session.Player;
+            player.MagnetEnabled = true;
+            Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+            GameObject obj = new GameObject("Flight test magnet");
+            MagnetAnchor anchor = obj.AddComponent<MagnetAnchor>();
+            anchor.Configure(7f, 1f);
+            foreach (int side in new[] { -1, 1 })
+            foreach (int mode in new[] { -1, 1 })
+            {
+                player.ResetAt(new Vector2(0f, 8f));
+                obj.transform.position = new Vector2(-3f, 8f + side * 3f);
+                Physics2D.SyncTransforms();
+                SetMotorField(player, "magnetMode", mode);
+                player.SendMessage("FixedUpdate");
+                Assert.That(body.velocity.x, Is.EqualTo(7f).Within(0.01f));
+                Assert.That(body.velocity.y * side * mode, Is.GreaterThan(0f));
+                Assert.That(player.MagnetTarget, Is.EqualTo(obj.transform));
+                obj.transform.position = new Vector2(-20f, 30f);
+                body.velocity = Vector2.zero;
+                player.SendMessage("FixedUpdate");
+                Assert.That(player.MagnetTarget, Is.Null);
+                Assert.That(body.velocity.y, Is.Zero, "Out-of-range magnet must add no force.");
+            }
+            Object.Destroy(obj);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator SourceCoursesHaveAForwardOnlyDeathlessRoute()
+        {
+            // Test-only driver supplies the same queued commands as Update. The
+            // real motor, colliders, drones, checkpoints and exit run in Unity.
+            // This proves a route exists; it does not replace human keyboard QA.
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                SceneManager.LoadScene("Stage" + stage);
+                yield return null;
+                session = GameSession.Active;
+                session.SetPaused(false);
+                PlayerMotor player = session.Player;
+                player.enabled = false;
+                Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+                StageDefinition layout = StageInfo.Definition(stage);
+                float jumpedAt = -100f;
+                float lastJumpX = -100f;
+                bool gapJump = false;
+                float deadline = Time.realtimeSinceStartup + 60f;
+                Time.timeScale = 5f;
+                while (!session.Finished && Time.realtimeSinceStartup < deadline)
+                {
+                    Assert.That(session.Deaths, Is.Zero,
+                        "Stage " + stage + " crashed near x=" + body.position.x + ", y=" + body.position.y);
+                    float x = body.position.x;
+                    bool onFloor = player.Grounded;
+                    float edge = float.PositiveInfinity;
+                    float gap = 0f;
+                    for (int i = 0; i < layout.Platforms.Length - 1; i++)
+                    {
+                        float right = layout.Platforms[i].Position.x + layout.Platforms[i].Width * 0.5f;
+                        if (right < x - 0.5f) continue;
+                        edge = right;
+                        gap = layout.Platforms[i + 1].Position.x - layout.Platforms[i + 1].Width * 0.5f - right;
+                        break;
+                    }
+                    bool jumpGap = edge - x < 0.8f && edge - x > -0.3f;
+                    bool jumpBarrier = false;
+                    foreach (StageDefinition.RectPlacement spike in layout.Spikes)
+                    {
+                        float ahead = spike.Position.x - spike.Width * 0.5f - x;
+                        if (ahead > 1.6f && ahead < 1.8f) jumpBarrier = true;
+                    }
+                    if (onFloor && x - lastJumpX > 2f && (jumpGap || jumpBarrier))
+                    {
+                        SetMotorField(player, "jumpQueued", true);
+                        SetMotorField(player, "jumpHeld", true);
+                        jumpedAt = Time.time;
+                        lastJumpX = x;
+                        gapJump = jumpGap && gap >= 7f;
+                        Debug.Log("Route jump stage=" + stage + " x=" + x + " gap=" + (jumpGap ? gap : 0f));
+                    }
+                    if (gapJump && Time.time - jumpedAt >= 0.36f && player.Cooldown <= 0f)
+                    {
+                        SetMotorField(player, "dashQueued", true);
+                        gapJump = false;
+                    }
+                    int mode = 0;
+                    if (!onFloor && body.position.y < 4.5f && player.MagnetEnabled)
+                    {
+                        MagnetAnchor closest = null;
+                        float distance = float.PositiveInfinity;
+                        foreach (MagnetAnchor anchor in MagnetAnchor.All)
+                        {
+                            float candidate = Vector2.Distance(body.position, anchor.transform.position);
+                            if (candidate < distance && anchor.Contains(body.position, player.MagnetReach))
+                            { closest = anchor; distance = candidate; }
+                        }
+                        if (player.MagnetTarget != null) mode = player.MagnetTarget.position.y > body.position.y ? 1 : -1;
+                        else if (closest != null) mode = closest.transform.position.y > body.position.y ? 1 : -1;
+                    }
+                    SetMotorField(player, "magnetMode", mode);
+                    player.SendMessage("FixedUpdate");
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.That(session.Finished, Is.True, "Stage " + stage + " did not reach the real ExitGate at x=" + body.position.x);
+                Assert.That(session.Deaths, Is.Zero);
+                Debug.Log("Forward route Stage " + stage + ": " + session.Elapsed.ToString("F2") + "s, no deaths");
+                Time.timeScale = 1f;
+            }
+        }
+
+        private static void SetMotorField(PlayerMotor player, string name, object value)
+        {
+            typeof(PlayerMotor).GetField(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .SetValue(player, value);
         }
 
         private static Checkpoint CreateCheckpoint(Vector2 position, int order)

@@ -605,3 +605,16 @@
 - 실제 최종 검사: Python 21/21 PASS; 에셋 무결성 PASS; C# 24파일 구문 PASS; 원본 .meta 차이 없음; 각 코스 체크포인트가 발판 안에 있고 콘에서 5unit 넘게 떨어짐 확인; DOCX 재열기·7개 큰항목 확인; 공백 PASS. 픽셀 에셋 일부도 이미지로 읽어 보았다.
 - Unity 테스트 32건·실제 키 입력·자동 전진/정지/부활·수직 자력·4코스 완주·실제 UI·Mac 앱은 미검증이다. 검수를 미루라는 기존 사용자 지시를 적용했으며 테스트 RED/GREEN 성공을 주장하지 않는다.
 - 판단 기록: 기존 승인된 develop 직접 작업, 기존 시스템 재활용, 레거시 파일명/GUID/출력명 유지, 초기 수치 RunSpeed7/대시19·새 기준22/28/32/40 사용. 수치 적합성은 실제 플레이로 조정할 항목이며 새 검수 목록에 남겼다.
+
+
+## 2026-11-15 — 실제 Mac Unity 시작 차단 및 체크포인트 부활 수정 (작업 60)
+
+- 시작 상태: develop/a2d8de7 clean, fetch 후 origin/develop 동일. 이후 원격 변경 없음. 작성자 JINHO7297 확인. 기존 승인된 체크아웃/브랜치를 유지하며 사용자 파일·씬·.meta GUID 보존. 이전 Task1~3을 재구현하지 않고 실행 검수 단계를 계획에 추가했다.
+- 실제 환경: macOS Apple Silicon에는 Unity6000.6만 있었고 지정 2022.3.62f1을 Hub로 추가 설치했다. 첫 실행은 Intel Package Manager 실행 불가(bad CPU type, exit -6)였다. Rosetta2 설치 후 개인 라이선스가 인식되고 컴파일에 진입했다. Unity 버전 변경 없음.
+- 실행 차단 1: PlayMode asmdef의 명시적 TestRunner와 optionalUnityReferences 자동 참조가 중복되어 컴파일 중단. 명시적 중복 제거. 실행 차단 2: TagManager의 bare '-' 빈 레이어가 Unity YAML 파서를 실패시켜 Ground=-1. 실제 레이어 조회 회귀가 16pass/1fail로 실패함을 확인한 뒤 빈 문자열 표기로 수정.
+- 실제 플레이 결함: 물리 비활성 상태에서 Rigidbody.position만 바꾸면 재활성 시 이전 Transform으로 복원되어 체크포인트 부활 실패. FrozenRespawn 회귀에서 기대x2/실제x0 재현 후 ResetAt에서 Transform과 Rigidbody를 함께 이동하도록 수정했다. 기존 체크포인트 회귀와 새 회귀 모두 통과했다.
+- 변경: PlayerMotor.cs, TagManager.asset, 테스트 asmdef/SceneReferenceTests/SessionLifecycleTests, 처음 임포트한 표준 ProjectSettings 및 packages-lock, .gitignore, README/GOAL/TASKS/계획/이 문서. 표준 물리 중력 -9.81와 고정 스텝0.02, Old Input 설정을 함께 보관해 재현 가능하게 했다. 테스트 임시 씬은 Git 제외.
+- 실제 검사: `python3 Tools/unity_tasks.py test` → EditMode17/17 + PlayMode21/21 PASS, 로그/XML `artifacts/tests/20261115_014230_UTC_2e45ebce/`. Python21/21 PASS, validate_project PASS, diff --check PASS. 테스트는 네 코스의 실제 물리·위험물·결승 경로, 가변 점프, 전방 대시·쿨다운, 상하 자력과 범위 해제, 중복 사망/정지/재시작/전환/부활을 실행했다.
+- 네 코스 자동 무사망 경로 약17.6/21.7/24.6/31.1초. 첫 3코스 경로 실패는 제어 드라이버가 높이를 일찍 제한하고 고정된 자석 대신 가장 가까운 자석 기준으로 극성을 바꾼 문제였고, 실제 목표 자석에 맞춘 입력과 높이 여유로 네 코스를 통과했다. 코스 데이터나 자력 수치를 무리하게 변경하지 않았다. 동시 점프/대시는 미확정 결함이므로 변경하지 않았다.
+- 사용자 기록 보호: 자동 경로 테스트가 4코스 기록을 만들기 때문에 4코스의 기존 러너 기록 12개 키를 테스트 전 백업하고 종료 시 복원한다. 구 수동 조작 키는 건드리지 않는다.
+- 미검증: 사람의 실제 키보드 4코스 완주·난이도, 모든 CP 준비 거리, 시각/오디오, 기록 재실행, Mac 빌드/실행. 전체 완료 아님. 다음: CP마다 실제 부활 후 무입력 1초 전진·대시 위험물 접촉·기록 분리/저장 검사, Mac Universal 빌드와 실행.

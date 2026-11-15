@@ -55,3 +55,25 @@
 - Task 2: data/record migration written; Python 21/21 and asset checks pass; course completion and rank tuning unverified.
 
 - Task 3: code/art/UI/docs conversion written; Python21, assets, syntax, metadata/placement/DOCX checks pass. Independent review: no Critical/Important; two copy fixes included. Unity32 and all actual play/build checks unexecuted.
+
+## 실행 검수·마감 후속 작업 (2026-11-15, 사용자 연속 실행 승인)
+
+기존 Task 1~3은 재구현하지 않는다. 최신 요청에 따라 Unity 검수 보류를 해제하고 지정 버전에서 실행한다. 현재 clean develop/a2d8de7, 원격 동일. 현재 체크아웃을 유지한다.
+
+### Task 4: 지정 Unity에서 첫 실행과 컴파일/기존 회귀 수정
+- [ ] Unity 2022.3.62f1 설치·활성화 확인 후 `python3 Tools/unity_tasks.py test` 실행. 컴파일 또는 기존 테스트 실패를 원인별로 수정한다.
+- [ ] Python 전체 21건·에셋 무결성·diff 확인, TASKS/PROGRESS/README의 환경·실행 결과 갱신, 커밋·푸시.
+
+### Task 5: 러너 물리 조작과 상태 복귀
+- [ ] 기존 PlayMode 파일에 가변 점프·전방 대시/쿨다운·상하 인력/척력·부활 후 전진 회귀를 먼저 추가해 실행. 테스트에서만 입력 필드를 설정하며 런타임 입력 프레임워크는 추가하지 않는다.
+- [ ] 재현된 실제 결함만 기존 PlayerMotor/GameSession에서 수정, 전체 Unity/Python 검사·diff·기록 후 커밋·푸시.
+
+### Task 6: 원본 4코스의 완주·체크포인트 준비 거리
+- [ ] 실제 Unity 물리에서 코스별 점프/대시/자력 경로를 실행해 완주와 체크포인트 재출발을 확인한다. 자동 경로 검증과 사람 키보드 플레이는 구별해 기록한다.
+- [ ] 완주를 막는 배치/조작 결함을 Stage1~4.asset 또는 Motor에서 수정. 기존 GUID 유지, 검사·기록·커밋·푸시.
+
+### Task 7: macOS 제출 실행본
+- [ ] 지정 버전에서 `python3 Tools/unity_tasks.py build-mac --package`, 앱 아키텍처·실행 로그 확인. 실제 UI/키보드 플레이 가능 범위 확인, 제출 문서 갱신.
+- [ ] 미검증 항목과 바로 다음 작업 기록. 전체 완료는 필수 기능과 네 코스 실제 검수 전 선언하지 않는다.
+
+Review Focus: 바닥/벽 접촉과 대시 마지막 스텝, 자력 해제/범위 이탈, 정지 중 버튼 해제, 체크포인트 후 회피 거리, 기록 키 분리와 사용자 기록 보존. 각 단계는 위 공유 PlayerMotor/GameSession 인터페이스와 원본 StageDefinition을 그대로 사용한다.
