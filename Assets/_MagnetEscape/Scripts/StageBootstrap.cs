@@ -53,7 +53,7 @@ namespace MagnetEscape
             {
                 if (!Application.isPlaying) throw new System.InvalidOperationException(configurationError);
                 Debug.LogError(configurationError);
-                session.ReportCourseError("This course could not be prepared. Return to stage selection or try again.");
+                session.ReportCourseError("코스를 준비하지 못했습니다. 코스 선택으로 돌아가거나 다시 시도하세요.");
                 return;
             }
             GameObject player;

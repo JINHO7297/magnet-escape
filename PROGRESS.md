@@ -627,3 +627,14 @@
 - 기록 회귀는 기존 키를 백업/복원하면서 legacy 기록이 runner 로딩에 섞이지 않음, 느린 S가 빠른 A의 최고 시간을 덮지 않음, 최고 랭크는 독립 갱신, runner 초기화가 legacy 기록을 지우지 않음을 실제 PlayerPrefs API로 확인했다. 앱 재실행 간 저장은 별도 확인 필요.
 - 실제 검사: Unity2022.3.62f1 EditMode18/18·PlayMode23/23 PASS. XML/로그 `artifacts/tests/20261115_014446_UTC_4a58c310/`. 네 자동 경로17.63/21.70/24.56/31.14초·무사망, Python21/21·에셋 무결성·diff --check PASS. 이것은 실제 엔진 물리 실행이며 사람이 키보드로 완주한 결과는 아니다.
 - 다음: Mac Universal 앱·ZIP 실제 빌드, 아키텍처와 실행/화면/키보드 확인. 독립 리뷰도 진행 중이다. 모든 필수 기능의 사람 플레이 검수 전 전체 완료 아님.
+
+
+## 2026-11-15 — 한국어·전체 화면·첫 Universal 실행본 및 리뷰 수정 (작업62/63)
+
+- 사용자 후속 요청으로 게임 UI 전체를 한국어로 전환했다. GameHud/GameSession/StageInfo/StageBootstrap/Stage1~4.asset의 메뉴·도움말·코스·힌트·결과·오류 안내를 번역하고 Apple SD Gothic Neo 등 OS 한글 폰트를 스타일에 지정했다. GameOptions는 첫 실행 전체 화면, 창 모드는 화면에 맞는 최대1600×900, PlayerSettings는 창 크기 변경 허용. 잠긴 대시 문구 위에 쿨다운 배경이 겹치던 표시도 실제 화면 확인 후 정리했다.
+- 첫 실제 빌드 `Builds/20261115_014557_UTC_17d25297/` 앱89MB·ZIP35MB, 오류0/경고5. 실행 파일/UnityPlayer 모두 lipo x86_64+arm64. Apple Silicon Metal로 선택 화면·코스 진입·Space 점프·Esc 정지/재개·스케이터/도심 렌더링을 확인했다. 사람이 4코스를 완주한 검수는 아니다.
+- 한국어 새 빌드/ZIP: `Builds/20261115_015646_UTC_c84d1840/`. CUA로 실제 한글 메뉴·4코스명·도움말/기록 버튼과 확대된 전체 화면을 보았다. MacBuild의 PLAYING.txt도 한글로 전환했고 경고 내용을 로그에 남긴다. 경고5개는 -nographics에서 5씬의 Ambient/Reflection Probe 갱신 불가이며, 2D Sprites/Default 실제 화면은 렌더링됨을 확인했다.
+- 독립 리뷰: Important1건—편집 리비전이 Build Settings에 있으면 동일 이름 씬을 로드해 리비전 기록에 쓸 수 있음. 기존 경로/GUID 설정을 확인한 뒤 PlayMode SetUp에서 모든 원본 전체 경로를 먼저 검사하고, 다르면 키/씬 변경 전 Ignore 및 teardown 무작업으로 보완했다. 실제 다른 GUID의 임시 리비전 fixture로 `revision-guard-real.xml` 1건 Skipped를 확인하고 임시 설정/파일을 finally에서 복원했다. 경로만 바꾼 첫 probe는 Unity가 GUID로 원본 경로를 복원해 Pass였으므로 검증으로 세지 않았다.
+- 실제 회귀: 한국어 변경 후 Unity EditMode18/18·PlayMode23/23 PASS (`artifacts/tests/20261115_015347_UTC_e0413300/`), 이전 리뷰 수정 후 동일41건 PASS(`014714_UTC_f2c56866`), Python21/21 PASS·diff 검사 PASS.
+- 리뷰가 지적한 별도 미검증 경계: 대시 마지막 스텝의 벽/바닥별 취소, 자력 범위 안에서 버튼 해제, 정지 중 Space 해제, 정지 오버레이 뒤 연결선 표현. 정상 teardown의 기록 복원은 확인했으나 Unity 강제 종료 시 테스트 기록 완전 복원은 보장하지 않는다. 실제 Intel 하드웨어·다른 Mac·서명/공증·사람의4코스 완주도 미검증.
+- 사용자가 이어서 '특별한 기능 추가·스테이지마다 길게'를 요청했다. 설계/계획에 레일 그라인드·도약과248/320/380/480 확장, v2 기록 분리를 추가했다. 추천안/대안을 비동기 질문으로 제시했고 현재 기본 추천안으로 준비 중이다. 아직 구현되지 않은 레일/긴 코스를 완료로 표시하지 않는다.

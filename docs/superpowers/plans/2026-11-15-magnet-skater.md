@@ -79,3 +79,21 @@
 Review Focus: 바닥/벽 접촉과 대시 마지막 스텝, 자력 해제/범위 이탈, 정지 중 버튼 해제, 체크포인트 후 회피 거리, 기록 키 분리와 사용자 기록 보존. 각 단계는 위 공유 PlayerMotor/GameSession 인터페이스와 원본 StageDefinition을 그대로 사용한다.
 
 Follow-up execution: Task4/5 implemented and verified (c17fff8), Task6 automatic four-course routes and all11 checkpoint run-ups verified (Unity18+23); human keyboard route QA remains. Task7 in progress. No course data changes were needed for the automated routes.
+
+
+### Task 8: 한국어와 큰 화면 (추가 사용자 요청)
+- [ ] GameHud/GameSession/StageInfo/Stage1~4 안내 번역, Mac 한글 폰트 명시, GameOptions 첫 전체 화면·큰 창 모드, 창 크기 변경 허용. 실제 빌드에서 글자/레이아웃/화면 크기 확인.
+- [ ] 리뷰 Important: 원본 플레이 테스트는 Build Settings의 모든 원본 경로를 검사해 편집 리비전이면 키/씬 변경 전에 건너뛴다. 실제 대체 GUID/경로 fixture로 skip 확인.
+- [ ] 전체 Unity/Python 검사·기록·커밋·푸시.
+
+### Task 9: 자석 레일 그라인드
+Files: MagneticRail.cs(.meta), PlayerMotor/PlayerVisual/StageDefinition/StageBootstrap/GameSession/GameHud, 기존 PlayMode 테스트.
+Interface: MagneticRail.Configure(start,end,catchRange), CanCatch(position,boardOffset), HeightAt(x), All 목록. PlayerMotor.RailEnabled/IsGrinding, 기존 Q/E/Space/Shift 입력·SetFrozen/ResetAt 사용. StageDefinition.Rails(Start,End,CatchRange) 배열.
+- [ ] 먼저 실제 레일 포착·속도·Space/E 도약·Q 해제·끝점 이탈·동결/부활 초기화 회귀를 작성하고 실패 확인.
+- [ ] 직선/경사 레일 표현과 Motor의 제한된 레일 상태를 구현한다. 기본 전진7, 그라인드 배율1.35, 포착 범위1.1, 재포착 잠금0.2초. 자력은 수평을 뒤집지 않는다.
+- [ ] 전체 테스트·diff·기록·커밋·푸시.
+
+### Task 10: 길어진 4코스와 기록 분리
+Files: Stage1~4.asset, StageRecords/랭크·생명주기 테스트, README/GOAL/TASKS/PROGRESS.
+- [ ]248/320/380/480 길이·42/54/64/82초 기준으로 확장하고 2코스부터 레일을 배치, CP1초 준비 거리·난이도 점증 유지. v2 기록 prefix로 이전 기록 보존.
+- [ ] 실제 Unity 네 코스 무사망 경로·모든 CP·필수 조작 회귀 후 Mac 앱/ZIP 재빌드·한국어/큰 화면 확인. 완주 미확인 상태를 완료로 표시하지 않는다.

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Stage1
   m_EditorClassIdentifier: ''
   Number: 1
-  DisplayName: ALLEY START
-  Lesson: Auto-run and time your jumps.
+  DisplayName: 도심 골목
+  Lesson: 자동 전진과 점프 타이밍을 익히세요.
   ParTime: 22
   StartPosition:
     x: 0.0
@@ -90,20 +90,20 @@ MonoBehaviour:
   - Position:
       x: 2.0
       y: 1.5
-    Message: 'AUTO RUN: the board always moves right. SPACE jumps; hold for height.'
+    Message: '자동 전진: 보드는 항상 오른쪽으로 달립니다. Space를 길게 누르면 높이 점프합니다.'
     Range: 5.5
   - Position:
       x: 9.0
       y: 1.5
-    Message: Read the next obstacle early. Jump over barriers; falling or touching them resets you.
+    Message: 앞의 장애물을 미리 확인하세요. 콘은 점프로 넘고, 추락하거나 부딪히면 부활합니다.
     Range: 5.5
   - Position:
       x: 27.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
   - Position:
       x: 75.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5

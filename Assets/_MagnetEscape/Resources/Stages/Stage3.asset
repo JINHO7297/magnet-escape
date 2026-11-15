@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Stage3
   m_EditorClassIdentifier: ''
   Number: 3
-  DisplayName: SKY RAIL
-  Lesson: Shape your flight with vertical magnetism.
+  DisplayName: 공중 레일
+  Lesson: 공중 자력으로 비행 궤적을 조절하세요.
   ParTime: 32
   StartPosition:
     x: 0.0
@@ -112,40 +112,40 @@ MonoBehaviour:
   - Position:
       x: 2.0
       y: 1.5
-    Message: 'AUTO RUN: the board always moves right. SPACE jumps; hold for height.'
+    Message: '자동 전진: 보드는 항상 오른쪽으로 달립니다. Space를 길게 누르면 높이 점프합니다.'
     Range: 5.5
   - Position:
       x: 9.0
       y: 1.5
-    Message: Read the next obstacle early. Jump over barriers; falling or touching them resets you.
+    Message: 앞의 장애물을 미리 확인하세요. 콘은 점프로 넘고, 추락하거나 부딪히면 부활합니다.
     Range: 5.5
   - Position:
       x: 18.0
       y: 1.5
-    Message: SHIFT dashes forward. It does not protect you from barriers or drones.
+    Message: Shift로 앞으로 대시합니다. 대시 중에도 장애물이나 드론에 부딪히면 사망합니다.
     Range: 5.5
   - Position:
       x: 14.0
       y: 1.5
-    Message: While airborne, Q pulls vertically toward a magnet; E pushes vertically away. Forward speed stays constant.
+    Message: 공중에서 Q는 자석 쪽으로, E는 반대쪽으로 높이를 조절합니다. 전진 속도는 유지됩니다.
     Range: 5.5
   - Position:
       x: 38.0
       y: 1.5
-    Message: 'Magnet above you: Q lifts / E lowers. Magnet below you: E lifts / Q lowers. Release to fall normally.'
+    Message: '위쪽 자석: Q 상승 / E 하강. 아래쪽 자석: E 상승 / Q 하강. 놓으면 일반 중력으로 돌아옵니다.'
     Range: 5.5
   - Position:
       x: 34.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
   - Position:
       x: 105.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
   - Position:
       x: 146.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Stage2
   m_EditorClassIdentifier: ''
   Number: 2
-  DisplayName: ROOFTOP RUSH
-  Lesson: Jump and dash across the rooftops.
+  DisplayName: 옥상 질주
+  Lesson: 점프와 대시로 옥상 사이를 건너세요.
   ParTime: 28
   StartPosition:
     x: 0.0
@@ -112,30 +112,30 @@ MonoBehaviour:
   - Position:
       x: 2.0
       y: 1.5
-    Message: 'AUTO RUN: the board always moves right. SPACE jumps; hold for height.'
+    Message: '자동 전진: 보드는 항상 오른쪽으로 달립니다. Space를 길게 누르면 높이 점프합니다.'
     Range: 5.5
   - Position:
       x: 9.0
       y: 1.5
-    Message: Read the next obstacle early. Jump over barriers; falling or touching them resets you.
+    Message: 앞의 장애물을 미리 확인하세요. 콘은 점프로 넘고, 추락하거나 부딪히면 부활합니다.
     Range: 5.5
   - Position:
       x: 18.0
       y: 1.5
-    Message: SHIFT dashes forward. It does not protect you from barriers or drones.
+    Message: Shift로 앞으로 대시합니다. 대시 중에도 장애물이나 드론에 부딪히면 사망합니다.
     Range: 5.5
   - Position:
       x: 36.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
   - Position:
       x: 103.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5
   - Position:
       x: 136.0
       y: 1.5
-    Message: 'CHECKPOINT: auto-run resumes here after a crash. Backspace retries (+1 crash); R resets the run.'
+    Message: '체크포인트: 충돌하면 여기서 다시 출발합니다. Backspace 재도전(충돌 +1), R 처음부터.'
     Range: 5.5

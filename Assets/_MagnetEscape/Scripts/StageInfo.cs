@@ -28,11 +28,11 @@ namespace MagnetEscape
             if (layout != null && !string.IsNullOrEmpty(layout.DisplayName)) return layout.DisplayName;
             switch (stage)
             {
-                case 1: return "ALLEY START";
-                case 2: return "ROOFTOP RUSH";
-                case 3: return "SKY RAIL";
-                case 4: return "SKYLINE CHALLENGE";
-                default: return "MAGNET SKATER";
+                case 1: return "도심 골목";
+                case 2: return "옥상 질주";
+                case 3: return "공중 레일";
+                case 4: return "스카이라인 도전";
+                default: return "마그넷 스케이터";
             }
         }
 
@@ -42,10 +42,10 @@ namespace MagnetEscape
             if (layout != null && !string.IsNullOrEmpty(layout.Lesson)) return layout.Lesson;
             switch (stage)
             {
-                case 1: return "Auto-run and time your jumps.";
-                case 2: return "Jump and dash across rooftops.";
-                case 3: return "Shape your flight with vertical magnetism.";
-                default: return "Combine every skill. Reach the finish.";
+                case 1: return "자동 전진과 점프 타이밍을 익히세요.";
+                case 2: return "점프와 대시로 옥상을 건너세요.";
+                case 3: return "공중 자력으로 비행 궤적을 조절하세요.";
+                default: return "모든 기술을 조합해 결승에 도달하세요.";
             }
         }
     }

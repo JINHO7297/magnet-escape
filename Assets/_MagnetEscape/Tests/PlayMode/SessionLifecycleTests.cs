@@ -12,10 +12,18 @@ namespace MagnetEscape.Tests
         private readonly System.Collections.Generic.Dictionary<string, float> savedTimes = new System.Collections.Generic.Dictionary<string, float>();
         private readonly System.Collections.Generic.Dictionary<string, int> savedInts = new System.Collections.Generic.Dictionary<string, int>();
         private GameSession session;
+        private bool sourceSetupReady;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            sourceSetupReady = false;
+            // Scene names are shared by editable revisions. Never run source
+            // routes (or save scores) against a user-selected revision.
+            for (int stage = 1; stage <= 4; stage++)
+                if (StageRecords.BuildScenePath(stage) != "Assets/_MagnetEscape/Scenes/Stage" + stage + ".unity")
+                    Assert.Ignore("Source gameplay tests require the four generated source stages in Build Settings.");
+            sourceSetupReady = true;
             savedTimes.Clear();
             savedInts.Clear();
             for (int stage = 1; stage <= 4; stage++)
@@ -38,6 +46,7 @@ namespace MagnetEscape.Tests
         [UnityTearDown]
         public IEnumerator TearDown()
         {
+            if (!sourceSetupReady) yield break;
             Time.timeScale = 1f;
             SceneManager.LoadScene("StageSelect");
             yield return null;

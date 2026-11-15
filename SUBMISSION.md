@@ -39,3 +39,7 @@ python3 Tools/unity_tasks.py build-mac --package
 - GOAL.md: 기획 범위와 완료 조건.
 - TASKS.md / PROGRESS.md: 구현 상태·보류 검증·변경 이력.
 - CREDITS.md: 이미지·사운드·도구 출처.
+
+## 2026-11-15 실제 빌드 현황
+
+Unity2022.3.62f1 Universal 앱·ZIP을 실제 생성했다. 한국어/전체 화면 확인본은 `Builds/20261115_015646_UTC_c84d1840/MagnetEscape-macOS.zip`이다. Apple Silicon에서 실행 화면을 확인했으며 실제 Intel 하드웨어/다른 Mac 배포는 미검증이다. 추가 요청인 레일 기능과 긴 코스 작업 중이므로 이 파일은 중간 검수본이다. 빌드 산출물은 Git 제외 정책을 유지한다.

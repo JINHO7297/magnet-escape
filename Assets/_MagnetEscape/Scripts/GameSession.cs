@@ -79,7 +79,7 @@ namespace MagnetEscape
             if (Stage > 0 && (Player == null || view == null || LayerMask.NameToLayer("Ground") < 0))
             {
                 Debug.LogError("Course requires a player, Main Camera and Ground layer: " + gameObject.scene.path);
-                ReportCourseError("This course is missing something needed to play. Return to stage selection or try again.");
+                ReportCourseError("코스 실행에 필요한 요소가 없습니다. 코스 선택으로 돌아가거나 다시 시도하세요.");
                 return;
             }
             // Editable courses may place their robot somewhere other than (0, 1).
@@ -99,7 +99,7 @@ namespace MagnetEscape
             if (Stage > 0 && !foundExit)
             {
                 Debug.LogError("Course has no ExitGate: " + gameObject.scene.path);
-                ReportCourseError("This course has no available exit. Return to stage selection.");
+                ReportCourseError("결승이 없는 코스입니다. 코스 선택으로 돌아가세요.");
                 return;
             }
             if (Player != null) PrepareCourseGeometry();
@@ -252,7 +252,7 @@ namespace MagnetEscape
             if (ChangingScene) return;
             if (!Application.CanStreamedLevelBeLoaded(name))
             {
-                notice = "This course is not available in this build.";
+                notice = "이 실행본에 포함되지 않은 코스입니다.";
                 noticeUntil = Time.unscaledTime + 4f;
                 Debug.LogError("Cannot open Magnet Escape scene: " + name);
                 return;
@@ -265,7 +265,7 @@ namespace MagnetEscape
             {
                 ChangingScene = false;
                 Time.timeScale = previousScale;
-                notice = "Could not open the course. Please try again.";
+                notice = "코스를 불러오지 못했습니다. 다시 시도하세요.";
                 noticeUntil = Time.unscaledTime + 4f;
                 Debug.LogException(exception);
             }
@@ -331,7 +331,7 @@ namespace MagnetEscape
             currentCheckpoint = checkpoint;
             spawn = checkpoint.SpawnPoint;
             checkpoint.Activate();
-            notice = "CHECKPOINT SAVED  /  " + checkpoint.Order;
+            notice = "체크포인트 저장  /  " + checkpoint.Order;
             noticeUntil = Time.unscaledTime + 2.5f;
             Feedback(spawn, Color.green, GameAudio.Cue.Checkpoint);
         }
