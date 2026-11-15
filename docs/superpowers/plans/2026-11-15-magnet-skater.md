@@ -77,3 +77,5 @@
 - [ ] 미검증 항목과 바로 다음 작업 기록. 전체 완료는 필수 기능과 네 코스 실제 검수 전 선언하지 않는다.
 
 Review Focus: 바닥/벽 접촉과 대시 마지막 스텝, 자력 해제/범위 이탈, 정지 중 버튼 해제, 체크포인트 후 회피 거리, 기록 키 분리와 사용자 기록 보존. 각 단계는 위 공유 PlayerMotor/GameSession 인터페이스와 원본 StageDefinition을 그대로 사용한다.
+
+Follow-up execution: Task4/5 implemented and verified (c17fff8), Task6 automatic four-course routes and all11 checkpoint run-ups verified (Unity18+23); human keyboard route QA remains. Task7 in progress. No course data changes were needed for the automated routes.

@@ -71,12 +71,12 @@ python3 Tools/unity_tasks.py build-mac --package
 
 첫 두 명령은 로컬 Python/에셋 검사를 실행합니다. 뒤 두 명령은 실제 Unity 설치·활성화가 필요합니다. `UNITY_EDITOR` 또는 `--unity`로 Editor 경로를 지정할 수 있습니다. `--dry-run`은 명령만 보여주며 성공 검증이 아닙니다.
 
-Unity 2022.3.62f1 실제 검사에서 **EditMode 17 + PlayMode 21 = 38건**이 통과했습니다(2026-11-15). 자동 입력 명령으로 실제 물리·위험물·결승을 통과하는 4코스 경로와 가변 점프·대시·수직 자력·체크포인트 부활을 포함합니다. 사람이 키보드로 완주했다는 뜻은 아닙니다. Apple Silicon에서도 2022의 Intel Package Manager 실행을 위해 Rosetta 2가 필요했습니다. XML/로그는 `artifacts/tests/<실행 ID>/`에 저장됩니다. Python CLI 테스트는 가짜 Unity 실행 파일을 사용해 결과 처리만 검사합니다.
+Unity 2022.3.62f1 실제 검사에서 **EditMode 18 + PlayMode 23 = 41건**이 통과했습니다(2026-11-15). 자동 입력 명령으로 실제 물리·위험물·결승을 통과하는 4코스 경로와 가변 점프·대시·수직 자력·체크포인트 부활을 포함합니다. 11개 체크포인트에서 부활 후 무입력 1초(약7unit) 준비 거리와 대시 중 위험물 사망, 구 기록 분리도 통과했습니다. 사람이 키보드로 완주했다는 뜻은 아닙니다. Apple Silicon에서도 2022의 Intel Package Manager 실행을 위해 Rosetta 2가 필요했습니다. XML/로그는 `artifacts/tests/<실행 ID>/`에 저장됩니다. Python CLI 테스트는 가짜 Unity 실행 파일을 사용해 결과 처리만 검사합니다.
 
 Mac 빌드는 Intel/Apple Silicon Universal을 요청하고 기존 제품명/아키텍처를 복원합니다. 표시 제품명은 Magnet Skater지만 호환되는 CLI/메뉴 출력 파일명은 `MagnetEscape.app`, 패키지명은 `MagnetEscape-macOS.zip`입니다. 빌드 폴더에 PLAYING.txt·요약·로그를 남기고 배포 ZIP에는 앱·PLAYING.txt·CREDITS.md만 담습니다. 실제 빌드·ZIP·두 CPU 실행은 미검증입니다.
 
 ## 남은 실제 검수
 
-키보드 입력을 통한 4코스 완주와 난이도, 모든 체크포인트 준비 거리, 실제 도심/스케이터 표시와 UI/오디오, 기록 재실행, 편집본/프리팹, Mac Universal 빌드·실행을 확인해야 합니다. 전체 완료는 이 검수 전 선언하지 않습니다.
+키보드 입력을 통한 4코스 완주와 난이도, 실제 도심/스케이터 표시와 UI/오디오, 기록 재실행, 편집본/프리팹, Mac Universal 빌드·실행을 확인해야 합니다. 전체 완료는 이 검수 전 선언하지 않습니다.
 
 작업 목록은 [TASKS.md](TASKS.md), 실제 검사와 이력은 [PROGRESS.md](PROGRESS.md)를 확인하세요. 코드는 `Assets/_MagnetEscape`, 선택적 픽셀 아트 생성기는 `Tools/generate_art.py`에 있습니다. 재생성에만 Pillow가 필요하며 게임 런타임에는 Python이 필요하지 않습니다.

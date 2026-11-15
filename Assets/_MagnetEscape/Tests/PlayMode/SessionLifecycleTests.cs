@@ -551,6 +551,68 @@ namespace MagnetEscape.Tests
             }
         }
 
+        [UnityTest]
+        public IEnumerator EverySourceCheckpointAllowsOneSecondOfUninterruptedForwardPreparation()
+        {
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                SceneManager.LoadScene("Stage" + stage);
+                yield return null;
+                yield return null;
+                session = GameSession.Active;
+                session.SetPaused(false);
+                PlayerMotor player = session.Player;
+                player.enabled = false;
+                Checkpoint[] checkpoints = Object.FindObjectsOfType<Checkpoint>();
+                System.Array.Sort(checkpoints, (a, b) => a.Order.CompareTo(b.Order));
+                Time.timeScale = 5f;
+                foreach (Checkpoint checkpoint in checkpoints)
+                {
+                    session.SetCheckpoint(checkpoint);
+                    Assert.That(session.CheckpointNumber, Is.EqualTo(checkpoint.Order));
+                    session.Die();
+                    int deaths = session.Deaths;
+                    yield return WaitForRespawn();
+                    Rigidbody2D body = player.GetComponent<Rigidbody2D>();
+                    Assert.That(body.position.x, Is.EqualTo(checkpoint.SpawnPoint.x).Within(0.01f));
+                    for (int step = 0; step < 50; step++)
+                    {
+                        player.SendMessage("FixedUpdate");
+                        yield return new WaitForFixedUpdate();
+                        Assert.That(session.Deaths, Is.EqualTo(deaths), "Unsafe spawn: stage " + stage + " CP " + checkpoint.Order);
+                    }
+                    Assert.That(body.position.x, Is.GreaterThan(checkpoint.SpawnPoint.x + 6.5f));
+                    Assert.That(player.Grounded, Is.True);
+                }
+                Time.timeScale = 1f;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator DashingIntoAHazardStillCountsOneDeath()
+        {
+            PlayerMotor player = session.Player;
+            player.DashEnabled = true;
+            player.ResetAt(new Vector2(0f, 4f));
+            GameObject obstacle = new GameObject("Dash collision regression");
+            obstacle.transform.position = new Vector2(1f, 4f);
+            BoxCollider2D collider = obstacle.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            obstacle.AddComponent<Hazard>();
+            Physics2D.SyncTransforms();
+            SetMotorField(player, "dashQueued", true);
+            for (int step = 0; step < 5 && !session.Respawning; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return new WaitForFixedUpdate();
+            }
+            Assert.That(session.Respawning, Is.True);
+            Assert.That(session.Deaths, Is.EqualTo(1));
+            Assert.That(player.CanMove, Is.False);
+            Assert.That(player.GetComponent<Rigidbody2D>().simulated, Is.False);
+            Object.Destroy(obstacle);
+        }
+
         private static void SetMotorField(PlayerMotor player, string name, object value)
         {
             typeof(PlayerMotor).GetField(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
