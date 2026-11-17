@@ -277,3 +277,86 @@ MonoBehaviour:
       x: 268.0
       y: 2.8
     CatchRange: 1.1
+  Routes:
+  - Start:
+      x: 5.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 37.0
+      y: 2.5
+    LowerEnd:
+      x: 37.0
+      y: 0.8500000000000001
+    Label: 자성 광고판
+  - Start:
+      x: 40.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 71.0
+      y: 2.5
+    LowerEnd:
+      x: 71.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 74.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 103.0
+      y: 2.5
+    LowerEnd:
+      x: 103.0
+      y: 0.8500000000000001
+    Label: 자성 광고판
+  - Start:
+      x: 106.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 137.0
+      y: 2.5
+    LowerEnd:
+      x: 137.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 140.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 174.0
+      y: 2.5
+    LowerEnd:
+      x: 176.0
+      y: 0.8500000000000001
+    Label: 자성 광고판
+  - Start:
+      x: 179.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 213.0
+      y: 3.0
+    LowerEnd:
+      x: 213.0
+      y: 1.35
+    Label: 회전 레일
+  - Start:
+      x: 216.0
+      y: 1.35
+    UpperEnd:
+      x: 250.0
+      y: 3.0
+    LowerEnd:
+      x: 250.0
+      y: 1.35
+    Label: 자성 광고판
+  - Start:
+      x: 253.0
+      y: 1.35
+    UpperEnd:
+      x: 287.0
+      y: 3.0
+    LowerEnd:
+      x: 287.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  OpeningMessage: '민: 철제 광고판이 보여? Q로 상층 레일, E로 다리를 만들어 옥상을 건너자!'
+  EndingMessage: '옥상 연결 완료! 공중 레일까지 이어 보자.'

@@ -1,0 +1,399 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a765b69993606097f5eae548e6335a77, type: 3}
+  m_Name: Stage12
+  m_EditorClassIdentifier: ''
+  Number: 12
+  DisplayName: 도전 · 축제 개막
+  Lesson: 긴 틈과 드론 사이에서 상층 지름길을 연결하세요.
+  ParTime: 75
+  StartPosition:
+    x: 0
+    y: 1
+  PlayerPrefab: {fileID: 0}
+  ExitPosition:
+    x: 464
+    y: 1.8
+  DashEnabled: 1
+  MagnetEnabled: 1
+  FallDeathHeight: -7
+  RespawnDelay: 0.2
+  Platforms:
+  - Position:
+      x: 11.0
+      y: -0.5
+    Width: 28.0
+  - Position:
+      x: 48.0
+      y: 0.0
+    Width: 32.0
+  - Position:
+      x: 90.0
+      y: -0.5
+    Width: 36.0
+  - Position:
+      x: 131.0
+      y: 0.5
+    Width: 28.0
+  - Position:
+      x: 168.0
+      y: -0.5
+    Width: 32.0
+  - Position:
+      x: 210.0
+      y: 0.0
+    Width: 36.0
+  - Position:
+      x: 251.0
+      y: -0.5
+    Width: 28.0
+  - Position:
+      x: 288.0
+      y: 0.5
+    Width: 32.0
+  - Position:
+      x: 330.0
+      y: -0.5
+    Width: 36.0
+  - Position:
+      x: 371.0
+      y: 0.0
+    Width: 28.0
+  - Position:
+      x: 408.0
+      y: -0.5
+    Width: 32.0
+  - Position:
+      x: 450.0
+      y: 0.5
+    Width: 36.0
+  Spikes:
+  - Position:
+      x: 13.0
+      y: 0.15000000000000002
+    Width: 1.6
+  - Position:
+      x: 48.0
+      y: 0.65
+    Width: 1.6
+  - Position:
+      x: 88.0
+      y: 0.15000000000000002
+    Width: 1.6
+  - Position:
+      x: 133.0
+      y: 1.15
+    Width: 1.6
+  - Position:
+      x: 168.0
+      y: 0.15000000000000002
+    Width: 1.6
+  - Position:
+      x: 208.0
+      y: 0.65
+    Width: 1.6
+  - Position:
+      x: 253.0
+      y: 0.15000000000000002
+    Width: 1.6
+  - Position:
+      x: 288.0
+      y: 1.15
+    Width: 1.6
+  - Position:
+      x: 328.0
+      y: 0.15000000000000002
+    Width: 1.6
+  - Position:
+      x: 373.0
+      y: 0.65
+    Width: 1.6
+  - Position:
+      x: 408.0
+      y: 0.15000000000000002
+    Width: 1.6
+  - Position:
+      x: 448.0
+      y: 1.15
+    Width: 1.6
+  Saws:
+  - Position:
+      x: 97.0
+      y: 2.3
+    Travel:
+      x: 0.0
+      y: 0.45
+    Period: 4
+    Phase: 0
+  - Position:
+      x: 217.0
+      y: 2.8
+    Travel:
+      x: 0.0
+      y: 0.45
+    Period: 4
+    Phase: 0
+  - Position:
+      x: 337.0
+      y: 2.3
+    Travel:
+      x: 0.0
+      y: 0.45
+    Period: 4
+    Phase: 0
+  - Position:
+      x: 457.0
+      y: 3.3
+    Travel:
+      x: 0.0
+      y: 0.45
+    Period: 4
+    Phase: 0
+  Magnets:
+  - Position:
+      x: 28.5
+      y: 4.8
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 68.0
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 112.5
+      y: 4.8
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 148.5
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 188.0
+      y: 4.8
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 232.5
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 268.5
+      y: 4.8
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 308.0
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 352.5
+      y: 4.8
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 388.5
+      y: -2.5
+    Range: 7
+    Strength: 1.25
+  - Position:
+      x: 428.0
+      y: 4.8
+    Range: 7
+    Strength: 1.25
+  Checkpoints:
+  - Position:
+      x: 36.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 76.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 121.0
+      y: 1.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 156.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 196.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 241.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 276.0
+      y: 1.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 316.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 361.0
+      y: 0.9
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 396.0
+      y: 0.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  - Position:
+      x: 436.0
+      y: 1.4
+    SpawnOffset:
+      x: 0.0
+      y: 0.6
+  MovingPlatforms: []
+  Rails: []
+  Hints: []
+  Routes:
+  - Start:
+      x: 5.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 37.0
+      y: 3.0
+    LowerEnd:
+      x: 37.0
+      y: 1.35
+    Label: 자성 광고판
+  - Start:
+      x: 40.0
+      y: 1.35
+    UpperEnd:
+      x: 74.0
+      y: 3.0
+    LowerEnd:
+      x: 77.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 80.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 114.0
+      y: 3.5
+    LowerEnd:
+      x: 122.0
+      y: 1.85
+    Label: 자성 광고판
+  - Start:
+      x: 125.0
+      y: 1.85
+    UpperEnd:
+      x: 157.0
+      y: 3.5
+    LowerEnd:
+      x: 157.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 160.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 194.0
+      y: 3.0
+    LowerEnd:
+      x: 197.0
+      y: 1.35
+    Label: 자성 광고판
+  - Start:
+      x: 200.0
+      y: 1.35
+    UpperEnd:
+      x: 234.0
+      y: 3.0
+    LowerEnd:
+      x: 242.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 245.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 277.0
+      y: 3.5
+    LowerEnd:
+      x: 277.0
+      y: 1.85
+    Label: 자성 광고판
+  - Start:
+      x: 280.0
+      y: 1.85
+    UpperEnd:
+      x: 314.0
+      y: 3.5
+    LowerEnd:
+      x: 317.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 320.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 354.0
+      y: 3.0
+    LowerEnd:
+      x: 362.0
+      y: 1.35
+    Label: 자성 광고판
+  - Start:
+      x: 365.0
+      y: 1.35
+    UpperEnd:
+      x: 397.0
+      y: 3.0
+    LowerEnd:
+      x: 397.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 400.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 434.0
+      y: 3.5
+    LowerEnd:
+      x: 437.0
+      y: 1.85
+    Label: 자성 광고판
+  OpeningMessage: '민: 개막 지점이 저 위야! 네가 연결한 길을 따라 모두 올라오고 있어.'
+  EndingMessage: '민: 해냈어! 도시의 길이 연결됐어. 지금부터 우리들의 축제야!'

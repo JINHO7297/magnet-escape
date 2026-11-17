@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a765b69993606097f5eae548e6335a77, type: 3}
+  m_Name: Endless
+  m_EditorClassIdentifier: ''
+  Number: 13
+  DisplayName: 무한 기록 질주
+  Lesson: 별을 모으고 길을 만들어 최고 점수에 도전하세요.
+  ParTime: 999999
+  StartPosition:
+    x: 0
+    y: 1
+  ExitPosition:
+    x: 1000000
+    y: 0
+  DashEnabled: 1
+  MagnetEnabled: 0
+  FallDeathHeight: -7
+  RespawnDelay: 0
+  Platforms: []
+  Rails: []
+  Routes: []
+  Spikes: []
+  Saws: []
+  MovingPlatforms: []
+  Magnets: []
+  Checkpoints: []
+  Hints: []
+  OpeningMessage: '민: 이번엔 자유 주행이야! 별을 모으고 네 최고 기록에 도전해 봐. N으로 언제든 다시 올 수 있어.'
+  EndingMessage: ''

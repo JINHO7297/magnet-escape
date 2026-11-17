@@ -4,15 +4,21 @@ namespace MagnetEscape
 {
     public static class StageInfo
     {
-        private static readonly StageDefinition[] Definitions = new StageDefinition[5];
+        public const int Count = 12;
+        public const int EndlessStage = 13;
+        public static int StageForSlot(int difficulty, int slot) => (difficulty == 0 ? 4 : difficulty == 1 ? 0 : 8) + Mathf.Clamp(slot, 1, 4);
+        public static string Difficulty(int stage) => stage <= 4 ? "일반" : stage <= 8 ? "입문" : "도전";
+        public static int Chapter(int stage) => (stage - 1) % 4 + 1;
+        public static int NextStage(int stage) => stage >= 1 && stage <= Count && Chapter(stage) < 4 ? stage + 1 : 0;
+        private static readonly StageDefinition[] Definitions = new StageDefinition[EndlessStage + 1];
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetCache() => System.Array.Clear(Definitions, 0, Definitions.Length);
 
         public static StageDefinition Definition(int stage)
         {
-            if (stage < 1 || stage > 4) return null;
-            if (Definitions[stage] == null) Definitions[stage] = Resources.Load<StageDefinition>("Stages/Stage" + stage);
+            if (stage < 1 || stage > EndlessStage) return null;
+            if (Definitions[stage] == null) Definitions[stage] = Resources.Load<StageDefinition>(stage == EndlessStage ? "Stages/Endless" : "Stages/Stage" + stage);
             return Definitions[stage];
         }
 

@@ -6,7 +6,7 @@ namespace MagnetEscape
     // All five scenes keep a serialized bootstrap reference. Visuals share authored sprites.
     public sealed class StageBootstrap : MonoBehaviour
     {
-        [SerializeField, Range(0, 4)] private int stage;
+        [SerializeField, Range(0, StageInfo.EndlessStage)] private int stage;
         private static Sprite square;
         private static Material particleMaterial;
         private static PhysicsMaterial2D robotMaterial;
@@ -81,6 +81,14 @@ namespace MagnetEscape
             session.Player.enabled = true;
             player.SetActive(true);
 
+            if (stage == StageInfo.EndlessStage)
+            {
+                session.Player.RailEnabled = true;
+                session.ConfigureCourse(1000000f, -7f, 0f, 999999f);
+                session.FactoryWall = GameArt.Backdrop(160f);
+                gameObject.AddComponent<EndlessCourse>().Initialize(System.Environment.TickCount);
+                return;
+            }
             foreach (StageDefinition.RectPlacement item in layout.Platforms)
                 Platform(item.Position.x, item.Position.y, item.Width);
             if (layout.Rails != null)
@@ -137,7 +145,7 @@ namespace MagnetEscape
             return obj;
         }
 
-        private static GameObject Platform(float x, float y, float width)
+        internal static GameObject Platform(float x, float y, float width)
         {
             GameObject platform = Box("Rooftop platform", new Vector2(x, y), new Vector2(width, 0.6f), new Color(0.28f, 0.34f, 0.43f), false);
             platform.layer = LayerMask.NameToLayer("Ground");
@@ -173,7 +181,7 @@ namespace MagnetEscape
             hint.Range = range;
         }
 
-        private static void Spikes(float x, float y, float width)
+        internal static GameObject Spikes(float x, float y, float width)
         {
             GameObject spikes = Box("Spikes", new Vector2(x, y - 0.1f), new Vector2(width, 0.5f), Color.red, true);
             GameArt.Apply(spikes, "spike", 5, true);
@@ -199,6 +207,7 @@ namespace MagnetEscape
             points.Add(new Vector2(right, -0.24f));
             polygon.SetPath(0, points.ToArray());
             spikes.AddComponent<Hazard>();
+            return spikes;
         }
 
         private static void Saw(float x, float y, Vector2 travel, float period, float phase)

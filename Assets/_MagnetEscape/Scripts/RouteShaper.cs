@@ -7,19 +7,25 @@ namespace MagnetEscape
     public sealed class RouteShaper : MonoBehaviour
     {
         public static readonly HashSet<RouteShaper> All = new HashSet<RouteShaper>();
-        private Vector2 start, upper, lower;
-        private string routeName;
+        [SerializeField] private Vector2 start, upper, lower;
+        [SerializeField] private string routeName;
         private int queued;
         public int Choice { get; private set; }
-        public MagneticRail Rail { get; private set; }
-        public BoxCollider2D Bridge { get; private set; }
-        private LineRenderer upperPreview, lowerPreview;
-        private SpriteRenderer bridgeVisual;
+        [field: SerializeField] public MagneticRail Rail { get; private set; }
+        [field: SerializeField] public BoxCollider2D Bridge { get; private set; }
+        [SerializeField] private LineRenderer upperPreview, lowerPreview;
+        [SerializeField] private SpriteRenderer bridgeVisual;
         public Vector2 StartPoint => start;
         public Vector2 UpperEnd => upper;
         public Vector2 LowerEnd => lower;
         public string Prompt => routeName + "  /  Q 상층 고속 레일 · E 안전 다리";
-        private void OnEnable() => All.Add(this);
+        private void OnEnable()
+        {
+            All.Add(this);
+            if (Rail != null) Rail.gameObject.SetActive(true);
+            if (Bridge != null) Bridge.gameObject.SetActive(true);
+        }
+        private void Start() { if (Rail == null) Configure(start, upper, lower, routeName); }
         private void OnDisable() { All.Remove(this); if (Rail != null) Rail.gameObject.SetActive(false); if (Bridge != null) Bridge.gameObject.SetActive(false); }
         private void OnDestroy() => All.Remove(this);
 
@@ -35,7 +41,7 @@ namespace MagnetEscape
                 Bridge = bridge.AddComponent<BoxCollider2D>();
                 bridgeVisual = bridge.AddComponent<SpriteRenderer>();
                 Texture2D texture = Texture2D.whiteTexture;
-                bridgeVisual.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(.5f, .5f), texture.width);
+                bridgeVisual.sprite = ScorePickup.Icon;
                 bridgeVisual.drawMode = SpriteDrawMode.Sliced;
                 bridgeVisual.color = new Color(1f, .72f, .25f); bridgeVisual.sortingOrder = 2;
                 upperPreview = Preview("Q upper route", new Color(.3f, 1f, .9f, .3f));

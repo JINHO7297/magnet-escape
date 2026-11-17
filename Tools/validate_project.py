@@ -54,7 +54,7 @@ def validate(root):
         count += 1
 
     scenes = assets / "_MagnetEscape/Scenes"
-    expected = ["StageSelect"] + [f"Stage{i}" for i in range(1, 5)]
+    expected = ["StageSelect"] + [f"Stage{i}" for i in range(1, 13)] + ["Endless"]
     assert sorted(p.stem for p in scenes.glob("*.unity")) == sorted(expected)
     build = (root / "ProjectSettings/EditorBuildSettings.asset").read_text()
     entries = re.findall(r"- enabled: 1\s+path: (\S+)\s+guid: ([0-9a-f]{32})", build)
@@ -98,7 +98,7 @@ def validate(root):
     sprites = list(art.glob("*.png"))
     for sprite in sprites:
         validate_sprite(sprite)
-    print(f"PASS: {count} asset identities, 5 scene entries, references, assemblies, Ground layer, {len(sprites)} sprite files/import settings")
+    print(f"PASS: {count} asset identities, 14 scene entries, references, assemblies, Ground layer, {len(sprites)} sprite files/import settings")
     print("Unity import, C# compilation and play tests remain unverified.")
 
 

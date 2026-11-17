@@ -6,7 +6,7 @@ namespace MagnetEscape
     [CreateAssetMenu(menuName = "Magnet Escape/Stage Definition")]
     public sealed class StageDefinition : ScriptableObject
     {
-        [Range(1, 4)] public int Number = 1;
+        [Range(1, StageInfo.EndlessStage)] public int Number = 1;
         public string DisplayName;
         [TextArea] public string OpeningMessage;
         [TextArea] public string EndingMessage;

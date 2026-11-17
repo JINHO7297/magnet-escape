@@ -708,3 +708,21 @@
 - 사용자 승인: 짧은 축제 스토리·직접 경로 만들기·난이도별 추가코스, 이어 별도 무한 점수/랭킹 모드. 계획 festival-routes.md에 확장 기록.
 - RouteShaper(+새meta), StageDefinition.Routes, StageBootstrap 생성, GameSession.RoutesBuilt 연결. Q상층 그라인드/E저층 실제 다리 선택, 플레이어10unit 앞에서만 동작·1unit 이내 변경 차단. 정지/사망/클리어/전환 차단. 자력 모터 수치 변경 없음.
 - 먼저 새2건 작성 후 타입 미구현 CS0246 확인(144635_UTC_f3edc6a3), 구현 후 Play37/37 PASS(144745_UTC_d384f50f). 실제 다리15스텝 착지·상층 포착/가속 확인. 정적65GUID·diff PASS. 아직 코스에 배치 전이며 UI/12코스/무한 모드는 다음 단위.
+
+## 2026-11-18 — 축제12코스·경로99개·별도 무한 점수 모드 (작업70)
+
+- 사용자 최신 승인에 맞춰 고정4코스/무한제외 범위를 확장. StageInfo.Count12/EndlessStage13/Chapter/NextStage/StageForSlot 공통카탈로그, StageDefinition.Opening/Ending/Routes, Stage5~12 데이터/씬(+새GUID), Endless 데이터/씬(+새GUID), 난이도 페이지·키1~4/←→·N무한/B순위를 추가했다. 기존1~4씬/메타GUID와 기본지형은 보존, 총99개의 Q상층 고속 레일/E실제 다리를 배치했다. 이야기: 친구 민의 연락을 따라 공사로 끊긴 도시의 길을 연결하고4번째구간에서 축제 개막.
+- StageRecords는MagnetSkater.v3.Stage로 분리, 이전v2/짧은러너/수동 기록은 삭제/합치지 않는다. 테스트는12개 원본 경로를 먼저 검사하고 v3 모든키를 백업/복원한다. Editor의 생성/빌드 도구·정적 검사도14씬(선택+12+Endless)을 사용한다.
+- 무한 모드: EndlessCourse의32unit 안전 템플릿4종을System.Random(seed)로 생성. 앞112unit 확보/뒤64unit 정리, 별3개/구간·일부Q/E경로·작은 틈/콘·거리 진행에따른변화. 공용FullRect Sprite를재사용해 생성마다Sprite가누적되지 않게 했다. 한 번 죽으면동결/종료·Top5저장, CP부활하지 않는다. 거리10점/unit, 별50+연속(2.5초·최대10연속), 첫경로250점. EndlessRecords 별도key/JSON·잘못된값거부·손상저장복구·상위5정렬. 온라인랭킹이라고표시하지 않는다.
+- 먼저Catalog/무한저장회귀를작성해미구현API컴파일실패확인(144954_UTC_6e8c3db4), 구현후Edit20/20PASS(20261116_013930_UTC_63eddf64 및110904_UTC_4cf0a000). 경로Start가Configure를반복해첫프레임의E다리를다시접는실패를실제재현→Rail참조가없을때만초기화로수정. baked편집본을위해기하/자식참조를직렬화했다.
+- 실패검사이력: Play초기38중3/7/2/1FAIL은Start결함과검수대기/시간기준문제. 무제한headless 300frame이0.2초미만에소진되므로부활은게임시간0.25초를먼저기다리고기존realtime제한을유지했다. 장시간호스트절전으로walltime과CPU/게임진행도벌어졌다(프로세스경과10h20/CPU5m28). Time.time기반while+WaitForFixedUpdate는한코루틴내반복소진/정체가되어해당run(20261117_131652_UTC_29a09cd1)은SIGTERM종료하고성공으로세지않았다. 이후driver만captureDeltaTime=fixedDeltaTime/timeScale1/yieldnull로매프레임물리진행을고정하고teardown에서0복원. 실제Motor/Collider/드론/자석/Exit는변경하지않았다. 검사/빌드프로세스기간에만caffeinate를사용해유휴절전을막았다.
+- 최종Play38/38PASS `artifacts/tests/20261117_234223_UTC_c896287a/`. 실제자동무사망시간1~12:35.34/41.96/49.44/63.88/28.80/33.64/38.64/44.08/46.88/51.90/57.18/63.20초. 기존일반2~4는레일214/330/270물리스텝도사용. 모든93CP부활후1초전진·지상·추가사망없음. 새코스의99경로전조합을사용한검사나사람의완주라는주장은아니다. Endless회귀는2048unit까지청크8이하·별50/60점/중복방지·정지수집금지·사망1회/부활없음·상위기록저장을확인했다.
+- 독립정적리뷰(festival_review): 출시차단급새문제없음, 콤보표시시간초과/선택화면Notice누락보완. 추가좌표리뷰에서E다리가긴틈중간에끝나는경우확인→LowerEnd를다음발판left+5까지연장. 원래상층짧은고속도약선은유지. 새CP64개는재출발7unit후첫콘까지3.85~4.15unit여유, 엔진93개검사도통과.
+- 실제Native(CUA)검수: 입문/도전페이지·코스5진입·Q250ms→Space200ms→Q1800ms로직접만든레일탑승(2.39초/0회/만든길1), R후E200ms→Space650ms로금색다리주행/콘우회(3.10초/0회/만든길1), 친구민메시지와스케이터/다리동시표시확인. 이는코어물리필드주입검사와별도다.
+- Native무한N진입→첫점프→별2개수집→콘충돌로6.59초/충돌1회/46m/570점종료, 로컬1위표시확인. 정상Command-Q종료후같은bundle새실행본에서B순위570점/46m/별2보존확인. 재실행과기록데이터주입은없다.
+- Native화면에서무한배경누락/거대slice경고를발견. 고정코스PrepareCourseGeometry가무한placeholder결승1e6을배경폭으로사용한실제제품결함. 회귀 `endless-backdrop-red.xml`에서기대<256/실제1000030으로실패→Endless에서는기존160폭스크롤배경을유지하도록분리→`endless-backdrop-green.xml`1/1PASS. 새앱무한1.07초/72점화면에서도시배경/별/HUD가정상표시되는것도확인했다.
+- 최신앱/ZIP `Builds/20261117_235454_UTC_969c7978/`(최종빌드결과는아래마감기록), 이전234452빌드경고14는nographics Ambient/Reflection Probe각씬경고였고배경수정후235234빌드는0경고. macOS실행파일/UnityPlayer양쪽x86_64+arm64확인. 산출물은Git제외.
+- Unity종료후Python21/21·정적87GUID/14씬·diff PASS. 제출DOCX를12코스·99경로·축제스토리·무한점수/로컬Top5로갱신, bundled문서도구로2페이지렌더/두PNG직접확인(`artifacts/festival-design-review-final/`). README/GOAL/AGENTS/TASKS/SUBMISSION/실행계획도최신범위로갱신.
+- 남은실제검수: 사람의12코스직접플레이·모든경로조합/난이도·오디오체감, 장시간무한플레이·다른Mac/실제Intel. 다음시작점은최신앱의입문페이지1번에서Q/E경로선택과N무한플레이피드백을수집하는것. 전체게임의모든환경검증완료라고표시하지않는다.
+
+- 최종 마감:235454_UTC_969c7978 빌드 오류0/경고0, 두 바이너리x86_64+arm64와 ZIP 안내/크레딧/개발로그 제외 확인. 마지막 UI 변경은10~12코스의앞0중복을D2로정리한표기뿐이며실행본에서09/10/11/12실제표시확인. 새실행본은입문선택·전체화면으로열어두었다. 원격develop추가변경없음fetch확인,69코어4a903c5와70마감변경을JINHO7297명의로커밋/푸시한다.

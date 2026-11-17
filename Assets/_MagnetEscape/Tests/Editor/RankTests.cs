@@ -7,8 +7,8 @@ namespace MagnetEscape.Tests
         [Test]
         public void RunnerRecordsStaySeparateFromLegacyAndKeepIndependentBestTimeAndRank()
         {
-            const string runner = "MagnetSkater.v2.Stage1";
-            const string previousRunner = "MagnetSkater.Stage1";
+            const string runner = "MagnetSkater.v3.Stage1";
+            const string previousRunner = "MagnetSkater.v2.Stage1";
             const string legacy = "MagnetEscape.Stage1";
             const string scene = "Assets/_MagnetEscape/Scenes/Stage1.unity";
             var times = new System.Collections.Generic.Dictionary<string, float>();
@@ -45,6 +45,32 @@ namespace MagnetEscape.Tests
                     foreach (string suffix in new[] { ".Time", ".TimeDeaths", ".Rank" }) UnityEngine.PlayerPrefs.DeleteKey(prefix + suffix);
                 foreach (var pair in times) UnityEngine.PlayerPrefs.SetFloat(pair.Key, pair.Value);
                 foreach (var pair in ints) UnityEngine.PlayerPrefs.SetInt(pair.Key, pair.Value);
+                UnityEngine.PlayerPrefs.Save();
+            }
+        }
+
+        [Test]
+        public void EndlessLeaderboardKeepsOnlyFiveBestScoresAndRejectsInvalidRuns()
+        {
+            string key = EndlessRecords.Key;
+            bool existed = UnityEngine.PlayerPrefs.HasKey(key);
+            string saved = UnityEngine.PlayerPrefs.GetString(key);
+            try
+            {
+                UnityEngine.PlayerPrefs.DeleteKey(key);
+                foreach (int score in new[] { 200, 100, 900, 300, 800, 700, 600 })
+                    EndlessRecords.Save(score, score / 10f, 0, 42);
+                var runs = EndlessRecords.Load();
+                Assert.That(runs.Count, Is.EqualTo(5));
+                Assert.That(runs[0].Score, Is.EqualTo(900));
+                Assert.That(runs[4].Score, Is.EqualTo(300));
+                Assert.Throws<System.ArgumentOutOfRangeException>(() => EndlessRecords.Save(-1, 1f, 0, 42));
+                UnityEngine.PlayerPrefs.SetString(key, "invalid json");
+                Assert.That(EndlessRecords.Load(), Is.Empty);
+            }
+            finally
+            {
+                if (existed) UnityEngine.PlayerPrefs.SetString(key, saved); else UnityEngine.PlayerPrefs.DeleteKey(key);
                 UnityEngine.PlayerPrefs.Save();
             }
         }

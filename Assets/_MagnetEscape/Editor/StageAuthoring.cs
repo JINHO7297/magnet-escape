@@ -40,7 +40,7 @@ namespace MagnetEscape.Editor
             AssetDatabase.Refresh();
             Scene previous = SceneManager.GetActiveScene();
             int created = 0;
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
                 string path = folder + "/Stage" + stage + ".unity";
                 if (File.Exists(path))
@@ -136,14 +136,14 @@ namespace MagnetEscape.Editor
                 Debug.LogWarning("Stop Play mode before changing the course build set.");
                 return;
             }
-            string[] stages = Enumerable.Range(1, 4).Select(stage => folder + "/Stage" + stage + ".unity").ToArray();
+            string[] stages = Enumerable.Range(1, StageInfo.Count).Select(stage => folder + "/Stage" + stage + ".unity").ToArray();
             if (stages.Any(path => !File.Exists(path)))
             {
-                Debug.LogWarning("The selected folder must contain Stage1-Stage4. Build Settings were not changed.");
+                Debug.LogWarning("The selected folder must contain Stage1-Stage12. Build Settings were not changed.");
                 return;
             }
             string selection = Root + "/Scenes/StageSelect.unity";
-            EditorBuildSettings.scenes = new[] { selection }.Concat(stages)
+            EditorBuildSettings.scenes = new[] { selection }.Concat(stages).Concat(new[] { Root + "/Scenes/Endless.unity" })
                 .Select(path => new EditorBuildSettingsScene(path, true)).ToArray();
             Debug.Log("Build Settings now use " + folder + ". Source scenes and previous revisions were preserved.");
         }

@@ -58,3 +58,10 @@
 - 현재 실제53건(Edit18/Play35)·확장4코스 자동 무사망 경로·29개 CP 준비거리 검수 완료. 자동 입력 경로와 실제 키보드/사람 완주는 구분한다. Python 에셋 복사 회귀는 Unity 테스트 종료 후 실행해 임시 씬 삭제 경합을 피한다.
 
 - 실제 키 입력(CUA)4코스 결승·정상 종료 후 기록4/4 재실행 보존도 확인했다. CP 재도전 포함이며 사람의 직접 플레이/난이도·오디오 검수와 구분한다. 마지막 대시 벽/바닥, 범위 안 자력 해제/연결선, 정지 중 Space 해제, 하강 레일 자연 끝은 작업68 엔진 검수 결과를 따른다.
+
+## 2026-11-18 최신 확장 승인 우선
+- 사용자 승인으로 기존4코스 한정/무한맵 제외 범위를 확장했다. 입문5~8/일반1~4/도전9~12 총12코스와 별도 Endless(scene stage13). StageInfo.Count/EndlessStage/NextStage/StageForSlot을 사용하고 코스 개수를4로 가정하지 않는다. 기존GUID 유지.
+- RouteShaper는 Q 상층 고속 레일/E 실제 다리, 시작점10unit~1unit 앞에서만 선택. 기존 기본 경로를 막거나 탑승 후 기하를 바꾸지 않는다. 원본은 StageDefinition.Routes/OpeningMessage/EndingMessage.
+- 무한 점수 거리10/unit·별50+연속(2.5초·최대10연속)·첫 경로250. 한 번 사망하면 종료. 온라인 순위가 아니라 이 기기 상위5개. EndlessCourse bounded chunk streaming, 별/다리 공용Sprite는 FullRect로재사용.
+- 새 고정 기록MagnetSkater.v3.Stage, 기존v2/이전prefix보존. 무한MagnetSkater.Endless.v1.Top5 분리.
+- 장시간 Unity검사는 호스트 절전으로 walltime과게임시간이벌어질수있다. 코스driver는Time.time 기준 제한(150초/코스),NUnit최대900초;완료 전 성공으로세지않는다.무제한frame budget은몇ms에소진될수있어부활wait에쓰지않는다.

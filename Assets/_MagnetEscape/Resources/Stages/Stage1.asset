@@ -183,3 +183,86 @@ MonoBehaviour:
       y: 1.5
     Message: '후반 구간입니다. 체크포인트에서 다시 출발할 수 있으니 앞의 지형과 장애물을 확인하세요.'
     Range: 6
+  Routes:
+  - Start:
+      x: 5.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 28.0
+      y: 2.5
+    LowerEnd:
+      x: 28.0
+      y: 0.8500000000000001
+    Label: 자성 광고판
+  - Start:
+      x: 31.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 52.0
+      y: 2.5
+    LowerEnd:
+      x: 52.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 55.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 76.0
+      y: 2.5
+    LowerEnd:
+      x: 76.0
+      y: 0.8500000000000001
+    Label: 자성 광고판
+  - Start:
+      x: 79.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 102.0
+      y: 2.5
+    LowerEnd:
+      x: 102.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  - Start:
+      x: 105.0
+      y: 0.8500000000000001
+    UpperEnd:
+      x: 136.0
+      y: 3.0
+    LowerEnd:
+      x: 136.0
+      y: 1.35
+    Label: 자성 광고판
+  - Start:
+      x: 139.0
+      y: 1.35
+    UpperEnd:
+      x: 163.0
+      y: 3.5
+    LowerEnd:
+      x: 163.0
+      y: 1.85
+    Label: 회전 레일
+  - Start:
+      x: 166.0
+      y: 1.85
+    UpperEnd:
+      x: 190.0
+      y: 3.5
+    LowerEnd:
+      x: 190.0
+      y: 1.35
+    Label: 자성 광고판
+  - Start:
+      x: 193.0
+      y: 1.35
+    UpperEnd:
+      x: 218.0
+      y: 3.0
+    LowerEnd:
+      x: 218.0
+      y: 0.8500000000000001
+    Label: 회전 레일
+  OpeningMessage: '친구 민: 축제 코스가 공사로 끊겼어! 자석 보드로 골목부터 연결해 줘.'
+  EndingMessage: '골목 연결 완료! 친구들이 옥상에서 기다리고 있어.'

@@ -20,15 +20,15 @@ namespace MagnetEscape.Tests
             sourceSetupReady = false;
             // Scene names are shared by editable revisions. Never run source
             // routes (or save scores) against a user-selected revision.
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
                 if (StageRecords.BuildScenePath(stage) != "Assets/_MagnetEscape/Scenes/Stage" + stage + ".unity")
                     Assert.Ignore("Source gameplay tests require the four generated source stages in Build Settings.");
             sourceSetupReady = true;
             savedTimes.Clear();
             savedInts.Clear();
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
-                string key = "MagnetSkater.v2.Stage" + stage;
+                string key = "MagnetSkater.v3.Stage" + stage;
                 if (PlayerPrefs.HasKey(key + ".Time")) savedTimes[key + ".Time"] = PlayerPrefs.GetFloat(key + ".Time");
                 foreach (string suffix in new[] { ".TimeDeaths", ".Rank" })
                     if (PlayerPrefs.HasKey(key + suffix)) savedInts[key + suffix] = PlayerPrefs.GetInt(key + suffix);
@@ -47,12 +47,13 @@ namespace MagnetEscape.Tests
         public IEnumerator TearDown()
         {
             if (!sourceSetupReady) yield break;
+            Time.captureDeltaTime = 0f;
             Time.timeScale = 1f;
             SceneManager.LoadScene("StageSelect");
             yield return null;
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
-                string key = "MagnetSkater.v2.Stage" + stage;
+                string key = "MagnetSkater.v3.Stage" + stage;
                 foreach (string suffix in new[] { ".Time", ".TimeDeaths", ".Rank" }) PlayerPrefs.DeleteKey(key + suffix);
             }
             foreach (var pair in savedTimes) PlayerPrefs.SetFloat(pair.Key, pair.Value);
@@ -85,7 +86,7 @@ namespace MagnetEscape.Tests
         [UnityTest]
         public IEnumerator FourStagesLoadWithTheirAbilitiesAndRuntimeObjects()
         {
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
                 SceneManager.LoadScene("Stage" + stage);
                 yield return null;
@@ -94,7 +95,7 @@ namespace MagnetEscape.Tests
                 active.SetPaused(false);
                 active.Player.enabled = false;
                 Assert.That(active.Stage, Is.EqualTo(stage));
-                Assert.That(active.Player.DashEnabled, Is.EqualTo(stage >= 2));
+                Assert.That(active.Player.DashEnabled, Is.EqualTo(stage != 1));
                 Assert.That(active.Player.MagnetEnabled, Is.EqualTo(stage >= 3));
                 Assert.That(active.CourseEnd, Is.GreaterThan(0f));
                 Assert.That(Object.FindObjectsOfType<ExitGate>().Length, Is.EqualTo(1));
@@ -477,13 +478,13 @@ namespace MagnetEscape.Tests
             yield break;
         }
 
-        [UnityTest]
+        [UnityTest, Timeout(900000)]
         public IEnumerator SourceCoursesHaveAForwardOnlyDeathlessRoute()
         {
             // Test-only driver supplies the same queued commands as Update. The
             // real motor, colliders, drones, checkpoints and exit run in Unity.
             // This proves a route exists; it does not replace human keyboard QA.
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
                 SceneManager.LoadScene("Stage" + stage);
                 yield return null;
@@ -497,10 +498,13 @@ namespace MagnetEscape.Tests
                 float lastJumpX = -100f;
                 bool gapJump = false;
                 int grindSteps = 0;
-                float deadline = Time.realtimeSinceStartup + 60f;
-                Time.timeScale = 5f;
-                while (!session.Finished && Time.realtimeSinceStartup < deadline)
+                float deadline = Time.time + 150f;
+                Time.captureDeltaTime = Time.fixedDeltaTime;
+                Time.timeScale = 1f;
+                while (!session.Finished && Time.time < deadline)
                 {
+                    Assert.That(session.Paused, Is.False, "Route test lost gameplay focus.");
+                    Assert.That(Time.timeScale, Is.GreaterThan(0f));
                     Assert.That(session.Deaths, Is.Zero,
                         "Stage " + stage + " crashed near x=" + body.position.x + ", y=" + body.position.y);
                     float x = body.position.x;
@@ -572,20 +576,21 @@ namespace MagnetEscape.Tests
                     }
                     SetMotorField(player, "magnetMode", mode);
                     player.SendMessage("FixedUpdate");
-                    yield return new WaitForFixedUpdate();
+                    yield return null;
                 }
                 Assert.That(session.Finished, Is.True, "Stage " + stage + " did not reach the real ExitGate at x=" + body.position.x);
                 Assert.That(session.Deaths, Is.Zero);
-                if (stage >= 2) Assert.That(grindSteps, Is.GreaterThan(0), "The route must exercise authored rails too.");
+                if (stage <= 4 && stage >= 2) Assert.That(grindSteps, Is.GreaterThan(0), "The route must exercise authored rails too.");
                 Debug.Log("Forward route Stage " + stage + ": " + session.Elapsed.ToString("F2") + "s, no deaths, rail steps=" + grindSteps);
+                Time.captureDeltaTime = 0f;
                 Time.timeScale = 1f;
             }
         }
 
-        [UnityTest]
+        [UnityTest, Timeout(900000)]
         public IEnumerator EverySourceCheckpointAllowsOneSecondOfUninterruptedForwardPreparation()
         {
-            for (int stage = 1; stage <= 4; stage++)
+            for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
                 SceneManager.LoadScene("Stage" + stage);
                 yield return null;
@@ -1039,6 +1044,55 @@ namespace MagnetEscape.Tests
             Object.Destroy(obj);
         }
 
+        [UnityTest]
+        public IEnumerator EndlessStreamsChunksScoresStarsAndEndsOnceWithoutRespawning()
+        {
+            string key = EndlessRecords.Key;
+            bool existed = PlayerPrefs.HasKey(key);
+            string saved = PlayerPrefs.GetString(key);
+            try
+            {
+                SceneManager.LoadScene("Endless");
+                yield return null; yield return null;
+                session = GameSession.Active;
+                session.SetPaused(false);
+                session.Player.enabled = false;
+                EndlessCourse course = session.GetComponent<EndlessCourse>();
+                Assert.That(session.IsEndless, Is.True);
+                Assert.That(session.FactoryWall.size.x, Is.LessThan(256f), "Streaming background must not expand to the placeholder course end.");
+                Assert.That(Object.FindObjectsOfType<ExitGate>(), Is.Empty);
+                Assert.That(course.LiveChunks, Is.GreaterThanOrEqualTo(4));
+                session.Player.ResetAt(new Vector2(100f, 8f));
+                yield return null;
+                ScorePickup[] stars = Object.FindObjectsOfType<ScorePickup>();
+                int before = session.EndlessScore;
+                Assert.That(stars[0].Collect(session.Player), Is.True);
+                Assert.That(stars[0].Collect(session.Player), Is.False);
+                Assert.That(session.EndlessScore, Is.EqualTo(before + 50));
+                Assert.That(stars[1].Collect(session.Player), Is.True);
+                Assert.That(session.EndlessScore, Is.EqualTo(before + 110));
+                session.SetPaused(true);
+                Assert.That(stars[2].Collect(session.Player), Is.False);
+                session.SetPaused(false);
+                for (int x = 128; x <= 2048; x += 32) course.Advance(x);
+                session.Player.ResetAt(new Vector2(2048f, 8f));
+                yield return null;
+                Assert.That(course.LiveChunks, Is.LessThanOrEqualTo(8));
+                int score = session.EndlessScore;
+                session.Die(); session.Die();
+                Assert.That(session.Finished, Is.True);
+                Assert.That(session.Deaths, Is.EqualTo(1));
+                Assert.That(session.Respawning, Is.False);
+                Assert.That(session.Player.CanMove, Is.False);
+                Assert.That(EndlessRecords.Load().Exists(run => run.Score == score), Is.True);
+            }
+            finally
+            {
+                if (existed) PlayerPrefs.SetString(key, saved); else PlayerPrefs.DeleteKey(key);
+                PlayerPrefs.Save();
+            }
+        }
+
         private static MagneticRail CreateRail()
         {
             GameObject obj = new GameObject("Test magnetic rail");
@@ -1065,6 +1119,7 @@ namespace MagnetEscape.Tests
 
         private IEnumerator WaitForRespawn()
         {
+            yield return new WaitForSeconds(0.25f);
             float deadline = Time.realtimeSinceStartup + 3f;
             while (session.Respawning && Time.realtimeSinceStartup < deadline) yield return null;
             Assert.That(session.Respawning, Is.False, "Respawn did not finish within 3 real seconds.");
