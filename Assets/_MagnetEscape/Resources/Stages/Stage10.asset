@@ -243,32 +243,35 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 37.0
-      y: 3.0
+      x: 33
+      y: 3.3
     LowerEnd:
       x: 37.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 40.0
       y: 1.35
     UpperEnd:
-      x: 74.0
-      y: 3.0
+      x: 58
+      y: 2.8
     LowerEnd:
       x: 77.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 80.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 114.0
-      y: 3.5
+      x: 93
+      y: 3.9
     LowerEnd:
       x: 122.0
       y: 1.85
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 125.0
       y: 1.85
@@ -283,51 +286,56 @@ MonoBehaviour:
       x: 160.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 194.0
-      y: 3.0
+      x: 184
+      y: 1.85
     LowerEnd:
       x: 197.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 200.0
       y: 1.35
     UpperEnd:
-      x: 234.0
-      y: 3.0
+      x: 219
+      y: 3.8
     LowerEnd:
       x: 242.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 245.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 277.0
-      y: 3.5
+      x: 273
+      y: 3.3
     LowerEnd:
       x: 277.0
       y: 1.85
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 280.0
       y: 1.85
     UpperEnd:
-      x: 314.0
-      y: 3.5
+      x: 298
+      y: 3.3
     LowerEnd:
       x: 317.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 320.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 354.0
-      y: 3.0
+      x: 333
+      y: 3.9
     LowerEnd:
       x: 362.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   OpeningMessage: '민: 철제 광고판이 보여? Q로 상층 레일, E로 다리를 만들어 옥상을 건너자!'
   EndingMessage: '옥상 연결 완료! 공중 레일까지 이어 보자.'

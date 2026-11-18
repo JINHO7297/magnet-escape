@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ''
   Number: 5
   DisplayName: 입문 · 골목 연결
-  Lesson: 넓은 착지 지형에서 길 만들기를 연습하세요.
+  Lesson: Q를 누른 만큼 광고판이 올라갑니다. E로 낮은 다리를 만드세요.
   ParTime: 37
   StartPosition:
     x: 0
@@ -140,15 +140,16 @@ MonoBehaviour:
   Hints: []
   Routes:
   - Start:
-      x: 5.0
+      x: 6.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 35.0
-      y: 2.5
+      x: 18
+      y: 3.6
     LowerEnd:
       x: 35.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 38.0
       y: 0.8500000000000001
@@ -163,12 +164,13 @@ MonoBehaviour:
       x: 74.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 108.0
-      y: 2.5
+      x: 87
+      y: 3.6
     LowerEnd:
       x: 108.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 111.0
       y: 0.8500000000000001
@@ -183,11 +185,12 @@ MonoBehaviour:
       x: 145.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 177.0
-      y: 2.5
+      x: 158
+      y: 3.6
     LowerEnd:
       x: 177.0
       y: 0.8500000000000001
-    Label: 자성 광고판
-  OpeningMessage: '친구 민: 축제 코스가 공사로 끊겼어! 자석 보드로 골목부터 연결해 줘.'
+    Label: 회전 광고판
+    Facility: 1
+  OpeningMessage: '친구 민: 공사로 축제 길이 끊겼어. 골목 광고판을 올려 첫 연결로를 만들어 줘!'
   EndingMessage: '골목 연결 완료! 친구들이 옥상에서 기다리고 있어.'

@@ -35,5 +35,5 @@ MonoBehaviour:
   Magnets: []
   Checkpoints: []
   Hints: []
-  OpeningMessage: '민: 이번엔 자유 주행이야! 별을 모으고 네 최고 기록에 도전해 봐. N으로 언제든 다시 올 수 있어.'
+  OpeningMessage: '민: 축제가 열렸어! 별도 모으고, 서로 다른 시설을 연달아 타서 기록에 도전해 봐.'
   EndingMessage: ''

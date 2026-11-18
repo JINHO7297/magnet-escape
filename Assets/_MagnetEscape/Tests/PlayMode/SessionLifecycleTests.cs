@@ -617,7 +617,8 @@ namespace MagnetEscape.Tests
                         yield return new WaitForFixedUpdate();
                         Assert.That(session.Deaths, Is.EqualTo(deaths), "Unsafe spawn: stage " + stage + " CP " + checkpoint.Order);
                     }
-                    Assert.That(body.position.x, Is.GreaterThan(checkpoint.SpawnPoint.x + 6.5f));
+                    Assert.That(body.position.x, Is.GreaterThan(checkpoint.SpawnPoint.x + 6.5f),
+                        "Blocked forward preparation: stage " + stage + " CP " + checkpoint.Order);
                     Assert.That(player.Grounded, Is.True);
                 }
                 Time.timeScale = 1f;
@@ -1045,6 +1046,152 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator BillboardHoldSetsAnIntermediateAngleAndLocksBeforeEntry()
+        {
+            var root = new GameObject("Billboard");
+            var route = root.AddComponent<RouteShaper>();
+            route.Configure(new Vector2(108, 8), new Vector2(120, 11), new Vector2(120, 8),
+                "회전 광고판", RouteShaper.Kind.Billboard);
+            PlayerMotor player = session.Player;
+            player.ResetAt(new Vector2(103, 8));
+            route.TryShape(player, 1, 0.35f);
+            Assert.That(route.Charge, Is.EqualTo(0.5f).Within(0.01f));
+            Assert.That(route.Rail.EndPoint.y, Is.EqualTo(9.5f).Within(0.01f));
+            Assert.That(route.TryShape(player, 0), Is.False);
+            route.TryShape(player, 1, 0.35f);
+            Assert.That(route.Rail.EndPoint.y, Is.EqualTo(11f));
+            player.ResetAt(new Vector2(107, 8));
+            Assert.That(route.TryShape(player, -1), Is.False);
+            player.ResetAt(new Vector2(103, 8));
+            Assert.That(route.TryShape(player, -1), Is.True);
+            Assert.That(route.Bridge.enabled, Is.True);
+            Object.Destroy(root);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator CeilingRideHoldsFromBelowAndDropsWithRepulsion()
+        {
+            var root = new GameObject("Ceiling");
+            var route = root.AddComponent<RouteShaper>();
+            route.Configure(new Vector2(108, 8), new Vector2(122, 11), new Vector2(122, 8),
+                "천장 케이블", RouteShaper.Kind.Ceiling);
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            player.ResetAt(new Vector2(109, 10));
+            Assert.That(route.Rail.enabled, Is.True, "Space and Q must work even when first pressed below the cable.");
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsCeilingRiding, Is.True);
+            var body = player.GetComponent<Rigidbody2D>();
+            Assert.That(body.position.y, Is.LessThan(route.Rail.HeightAt(109)));
+            Assert.That(body.velocity.x, Is.GreaterThanOrEqualTo(player.RunSpeed));
+            var landing = new GameObject("Ceiling landing");
+            landing.layer = LayerMask.NameToLayer("Ground");
+            landing.transform.position = new Vector2(118f, 7.4f);
+            landing.AddComponent<BoxCollider2D>().size = new Vector2(14f, .6f);
+            Time.captureDeltaTime = Time.fixedDeltaTime;
+            for (int step = 0; step < 32; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return null;
+            }
+            Assert.That(session.FacilitiesCompleted, Is.Zero, "The ceiling trick requires a landing.");
+            SetMotorField(player, "magnetMode", -1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsCeilingRiding, Is.False);
+            Assert.That(body.gravityScale, Is.EqualTo(3f));
+            Assert.That(body.velocity.y, Is.LessThanOrEqualTo(0f));
+            for (int step = 0; step < 30 && !player.Grounded; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return null;
+            }
+            Assert.That(player.Grounded, Is.True);
+            Assert.That(session.FacilitiesCompleted, Is.EqualTo(1));
+            Object.Destroy(landing);
+            Object.Destroy(root);
+        }
+
+        [UnityTest]
+        public IEnumerator ConvoySupportsTwoActualLandingsAndLetsTheRiderPassBelow()
+        {
+            var root = new GameObject("Convoy");
+            var route = root.AddComponent<RouteShaper>();
+            route.Configure(new Vector2(108, 8), new Vector2(130, 9), new Vector2(130, 8),
+                "축제 차량", RouteShaper.Kind.Convoy);
+            PlayerMotor player = session.Player;
+            var body = player.GetComponent<Rigidbody2D>();
+            MovingPlatform[] vehicles = root.GetComponentsInChildren<MovingPlatform>();
+            Vector2 origin = vehicles[0].transform.position;
+            Time.captureDeltaTime = Time.fixedDeltaTime;
+            player.ResetAt(new Vector2(108f, 7.15f));
+            body.gravityScale = 0f;
+            body.velocity = Vector2.right * player.RunSpeed;
+            for (int step = 0; step < 55; step++) yield return null;
+            Assert.That(body.position.x, Is.GreaterThan(115.2f), "The vehicle side must leave an open underpass.");
+            Assert.That(vehicles[0].transform.position.x, Is.GreaterThan(origin.x + .5f));
+            Assert.That(session.FacilitiesCompleted, Is.Zero);
+
+            var firstRoof = vehicles[0].GetComponent<EdgeCollider2D>();
+            Bounds roof = firstRoof.bounds;
+            player.ResetAt(new Vector2(roof.center.x - .6f, roof.max.y + .9f));
+            for (int step = 0; step < 35 && body.position.x < firstRoof.bounds.max.x - .55f; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return null;
+            }
+            Assert.That(player.Grounded, Is.True, "The first roof must support takeoff.");
+            Assert.That(session.FacilitiesCompleted, Is.Zero);
+            SetMotorField(player, "jumpQueued", true);
+            SetMotorField(player, "jumpHeld", true);
+            for (int step = 0; step < 52 && session.FacilitiesCompleted == 0; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return null;
+            }
+            Assert.That(session.FacilitiesCompleted, Is.EqualTo(1),
+                "A continuous jump from the first moving roof must reach the second.");
+            Object.Destroy(root);
+        }
+
+        [UnityTest]
+        public IEnumerator ChainOpensInOrderAndCountsTwoRiddenSectionsOnce()
+        {
+            var root = new GameObject("Chain");
+            var route = root.AddComponent<RouteShaper>();
+            route.Configure(new Vector2(108, 8), new Vector2(132, 9), new Vector2(132, 8),
+                "연쇄 전광판", RouteShaper.Kind.Chain);
+            PlayerMotor player = session.Player;
+            player.RailEnabled = true;
+            player.ResetAt(new Vector2(103, 8));
+            Time.captureDeltaTime = Time.fixedDeltaTime;
+            MagneticRail[] pieces = root.GetComponentsInChildren<MagneticRail>();
+            Assert.That(route.TryShape(player, 1), Is.False);
+            Assert.That(route.TryShape(player, -1), Is.True);
+            Assert.That(pieces[0].enabled, Is.True);
+            Assert.That(pieces[1].enabled, Is.False);
+            Assert.That(pieces[2].enabled, Is.False);
+            for (int step = 0; step < 11; step++) yield return null;
+            Assert.That(pieces[1].enabled, Is.True);
+            Assert.That(pieces[2].enabled, Is.False);
+            for (int step = 0; step < 10; step++) yield return null;
+            Assert.That(pieces[2].enabled, Is.True);
+            Assert.That(session.FacilitiesCompleted, Is.Zero);
+
+            player.ResetAt(new Vector2(109f, 8.7f));
+            SetMotorField(player, "magnetMode", 1);
+            for (int step = 0; step < 115; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return null;
+            }
+            Assert.That(session.FacilitiesCompleted, Is.EqualTo(1), "Riding the rail gaps must link at least two pieces and reward once.");
+            Assert.That(session.Deaths, Is.Zero);
+            Object.Destroy(root);
+        }
+
+        [UnityTest]
         public IEnumerator EndlessStreamsChunksScoresStarsAndEndsOnceWithoutRespawning()
         {
             string key = EndlessRecords.Key;
@@ -1074,7 +1221,39 @@ namespace MagnetEscape.Tests
                 session.SetPaused(true);
                 Assert.That(stars[2].Collect(session.Player), Is.False);
                 session.SetPaused(false);
-                for (int x = 128; x <= 2048; x += 32) course.Advance(x);
+                var billboard = new GameObject("Score billboard").AddComponent<RouteShaper>();
+                billboard.Configure(new Vector2(106, 8), new Vector2(120, 11), new Vector2(120, 8),
+                    "회전 광고판", RouteShaper.Kind.Billboard);
+                before = session.EndlessScore;
+                Assert.That(billboard.TryShape(session.Player, 1), Is.True);
+                billboard.RailTravel(session.Player, 0, 3.9f);
+                Assert.That(session.EndlessScore, Is.EqualTo(before), "Construction and brief contact earn no points.");
+                billboard.RailTravel(session.Player, 0, 4f);
+                billboard.RailTravel(session.Player, 0, 5f);
+                Assert.That(session.EndlessScore, Is.EqualTo(before + 180));
+                var chain = new GameObject("Score chain").AddComponent<RouteShaper>();
+                chain.Configure(new Vector2(106, 8), new Vector2(128, 9), Vector2.zero,
+                    "연쇄 전광판", RouteShaper.Kind.Chain);
+                Assert.That(chain.TryShape(session.Player, -1), Is.True);
+                session.SetPaused(true);
+                chain.RailTravel(session.Player, 0, 1f);
+                session.SetPaused(false);
+                chain.RailTravel(session.Player, 1, 1f);
+                chain.RailTravel(session.Player, 1, 1f);
+                Assert.That(session.EndlessScore, Is.EqualTo(before + 180));
+                chain.RailTravel(session.Player, 2, 1f);
+                Assert.That(session.EndlessScore, Is.EqualTo(before + 180 + 320 + 100));
+
+                var templates = new System.Collections.Generic.HashSet<int>();
+                int last = course.LastTemplate;
+                for (int x = 128; x <= 2048; x += 32)
+                {
+                    course.Advance(x);
+                    Assert.That(course.LastTemplate, Is.Not.EqualTo(last), "Adjacent streaming sections must differ.");
+                    last = course.LastTemplate;
+                    templates.Add(last);
+                }
+                Assert.That(templates.Count, Is.EqualTo(8));
                 session.Player.ResetAt(new Vector2(2048f, 8f));
                 yield return null;
                 Assert.That(course.LiveChunks, Is.LessThanOrEqualTo(8));

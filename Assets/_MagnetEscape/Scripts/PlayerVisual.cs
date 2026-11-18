@@ -54,10 +54,10 @@ namespace MagnetEscape
             GameSession session = GameSession.Active;
             bool respawning = session != null && session.Player == motor && session.Respawning;
             visual.enabled = !respawning;
-            // Platform transport is not running. Facing follows the same last input
-            // used by a neutral dash, rather than a platform's world velocity.
+            // Judge the running animation relative to the vehicle roof.
             float horizontalSpeed = motor.HorizontalSpeedRelativeToGround;
             visual.flipX = motor.FacingDirection < 0f;
+            visual.flipY = motor.IsCeilingRiding;
             visual.sprite = motor.IsDashing || motor.IsGrinding ? dash : !motor.Grounded ? (body.velocity.y > 0f ? jump : fall)
                 : Mathf.Abs(horizontalSpeed) > 0.2f ? run[Mathf.FloorToInt(Time.time * 12f) % run.Length] : idle;
             visual.color = motor.MagnetMode > 0 ? new Color(1f, 0.7f, 0.9f) : motor.MagnetMode < 0 ? new Color(1f, 0.9f, 0.55f) : Color.white;
@@ -76,7 +76,7 @@ namespace MagnetEscape
         {
             trail.Clear();
             tether.enabled = false;
-            visual.flipX = false;
+            visual.flipX = visual.flipY = false;
         }
 
         private void OnDisable()

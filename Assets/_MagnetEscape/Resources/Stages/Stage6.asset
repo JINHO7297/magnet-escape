@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ''
   Number: 6
   DisplayName: 입문 · 광고판 도약
-  Lesson: 넓은 착지 지형에서 길 만들기를 연습하세요.
+  Lesson: Space로 뛰며 Q를 눌러 천장에 붙고 E로 안전한 곳에 내려오세요.
   ParTime: 42
   StartPosition:
     x: 0
@@ -162,12 +162,13 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 35.0
-      y: 2.5
+      x: 31
+      y: 3.03
     LowerEnd:
       x: 35.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 38.0
       y: 0.8500000000000001
@@ -182,22 +183,24 @@ MonoBehaviour:
       x: 74.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 108.0
-      y: 2.5
+      x: 87
+      y: 3.6
     LowerEnd:
       x: 108.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 111.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 142.0
-      y: 2.5
+      x: 138
+      y: 3.03
     LowerEnd:
       x: 142.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 145.0
       y: 0.8500000000000001
@@ -212,11 +215,12 @@ MonoBehaviour:
       x: 180.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 214.0
-      y: 2.5
+      x: 193
+      y: 3.6
     LowerEnd:
       x: 215.0
       y: 0.8500000000000001
-    Label: 회전 레일
-  OpeningMessage: '민: 철제 광고판이 보여? Q로 상층 레일, E로 다리를 만들어 옥상을 건너자!'
+    Label: 회전 광고판
+    Facility: 1
+  OpeningMessage: '민: 옥상 위 보라색 케이블이 보여? 매달려 건너고 빈 지붕에 내려와!'
   EndingMessage: '옥상 연결 완료! 공중 레일까지 이어 보자.'

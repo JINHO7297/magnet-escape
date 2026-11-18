@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ''
   Number: 7
   DisplayName: 입문 · 공중 연결망
-  Lesson: 넓은 착지 지형에서 길 만들기를 연습하세요.
+  Lesson: 움직이는 차량의 첫 지붕에 착지한 뒤 다음 차로 건너세요.
   ParTime: 47
   StartPosition:
     x: 0
@@ -181,12 +181,13 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 35.0
-      y: 2.5
+      x: 23
+      y: 1.85
     LowerEnd:
       x: 35.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 38.0
       y: 0.8500000000000001
@@ -201,32 +202,35 @@ MonoBehaviour:
       x: 74.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 108.0
-      y: 2.5
+      x: 93
+      y: 3.03
     LowerEnd:
       x: 108.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 111.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 142.0
-      y: 2.5
+      x: 124
+      y: 3.6
     LowerEnd:
       x: 142.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 145.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 177.0
-      y: 2.5
+      x: 163
+      y: 1.85
     LowerEnd:
       x: 177.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 180.0
       y: 0.8500000000000001
@@ -241,11 +245,12 @@ MonoBehaviour:
       x: 218.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 248.0
-      y: 2.5
+      x: 244
+      y: 3.03
     LowerEnd:
       x: 248.0
       y: 0.8500000000000001
-    Label: 자성 광고판
-  OpeningMessage: '민: 이제 공중 구간이야. 위아래 자석과 직접 만든 길을 이어 줘!'
+    Label: 천장 케이블
+    Facility: 2
+  OpeningMessage: '민: 축제 장비를 나르는 차량이 지나가고 있어. 두 지붕을 차례로 밟아 건너 봐!'
   EndingMessage: '공중 코스 연결 완료! 마지막 스카이라인만 남았어.'

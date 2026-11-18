@@ -101,7 +101,7 @@ namespace MagnetEscape
                 foreach (StageDefinition.RoutePlacement item in layout.Routes)
                 {
                     GameObject route = new GameObject(item.Label);
-                    route.AddComponent<RouteShaper>().Configure(item.Start, item.UpperEnd, item.LowerEnd, item.Label);
+                    route.AddComponent<RouteShaper>().Configure(item.Start, item.UpperEnd, item.LowerEnd, item.Label, item.Facility);
                 }
             foreach (StageDefinition.MovingPlacement item in layout.MovingPlatforms)
                 Moving(item.Position.x, item.Position.y, item.Travel, item.Period, item.Width);

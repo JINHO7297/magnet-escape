@@ -50,6 +50,7 @@ namespace MagnetEscape
         {
             public Vector2 Start, UpperEnd, LowerEnd;
             public string Label = "자성 광고판";
+            public RouteShaper.Kind Facility;
         }
 
         [Serializable]

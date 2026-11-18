@@ -212,7 +212,8 @@ namespace MagnetEscape
             Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "대시" : "대시 / 2코스부터", small);
             if (player.DashEnabled) Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
-            string magnet = player.IsGrinding ? "레일 그라인드 / Space·E 도약"
+            string magnet = player.IsCeilingRiding ? "천장 주행 / Q 유지 · E 낙하"
+                : player.IsGrinding ? "레일 그라인드 / Space·E 도약"
                 : player.RailEnabled && !player.MagnetEnabled ? "레일 / Q 잡기 · Space 도약" : !player.MagnetEnabled ? "자력 / 3코스부터" : player.MagnetTarget == null ? "자력 / 범위 밖"
                 : player.Grounded ? "자력 / 공중에서 사용" : player.IsDashing ? "자력 / 대시 중" : player.MagnetMode > 0 ? "Q / 끌어당기는 중"
                 : player.MagnetMode < 0 ? "E / 밀어내는 중" : "자력 / Q 인력 · E 척력";
@@ -221,8 +222,8 @@ namespace MagnetEscape
             Fill(new Rect(20, 83, 920 * session.Progress, 3), Mint);
             if (session.HasCheckpoint) Fill(new Rect(18 + 920 * session.RespawnProgress, 80, 4, 10), Gold);
             ExitIndicator();
-            if (!session.IsEndless) Label(new Rect(700, 105, 240, 24), "만든 길 " + session.RoutesBuilt, small, Gold);
-            if (session.IsEndless) Label(new Rect(700, 105, 240, 24), "별 " + session.Stars + " / 연속 " + session.Combo + " / 길 " + session.RoutesBuilt, small, Gold);
+            if (!session.IsEndless) Label(new Rect(700, 105, 240, 24), "시설 성공 " + session.FacilitiesCompleted + " / 만든 길 " + session.RoutesBuilt, small, Gold);
+            if (session.IsEndless) Label(new Rect(665, 105, 275, 24), "별 " + session.Stars + " / 연속 " + session.Combo + " / 시설 " + session.FacilitiesCompleted, small, Gold);
             if (!session.Paused && !session.Finished)
             {
                 RouteShaper nearest = null;
@@ -234,7 +235,12 @@ namespace MagnetEscape
                     Panel(new Rect(280, 152, 640, 36));
                     Label(new Rect(294, 158, 610, 26), nearest.Prompt, small, Gold);
                 }
-                if (session.Elapsed < 3.5f)
+                if (session.ShowFacilityFeedback)
+                {
+                    Panel(new Rect(380, 195, 540, 36));
+                    Label(new Rect(394, 200, 510, 26), session.FacilityFeedback, small, Mint);
+                }
+                else if (session.Elapsed < 3.5f)
                 {
                     Panel(new Rect(120, 202, 720, 62));
                     Label(new Rect(138, 212, 680, 46), StageInfo.Definition(session.Stage).OpeningMessage, text, Mint);
@@ -349,7 +355,7 @@ namespace MagnetEscape
             Panel(new Rect(190, 92, 580, 390));
             Label(new Rect(220, 110, 520, 42), "무한 질주 기록", heading, Mint);
             Label(new Rect(220, 152, 520, 50), session.EndlessScore + "점", title, Gold);
-            Label(new Rect(220, 207, 520, 30), session.Distance.ToString("F0") + "m · 별 " + session.Stars + " · 만든 길 " + session.RoutesBuilt, text);
+            Label(new Rect(220, 207, 520, 30), session.Distance.ToString("F0") + "m · 별 " + session.Stars + " · 시설 성공 " + session.FacilitiesCompleted, text);
             Label(new Rect(220, 240, 520, 24), session.RecordSaved ? "이 기기의 상위 5개 기록" : "기록 저장 실패 / 이번 점수는 위에서 확인하세요", small, Gold);
             var runs = EndlessRecords.Load();
             for (int i = 0; i < runs.Count; i++)
@@ -390,7 +396,7 @@ namespace MagnetEscape
                     Label(new Rect(132, 160 + i * 37, 210, 30), keys[i], text, Gold);
                     Label(new Rect(350, 160 + i * 37, 475, 34), actions[i], small);
                 }
-                Label(new Rect(132, 423, 690, 22), "광고판 앞 Q: 상층 레일 제작 / E: 다리 펼치기. N: 선택 화면의 무한 기록 모드", small);
+                Label(new Rect(132, 423, 690, 22), "시설 앞 안내에 따라 조작하세요. 광고판 Q 유지 · 천장 Space+Q · 차량 Space · 전광판 E", small);
             }
             else if (overlay == Overlay.Records)
             {
@@ -421,7 +427,7 @@ namespace MagnetEscape
             }
             else if (overlay == Overlay.EndlessRecords)
             {
-                Label(new Rect(132, 125, 690, 26), "이 기기의 상위 5개 기록 / 거리·별 연속 수집·경로 제작 점수", small);
+                Label(new Rect(132, 125, 690, 26), "이 기기의 상위 5개 기록 / 거리·별 연속 수집·시설 기술 점수", small);
                 var runs = EndlessRecords.Load();
                 if (runs.Count == 0) Label(new Rect(132, 190, 690, 30), "아직 기록이 없습니다. 선택 화면에서 N으로 도전하세요.", text);
                 for (int i = 0; i < runs.Count; i++)

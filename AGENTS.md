@@ -65,3 +65,9 @@
 - 무한 점수 거리10/unit·별50+연속(2.5초·최대10연속)·첫 경로250. 한 번 사망하면 종료. 온라인 순위가 아니라 이 기기 상위5개. EndlessCourse bounded chunk streaming, 별/다리 공용Sprite는 FullRect로재사용.
 - 새 고정 기록MagnetSkater.v3.Stage, 기존v2/이전prefix보존. 무한MagnetSkater.Endless.v1.Top5 분리.
 - 장시간 Unity검사는 호스트 절전으로 walltime과게임시간이벌어질수있다. 코스driver는Time.time 기준 제한(150초/코스),NUnit최대900초;완료 전 성공으로세지않는다.무제한frame budget은몇ms에소진될수있어부활wait에쓰지않는다.
+
+## 2026-11-19 도시 파쿠르 확장 우선
+
+- StageDefinition.Routes의 Facility에는 임시 연결로, 회전 광고판, 천장 케이블, 축제 차량, 연쇄 전광판을 지정한다. 코스 원본은 Stage1~12 에셋이다.
+- 광고판과 전광판은 10m 전부터 1m 전까지 조작한다. 천장 케이블은 Space 점프 후 Q로 아래에서 포착하고 Q 해제/E로 내려온다. 차량에는 지붕 충돌선만 둬 기본 경로를 열어 둔다.
+- 무한 모드 8개 템플릿을 섞고 거리·별·실제 시설 사용을 채점한다. 새로운 점수 규칙은 Endless.v2.Top5에 저장하며 이전 키를 보존한다.

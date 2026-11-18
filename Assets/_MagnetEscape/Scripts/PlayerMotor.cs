@@ -25,7 +25,8 @@ namespace MagnetEscape
         [SerializeField] private bool railEnabled;
         [SerializeField, Min(1f)] private float railSpeedMultiplier = 1.35f;
         private MagneticRail grindRail;
-        private float railLockout;
+        private float railLockout, railEntryX, ceilingDropX, ceilingDropLock;
+        private RouteShaper ceilingLanding;
         private Rigidbody2D body;
         private BoxCollider2D shape;
         private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
@@ -53,6 +54,7 @@ namespace MagnetEscape
         public bool MagnetEnabled { get => magnetEnabled; set => magnetEnabled = value; }
         public bool RailEnabled { get => railEnabled; set => railEnabled = value; }
         public bool IsGrinding => grindRail != null;
+        public bool IsCeilingRiding => grindRail != null && grindRail.Overhead;
         public float Cooldown => cooldown;
         public int MagnetMode => magnetMode;
         public bool IsDashing => dashStepActive;
@@ -108,6 +110,7 @@ namespace MagnetEscape
             float dt = Time.fixedDeltaTime;
             cooldown = Mathf.Max(0f, cooldown - dt);
             railLockout = Mathf.Max(0f, railLockout - dt);
+            ceilingDropLock = Mathf.Max(0f, ceilingDropLock - dt);
             if (!CanMove || (GameSession.Active != null && GameSession.Active.ChangingScene))
             {
                 ReleaseRail();
@@ -121,6 +124,11 @@ namespace MagnetEscape
             if (grounded && !Grounded && previousVerticalSpeed - supportVelocity.y < -2f)
                 Session?.Feedback((Vector2)transform.position + Vector2.down * 0.45f,
                     new Color(0.7f, 0.8f, 0.85f), GameAudio.Cue.Land);
+            if (ceilingLanding != null && (grounded || body.position.x > ceilingDropX + 10f))
+            {
+                if (grounded) ceilingLanding.LandOnCeilingExit(this, ceilingDropX, body.position.x);
+                ceilingLanding = null;
+            }
             Grounded = grounded;
             coyote = grounded ? Mathf.Max(coyoteTime, dt) : Mathf.Max(0f, coyote - dt);
             jumpBuffer = jumpQueued ? Mathf.Max(jumpBufferDuration, dt) : Mathf.Max(0f, jumpBuffer - dt);
@@ -128,6 +136,7 @@ namespace MagnetEscape
             if (dashQueued && DashEnabled && cooldown <= 0f)
             {
                 ReleaseRail();
+                ceilingLanding = null;
                 dashDirection = Vector2.right;
                 dashRemaining = dashDuration;
                 cooldown = dashCooldown;
@@ -184,7 +193,7 @@ namespace MagnetEscape
                     }
                 }
             }
-            if (targetAnchor != null && magnetMode != 0 && !grounded)
+            if (targetAnchor != null && magnetMode != 0 && !grounded && ceilingDropLock <= 0f)
             {
                 if (audibleMagnetMode != magnetMode)
                     Session?.PlayCue(magnetMode > 0 ? GameAudio.Cue.MagnetAttract : GameAudio.Cue.MagnetRepel);
@@ -212,7 +221,21 @@ namespace MagnetEscape
             {
                 launch = jumpBuffer > 0f || magnetMode < 0;
                 if (!RailEnabled || !grindRail.Covers(board.x) || magnetMode != 1 || launch)
+                {
+                    if (grindRail.Overhead)
+                    {
+                        if (board.x - railEntryX >= 5f && RailEnabled)
+                        {
+                            ceilingDropX = board.x;
+                            ceilingLanding = grindRail.Route;
+                        }
+                        body.velocity = new Vector2(RunSpeed, -1.5f);
+                        ceilingDropLock = .2f;
+                        jumpBuffer = 0f;
+                        launch = false;
+                    }
                     ReleaseRail();
+                }
             }
             if (grindRail == null && !launch && RailEnabled && !Grounded && magnetMode == 1 && railLockout <= 0f)
             {
@@ -220,19 +243,23 @@ namespace MagnetEscape
                 foreach (MagneticRail rail in MagneticRail.All)
                 {
                     if (!rail.CanCatch(bounds.center, bounds.extents.y)) continue;
-                    float distance = Mathf.Abs(board.y - rail.HeightAt(board.x));
+                    float distance = Mathf.Abs(rail.ContactY(bounds.center, bounds.extents.y) - rail.HeightAt(board.x));
                     if (distance >= nearest) continue;
                     grindRail = rail;
                     nearest = distance;
                 }
                 if (grindRail != null)
+                {
+                    railEntryX = board.x;
+                    ceilingLanding = null;
                     Session?.Feedback(body.position, Color.cyan, GameAudio.Cue.MagnetAttract);
+                }
             }
             if (grindRail == null) return false;
             body.gravityScale = 0f;
             float speed = RunSpeed * Mathf.Max(1f, railSpeedMultiplier);
             Vector2 velocity = new Vector2(speed, grindRail.Slope * speed);
-            Vector2 correction = Vector2.up * (grindRail.HeightAt(board.x) - board.y);
+            Vector2 correction = Vector2.up * (grindRail.HeightAt(board.x) - grindRail.ContactY(bounds.center, bounds.extents.y));
             if (!RailEntryClear(correction))
             {
                 ReleaseRail();
@@ -241,6 +268,7 @@ namespace MagnetEscape
             body.position += correction;
             // Check the forward route from the corrected collider pose too.
             if (SweepHazard(velocity)) return true;
+            grindRail.Route?.RailTravel(this, grindRail.Piece, board.x - railEntryX);
             body.velocity = velocity;
             previousVerticalSpeed = velocity.y;
             coyote = 0f;
@@ -287,10 +315,14 @@ namespace MagnetEscape
             for (int i = 0; i < count; i++)
                 if (hits[i].normal.y > 0.6f)
                 {
+                    Collider2D support = hits[i].collider;
+                    if (support.usedByEffector && (shape.bounds.min.y < support.bounds.max.y - .06f
+                        || body.velocity.y > 1f)) continue;
                     if (hits[i].rigidbody != null)
                     {
                         MovingPlatform platform = hits[i].rigidbody.GetComponent<MovingPlatform>();
                         supportVelocity = platform != null ? platform.CurrentVelocity : hits[i].rigidbody.velocity;
+                        platform?.RiderSupported(this);
                     }
                     return true;
                 }
@@ -332,7 +364,8 @@ namespace MagnetEscape
         public void ResetAt(Vector2 position)
         {
             ReleaseRail();
-            railLockout = 0f;
+            railLockout = ceilingDropLock = 0f;
+            ceilingLanding = null;
             // While simulated is false Unity rebuilds the body from its Transform
             // when re-enabled. Move both so respawning cannot restore the death
             // location, and the camera/trail see the new spawn in this frame.
@@ -371,6 +404,8 @@ namespace MagnetEscape
             body.simulated = !frozen;
             if (frozen)
             {
+                ceilingLanding = null;
+                ceilingDropLock = 0f;
                 ReleaseRail();
                 dashRemaining = 0f;
                 dashStepActive = false;

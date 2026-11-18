@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ''
   Number: 8
   DisplayName: 입문 · 축제 개막
-  Lesson: 넓은 착지 지형에서 길 만들기를 연습하세요.
+  Lesson: E로 전광판을 열고 Space와 Q로 연결된 조각을 타세요.
   ParTime: 53
   StartPosition:
     x: 0
@@ -200,22 +200,24 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 35.0
-      y: 2.5
+      x: 29
+      y: 1.85
     LowerEnd:
       x: 35.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 38.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 71.0
-      y: 2.5
+      x: 51
+      y: 3.6
     LowerEnd:
       x: 71.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 74.0
       y: 0.8500000000000001
@@ -230,22 +232,24 @@ MonoBehaviour:
       x: 111.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 142.0
-      y: 2.5
+      x: 129
+      y: 1.85
     LowerEnd:
       x: 142.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 145.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 177.0
-      y: 2.5
+      x: 164
+      y: 3.03
     LowerEnd:
       x: 177.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 180.0
       y: 0.8500000000000001
@@ -260,21 +264,23 @@ MonoBehaviour:
       x: 218.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 248.0
-      y: 2.5
+      x: 242
+      y: 1.85
     LowerEnd:
       x: 248.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 251.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 284.0
-      y: 2.5
+      x: 275
+      y: 1.85
     LowerEnd:
       x: 284.0
       y: 0.8500000000000001
-    Label: 회전 레일
-  OpeningMessage: '민: 개막 지점이 저 위야! 네가 연결한 길을 따라 모두 올라오고 있어.'
+    Label: 연쇄 전광판
+    Facility: 4
+  OpeningMessage: '민: 개막 전광판이 세 조각으로 접혀 있어. 전부 열면 그 위로 개막 지점까지 갈 수 있어!'
   EndingMessage: '민: 해냈어! 도시의 길이 연결됐어. 지금부터 우리들의 축제야!'

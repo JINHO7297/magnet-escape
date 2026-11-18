@@ -6,7 +6,7 @@ namespace MagnetEscape
 {
     public static class EndlessRecords
     {
-        public const string Key = "MagnetSkater.Endless.v1.Top5";
+        public const string Key = "MagnetSkater.Endless.v2.Top5";
         [Serializable] public sealed class Entry
         {
             public int Score, Stars, Seed;

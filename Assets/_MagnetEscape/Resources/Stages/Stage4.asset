@@ -403,42 +403,46 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 39.0
-      y: 2.5
+      x: 29
+      y: 1.85
     LowerEnd:
       x: 39.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 42.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 76.0
-      y: 2.5
+      x: 73
+      y: 3.03
     LowerEnd:
       x: 77.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 80.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 114.0
-      y: 2.5
+      x: 93
+      y: 3.6
     LowerEnd:
       x: 117.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 120.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 154.0
-      y: 2.5
+      x: 138
+      y: 1.85
     LowerEnd:
       x: 158.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 161.0
       y: 0.8500000000000001
@@ -453,51 +457,56 @@ MonoBehaviour:
       x: 202.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 236.0
-      y: 2.5
+      x: 226
+      y: 1.85
     LowerEnd:
       x: 247.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 250.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 284.0
-      y: 3.0
+      x: 274
+      y: 1.85
     LowerEnd:
       x: 295.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 298.0
       y: 1.35
     UpperEnd:
-      x: 332.0
-      y: 3.0
+      x: 317
+      y: 3.53
     LowerEnd:
       x: 343.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 346.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 380.0
-      y: 3.5
+      x: 359
+      y: 3.6
     LowerEnd:
       x: 391.0
       y: 1.85
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 394.0
       y: 1.85
     UpperEnd:
-      x: 428.0
-      y: 3.5
+      x: 412
+      y: 2.85
     LowerEnd:
       x: 439.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 축제 차량
+    Facility: 3
   OpeningMessage: '민: 개막 지점이 저 위야! 네가 연결한 길을 따라 모두 올라오고 있어.'
   EndingMessage: '민: 해냈어! 도시의 길이 연결됐어. 지금부터 우리들의 축제야!'

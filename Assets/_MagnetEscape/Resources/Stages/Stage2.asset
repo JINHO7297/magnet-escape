@@ -282,12 +282,13 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 37.0
-      y: 2.5
+      x: 33
+      y: 3.03
     LowerEnd:
       x: 37.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 40.0
       y: 0.8500000000000001
@@ -302,52 +303,57 @@ MonoBehaviour:
       x: 74.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 103.0
-      y: 2.5
+      x: 92
+      y: 1.85
     LowerEnd:
       x: 103.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 106.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 137.0
-      y: 2.5
+      x: 119
+      y: 3.6
     LowerEnd:
       x: 137.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 140.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 174.0
-      y: 2.5
+      x: 164
+      y: 1.85
     LowerEnd:
       x: 176.0
       y: 0.8500000000000001
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 179.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 213.0
-      y: 3.0
+      x: 209
+      y: 3.03
     LowerEnd:
       x: 213.0
       y: 1.35
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 216.0
       y: 1.35
     UpperEnd:
-      x: 250.0
-      y: 3.0
+      x: 246
+      y: 3.53
     LowerEnd:
       x: 250.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 253.0
       y: 1.35

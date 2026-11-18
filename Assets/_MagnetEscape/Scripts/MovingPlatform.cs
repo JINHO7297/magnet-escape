@@ -8,6 +8,8 @@ namespace MagnetEscape
     {
         public Vector2 Travel = new Vector2(0f, 2f);
         [Min(0.1f)] public float Period = 4f;
+        [SerializeField] private RouteShaper route;
+        [SerializeField] private int routePiece;
         private Rigidbody2D body;
         private Vector2 origin;
         private float elapsed;
@@ -30,6 +32,14 @@ namespace MagnetEscape
             GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
             DrawRoute(Application.isPlaying ? origin : (Vector2)transform.position);
         }
+
+        internal void ConfigureRouteContact(RouteShaper owner, int piece)
+        {
+            route = owner;
+            routePiece = piece;
+        }
+
+        internal void RiderSupported(PlayerMotor player) => route?.TouchPiece(player, routePiece);
 
         private void DrawRoute(Vector2 start)
         {

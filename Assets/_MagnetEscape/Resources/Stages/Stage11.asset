@@ -262,42 +262,46 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 37.0
-      y: 3.0
+      x: 23
+      y: 2.3
     LowerEnd:
       x: 37.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 40.0
       y: 1.35
     UpperEnd:
-      x: 74.0
-      y: 3.0
+      x: 59
+      y: 3.8
     LowerEnd:
       x: 77.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 80.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 114.0
-      y: 3.5
+      x: 104
+      y: 1.85
     LowerEnd:
       x: 122.0
       y: 1.85
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 125.0
       y: 1.85
     UpperEnd:
-      x: 157.0
-      y: 3.5
+      x: 138
+      y: 4.9
     LowerEnd:
       x: 157.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 160.0
       y: 0.8500000000000001
@@ -312,51 +316,56 @@ MonoBehaviour:
       x: 200.0
       y: 1.35
     UpperEnd:
-      x: 234.0
-      y: 3.0
+      x: 218
+      y: 2.8
     LowerEnd:
       x: 242.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 245.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 277.0
-      y: 3.5
+      x: 263
+      y: 2.3
     LowerEnd:
       x: 277.0
       y: 1.85
-    Label: 자성 광고판
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 280.0
       y: 1.85
     UpperEnd:
-      x: 314.0
-      y: 3.5
+      x: 299
+      y: 4.3
     LowerEnd:
       x: 317.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 320.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 354.0
-      y: 3.0
+      x: 344
+      y: 1.85
     LowerEnd:
       x: 362.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 365.0
       y: 1.35
     UpperEnd:
-      x: 397.0
-      y: 3.0
+      x: 378
+      y: 4.4
     LowerEnd:
       x: 397.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 회전 광고판
+    Facility: 1
   OpeningMessage: '민: 이제 공중 구간이야. 위아래 자석과 직접 만든 길을 이어 줘!'
   EndingMessage: '공중 코스 연결 완료! 마지막 스카이라인만 남았어.'

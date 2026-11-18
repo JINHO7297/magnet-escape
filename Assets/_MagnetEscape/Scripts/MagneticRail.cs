@@ -11,6 +11,9 @@ namespace MagnetEscape
         [SerializeField] private Vector2 start;
         [SerializeField] private Vector2 end;
         [SerializeField, Min(0.1f)] private float catchRange = 1.1f;
+        [field: SerializeField] public bool Overhead { get; private set; }
+        [field: SerializeField] public RouteShaper Route { get; private set; }
+        [field: SerializeField] public int Piece { get; private set; }
         private LineRenderer line;
         public Vector2 StartPoint => start;
         public Vector2 EndPoint => end;
@@ -30,8 +33,11 @@ namespace MagnetEscape
 
         private void Start() => Draw();
 
-        public void Configure(Vector2 first, Vector2 last, float reach)
+        public void Configure(Vector2 first, Vector2 last, float reach, bool overhead = false, RouteShaper route = null, int piece = 0)
         {
+            Overhead = overhead;
+            Route = route;
+            Piece = piece;
             start = first;
             end = last;
             catchRange = Mathf.Max(0.1f, reach);
@@ -40,8 +46,13 @@ namespace MagnetEscape
 
         public bool Covers(float x) => isActiveAndEnabled && end.x > start.x + 0.1f && x >= start.x - 0.15f && x <= end.x;
         public float HeightAt(float x) => Mathf.Lerp(start.y, end.y, Mathf.InverseLerp(start.x, end.x, x));
-        public bool CanCatch(Vector2 center, float boardOffset) => Covers(center.x)
-            && Mathf.Abs(center.y - boardOffset - HeightAt(center.x)) <= catchRange;
+        public float ContactY(Vector2 center, float halfHeight) => center.y + (Overhead ? halfHeight : -halfHeight);
+        public bool CanCatch(Vector2 center, float halfHeight)
+        {
+            if (!Covers(center.x)) return false;
+            float delta = HeightAt(center.x) - ContactY(center, halfHeight);
+            return Mathf.Abs(delta) <= catchRange && (!Overhead || delta >= -.15f);
+        }
 
         private void Draw()
         {
@@ -51,8 +62,8 @@ namespace MagnetEscape
             line.positionCount = 2;
             line.SetPosition(0, start);
             line.SetPosition(1, end);
-            line.startWidth = line.endWidth = 0.12f;
-            line.startColor = new Color(0.3f, 1f, 0.9f);
+            line.startWidth = line.endWidth = Overhead ? .19f : .12f;
+            line.startColor = Overhead ? new Color(.75f, .6f, 1f) : new Color(.3f, 1f, .9f);
             line.endColor = new Color(0.9f, 0.5f, 1f);
             line.sortingOrder = 4;
             line.enabled = isActiveAndEnabled;

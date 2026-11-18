@@ -224,22 +224,24 @@ MonoBehaviour:
       x: 5.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 37.0
-      y: 3.0
+      x: 18
+      y: 3.9
     LowerEnd:
       x: 37.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 40.0
       y: 1.35
     UpperEnd:
-      x: 74.0
-      y: 3.0
+      x: 64
+      y: 2.35
     LowerEnd:
       x: 77.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 80.0
       y: 0.8500000000000001
@@ -254,51 +256,56 @@ MonoBehaviour:
       x: 125.0
       y: 1.85
     UpperEnd:
-      x: 157.0
-      y: 3.5
+      x: 153
+      y: 4.3
     LowerEnd:
       x: 157.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 천장 케이블
+    Facility: 2
   - Start:
       x: 160.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 194.0
-      y: 3.0
+      x: 178
+      y: 2.3
     LowerEnd:
       x: 197.0
       y: 1.35
-    Label: 자성 광고판
+    Label: 축제 차량
+    Facility: 3
   - Start:
       x: 200.0
       y: 1.35
     UpperEnd:
-      x: 234.0
-      y: 3.0
+      x: 224
+      y: 2.35
     LowerEnd:
       x: 242.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 연쇄 전광판
+    Facility: 4
   - Start:
       x: 245.0
       y: 0.8500000000000001
     UpperEnd:
-      x: 277.0
-      y: 3.5
+      x: 258
+      y: 3.9
     LowerEnd:
       x: 277.0
       y: 1.85
-    Label: 자성 광고판
+    Label: 회전 광고판
+    Facility: 1
   - Start:
       x: 280.0
       y: 1.85
     UpperEnd:
-      x: 314.0
-      y: 3.5
+      x: 304
+      y: 2.85
     LowerEnd:
       x: 317.0
       y: 0.8500000000000001
-    Label: 회전 레일
+    Label: 연쇄 전광판
+    Facility: 4
   OpeningMessage: '친구 민: 축제 코스가 공사로 끊겼어! 자석 보드로 골목부터 연결해 줘.'
   EndingMessage: '골목 연결 완료! 친구들이 옥상에서 기다리고 있어.'
