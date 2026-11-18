@@ -22,7 +22,7 @@ macOS에서 실제 키 입력으로 입문 5~8코스의 시설을 각각 성공�
 
 ## 제출 소스와 문서
 
-Assets, Packages, ProjectSettings, README, GOAL, TASKS, PROGRESS, CREDITS와 [도시 파쿠르 상세 설계](docs/superpowers/specs/2026-11-19-city-parkour-design.md)를 사용한다. `docs/Magnet_Skater_Game_Design.docx`는 이전 축제 버전 기획서다. 최신 설계와 검수 결과는 Markdown을 따른다. Library, Temp, Logs, UserSettings, Builds, artifacts는 소스 제출에서 제외한다.
+[기말과제 게임 기획서](docs/Magnet_Skater_Game_Design.docx)는 최신 실행본 기준의 A4 2장이다. 게임 개요부터 유사 게임 및 차별성까지 일곱 항목과 실제 광고판 주행 화면을 담았다. 세부 구현은 [도시 파쿠르 상세 설계](docs/superpowers/specs/2026-11-19-city-parkour-design.md)를 참고한다. 소스는 Assets, Packages, ProjectSettings와 저장소 문서를 사용한다. Library, Temp, Logs, UserSettings, Builds, artifacts는 소스 제출에서 제외한다.
 
 ```bash
 python3 Tools/unity_tasks.py test
