@@ -218,12 +218,18 @@ namespace MagnetEscape
                 : player.Grounded ? "자력 / 공중에서 사용" : player.IsDashing ? "자력 / 대시 중" : player.MagnetMode > 0 ? "Q / 끌어당기는 중"
                 : player.MagnetMode < 0 ? "E / 밀어내는 중" : "자력 / Q 인력 · E 척력";
             Label(new Rect(240, 54, 530, 24), magnet, small, player.MagnetMode < 0 ? Gold : Mint);
-            Label(new Rect(800, 54, 125, 24), session.HasCheckpoint ? "체크포인트 / " + session.CheckpointNumber : "체크포인트 없음", small, Gold);
-            Fill(new Rect(20, 83, 920 * session.Progress, 3), Mint);
-            if (session.HasCheckpoint) Fill(new Rect(18 + 920 * session.RespawnProgress, 80, 4, 10), Gold);
-            ExitIndicator();
-            if (!session.IsEndless) Label(new Rect(700, 105, 240, 24), "시설 성공 " + session.FacilitiesCompleted + " / 만든 길 " + session.RoutesBuilt, small, Gold);
-            if (session.IsEndless) Label(new Rect(665, 105, 275, 24), "별 " + session.Stars + " / 연속 " + session.Combo + " / 시설 " + session.FacilitiesCompleted, small, Gold);
+            if (!session.IsEndless)
+            {
+                Label(new Rect(800, 54, 125, 24), session.HasCheckpoint ? "체크포인트 / " + session.CheckpointNumber : "체크포인트 없음", small, Gold);
+                Fill(new Rect(20, 83, 920 * session.Progress, 3), Mint);
+                if (session.HasCheckpoint) Fill(new Rect(18 + 920 * session.RespawnProgress, 80, 4, 10), Gold);
+                ExitIndicator();
+            }
+            Panel(new Rect(690, 100, 250, 35));
+            string facilities = session.IsEndless
+                ? "별 " + session.Stars + " / 연속 " + session.Combo + " / 시설 " + session.FacilitiesCompleted
+                : "시설 성공 " + session.FacilitiesCompleted + " / 만든 길 " + session.RoutesBuilt;
+            Label(new Rect(702, 106, 228, 24), facilities, small, Gold);
             if (!session.Paused && !session.Finished)
             {
                 RouteShaper nearest = null;
@@ -264,7 +270,8 @@ namespace MagnetEscape
                 Label(new Rect(138, 425, 685, 44), session.Hint, text);
             }
             Fill(new Rect(20, 489, 920, 31), new Color(0.025f, 0.05f, 0.07f, 0.9f));
-            Label(new Rect(34, 497, 895, 22), "자동 전진 →  Space 점프  Shift 대시  Q/E 자력·레일  Backspace 부활  R 처음부터  Esc 정지", small);
+            string backspace = session.IsEndless ? "Backspace 기록 확정" : "Backspace 부활";
+            Label(new Rect(34, 497, 895, 22), "자동 전진 →  Space 점프  Shift 대시  Q/E 자력·레일  " + backspace + "  R 처음부터  Esc 정지", small);
             if (session.Respawning) Label(new Rect(370, 245, 250, 40), "다시 출발합니다…", heading, Gold);
         }
 
@@ -285,8 +292,9 @@ namespace MagnetEscape
             Panel(new Rect(260, 90, 440, 400));
             Label(new Rect(292, 113, 380, 55), "일시정지", title, Mint);
             if (GUI.Button(new Rect(292, 174, 376, 38), "계속하기  /  Enter · Esc", button)) session.SetPaused(false);
-            if (GUI.Button(new Rect(292, 222, 376, 38), "체크포인트부터  /  Backspace", button)) session.RetryCheckpoint();
-            if (GUI.Button(new Rect(292, 270, 376, 38), "코스 처음부터  /  R", button)) session.LoadStage(session.Stage);
+            string retry = session.IsEndless ? "현재 기록 확정  /  Backspace" : "체크포인트부터  /  Backspace";
+            if (GUI.Button(new Rect(292, 222, 376, 38), retry, button)) session.RetryCheckpoint();
+            if (GUI.Button(new Rect(292, 270, 376, 38), "처음부터  /  R", button)) session.LoadStage(session.Stage);
             if (GUI.Button(new Rect(292, 318, 376, 38), "코스 선택  /  Tab", button)) session.ShowSelection();
             if (GUI.Button(new Rect(292, 365, 118, 30), "도움말", button)) overlay = Overlay.Controls;
             if (GUI.Button(new Rect(420, 365, 118, 30), "기록", button)) OpenRecords();
@@ -388,7 +396,7 @@ namespace MagnetEscape
                     "항상 오른쪽으로 이동합니다. 좌우 입력·후진은 없습니다.", "길게 누르면 높이, 짧게 누르면 낮게 점프합니다.",
                     "앞으로 짧게 대시합니다. 장애물 무적은 없습니다.",
                     "공중 자력 조절. 레일은 Q로 잡고 Space/E로 도약합니다.",
-                    "체크포인트부터 재도전. 충돌 +1, 시간은 유지됩니다.",
+                    "코스: 체크포인트 재도전 · 무한: 현재 기록 확정",
                     "시간·충돌·체크포인트를 초기화하고 처음부터 시작합니다.", "정지 / 재개. H 도움말 · T 기록 · C 제작 정보."
                 };
                 for (int i = 0; i < keys.Length; i++)

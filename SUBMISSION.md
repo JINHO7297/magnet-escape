@@ -2,31 +2,29 @@
 
 ## 최신 실행본
 
-- `Builds/20261117_235454_UTC_969c7978/MagnetEscape.app`
-- `Builds/20261117_235454_UTC_969c7978/MagnetEscape-macOS.zip`
-- 같은 폴더 PLAYING.txt 한글 안내, ZIP에는 CREDITS.md도 포함.
+- `Builds/20261118_154111_UTC_b24b7c4a/MagnetEscape.app`
+- `Builds/20261118_154111_UTC_b24b7c4a/MagnetEscape-macOS.zip`
+- 같은 폴더의 PLAYING.txt는 한국어 조작 안내다. ZIP에는 안내와 크레딧이 들어 있다.
 
-Unity2022.3.62f1 Mac Universal입니다. Apple Silicon에서 실제 실행했고 Intel/arm64 두 슬라이스를 포함합니다. 실제 Intel/다른 Mac·서명/공증 배포는 별도 검수입니다. 산출물/로그는 Git 제외, 소스는 develop입니다.
+Unity 2022.3.62f1로 빌드한 macOS Universal 앱이다. 앱과 UnityPlayer의 x86_64·arm64 슬라이스, ZIP 무결성과 안내 포함을 확인했다. 빌드 오류는 0개다. 경고 14개는 헤드리스 빌드 중 Unity가 씬별 Ambient/Reflection Probe를 갱신할 수 없다는 메시지였다. 실제 실행은 Apple Silicon에서 확인했다.
 
 ## 구현 범위
 
-축제 이야기·입문/일반/도전 각각4개로 총12코스, Q상층 레일/E실제 다리99지점, 기존 자동 전진/점프/대시/수직 자력/CP/기록을 포함합니다. 새 축제 기록v3는 이전v2를 보존합니다.
+난이도별 네 구간씩 총 12코스에서 민의 연락을 따라 도심을 잇고 옥상 축제를 연다. 99곳의 선택 지점 중 79곳에 회전 광고판, 천장 케이블, 이동 차량, 연쇄 전광판을 배치했다. Space 가변 점프, Shift 전방 대시, Q/E 수직 자력으로 시설을 이용한다. 코스 기록은 축제 v3에 저장한다.
 
-별도 무한 점수 모드: N 시작, B 이 기기 상위5개 순위. 무작위32unit 템플릿·구간 생성/정리·거리10점/m·별50+연속보너스·첫경로250점·사망1회 종료. 온라인 랭킹은 아닙니다.
+별도 무한 질주는 선택 화면 N으로 시작한다. 32m 구간 8종을 섞고 거리·별·실제 시설 이용으로 점수를 얻는다. B는 이 기기의 상위 5개 순위다. 새 점수 규칙은 v2에 저장하며 이전 v1 데이터도 보존한다.
 
 ## 검수
 
-Unity Edit20+Play38=58건 PASS. 고정12코스 기본 경로의 실제 물리 무사망 완주, 모든93CP 준비거리, 제작 다리/레일·상태 차단, 무한 청크 정리/별 점수/중복 방지/사망 종료/로컬순위 저장 확인. 최종 무한 배경 회귀는 추가 필터1건 RED→GREEN. Python21·87GUID/14씬·diff 검사 통과.
+Unity EditMode 20건과 PlayMode 42건으로 12코스 자동 무사망 완주, 93개 체크포인트, 네 시설의 물리 동작, 무한 청크·점수·저장을 확인했다. Python 21건과 GUID 87개·14씬 정적 검사를 통과했다.
 
-실행본에서는 한글 난이도 메뉴/스토리·Q로 만든 레일 탑승·E다리로 콘 우회, 무한 별2개/570점/46m/충돌1회 종료와 정상 종료·재실행 후 순위 보존을 확인했습니다. 사람의12코스 직접 완주/모든경로 조합·오디오체감·장시간무한은 별도입니다.
+macOS에서 실제 키 입력으로 입문 5~8코스의 시설을 각각 성공했다. 무한 질주에서 광고판 +180점과 최종 1,275점·81m·별 5개의 로컬 순위가 표시됐으며, 정상 종료와 최종 앱 재실행 후에도 해당 기록을 확인했다. 최종 한국어 메뉴와 큰 전체 화면을 확인했다. 사람의 전체 코스 밸런스, 장시간 무한, 오디오 체감, 실제 Intel Mac 검수는 남아 있다.
 
 ## 제출 소스와 문서
 
-Assets/Packages/ProjectSettings, README·GOAL·TASKS·PROGRESS·CREDITS와 docs/Magnet_Skater_Game_Design.docx를 사용합니다. 기획서는 최신스토리/12코스/경로/무한점수를 반영한2페이지이며 렌더검수했습니다. 원본씬/GUID는 유지합니다. Library/Temp/Logs/UserSettings/Builds/artifacts는 제출소스에서 제외합니다.
+Assets, Packages, ProjectSettings, README, GOAL, TASKS, PROGRESS, CREDITS와 [도시 파쿠르 상세 설계](docs/superpowers/specs/2026-11-19-city-parkour-design.md)를 사용한다. `docs/Magnet_Skater_Game_Design.docx`는 이전 축제 버전 기획서다. 최신 설계와 검수 결과는 Markdown을 따른다. Library, Temp, Logs, UserSettings, Builds, artifacts는 소스 제출에서 제외한다.
 
 ```bash
 python3 Tools/unity_tasks.py test
 python3 Tools/unity_tasks.py build-mac --package
 ```
-
-최종 빌드 요약: 오류0/경고0. 앱 실행 파일과 UnityPlayer 모두 x86_64+arm64. ZIP의 안내/크레딧 포함·개발로그 제외 확인.

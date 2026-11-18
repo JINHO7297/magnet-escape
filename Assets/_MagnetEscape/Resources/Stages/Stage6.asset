@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Stage6
   m_EditorClassIdentifier: ''
   Number: 6
-  DisplayName: 입문 · 광고판 도약
+  DisplayName: 입문 · 옥상 케이블
   Lesson: Space로 뛰며 Q를 눌러 천장에 붙고 E로 안전한 곳에 내려오세요.
   ParTime: 42
   StartPosition:

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Stage7
   m_EditorClassIdentifier: ''
   Number: 7
-  DisplayName: 입문 · 공중 연결망
+  DisplayName: 입문 · 공중 운송
   Lesson: 움직이는 차량의 첫 지붕에 착지한 뒤 다음 차로 건너세요.
   ParTime: 47
   StartPosition:
