@@ -156,7 +156,7 @@ namespace MagnetEscape
                 const float y = 165;
                 Panel(new Rect(x, y, 418, 146));
                 Label(new Rect(x + 18, y + 14, 380, 30), hard ? "어려움 · 무한 질주" : "쉬움 · 무한 질주", heading);
-                Label(new Rect(x + 18, y + 49, 380, 22), hard ? "긴 틈에서는 점프와 공중 대시를 이어 쓰세요." : "별을 따라 높이가 다른 옥상으로 건너세요.", small);
+                Label(new Rect(x + 18, y + 49, 380, 22), hard ? "Q로 레일을 잡고 Shift로 발사! 두 링을 순서대로 통과하세요." : "별을 따라 높이가 다른 옥상으로 건너세요.", small);
                 var runs = EndlessRecords.Load(hard);
                 Label(new Rect(x + 18, y + 77, 380, 22), runs.Count == 0 ? "아직 기록 없음" : "최고 " + runs[0].Score + "점", small, Gold);
                 if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "달리기 / " + slot, button)) session.StartEndless(hard);
@@ -187,7 +187,8 @@ namespace MagnetEscape
             if (player.DashEnabled) Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
             string magnet = player.IsInverted ? "천장 반전 / Space 아래로 점프 · E 복귀"
-                : player.IsCeilingRiding ? "천장 주행 / Q 유지 · E 낙하"
+                : player.IsCeilingRiding ? (player.RailDashAvailable ? "천장 주행 / Shift 급강하 · E 낙하" : "천장 주행 / Q 유지 · E 낙하")
+                : player.RailDashAvailable ? "자력 대시 준비 / Shift 장거리 발사"
                 : player.IsGrinding ? "레일 주행 / Q+Space 위 케이블 환승 · E 도약"
                 : player.RailEnabled && !player.MagnetEnabled ? "레일 / Q 잡기 · Space 도약" : !player.MagnetEnabled ? "자력 / 잠김" : player.MagnetTarget == null ? "자력 / 범위 밖"
                 : player.Grounded ? "자력 / 공중에서 사용" : player.IsDashing ? "자력 / 대시 중" : player.MagnetMode > 0 ? "Q / 끌어당기는 중"
@@ -379,7 +380,7 @@ namespace MagnetEscape
                     Label(new Rect(132, 160 + i * 37, 210, 30), keys[i], text, Gold);
                     Label(new Rect(350, 160 + i * 37, 475, 34), actions[i], small);
                 }
-                Label(new Rect(132, 423, 690, 22), "레일에서 Q를 잡고 Space를 누르면 머리 위 케이블로 환승합니다. E로 내려오세요.", small);
+                Label(new Rect(132, 423, 690, 22), "레일에서 Q+Space로 케이블 환승 · 어려움에서 Shift로 자력 대시 · 초록 링 두 개 연결 +400", small);
             }
             else if (overlay == Overlay.Records)
             {

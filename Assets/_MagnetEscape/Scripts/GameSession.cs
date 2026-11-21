@@ -18,10 +18,10 @@ namespace MagnetEscape
         private float lastStar = -100f;
         public int EndlessScore => (int)System.Math.Min(int.MaxValue, (double)Distance * 10d + BonusPoints);
         private RouteShaper.Kind? lastFacility;
-        private float lastFacilityTime;
+        private float lastFacilityTime, feedbackTime;
         public int FacilitiesCompleted { get; private set; }
         public string FacilityFeedback { get; private set; }
-        public bool ShowFacilityFeedback => FacilitiesCompleted > 0 && Elapsed - lastFacilityTime < 2.4f;
+        public bool ShowFacilityFeedback => !string.IsNullOrEmpty(FacilityFeedback) && Elapsed - feedbackTime < 2.4f;
         public void RouteBuilt() => RoutesBuilt++;
 
         internal void CompleteFacility(RouteShaper.Kind kind, string label)
@@ -31,11 +31,18 @@ namespace MagnetEscape
             bool linked = lastFacility.HasValue && lastFacility.Value != kind && Elapsed - lastFacilityTime <= 8f;
             FacilitiesCompleted++;
             lastFacility = kind;
-            lastFacilityTime = Elapsed;
+            lastFacilityTime = feedbackTime = Elapsed;
             if (IsEndless) BonusPoints += points + (linked ? 100 : 0);
             FacilityFeedback = label + (IsEndless ? $" +{points}" + (linked ? " · 기술 연속 +100" : "") : " 성공");
             Feedback(Player.transform.position, new Color(.65f, 1f, .8f), GameAudio.Cue.Checkpoint);
         }
+        internal void FinishRelay()
+        {
+            BonusPoints += 400;
+            FacilityFeedback = "환승 링 연결 +400";
+            feedbackTime = Elapsed;
+        }
+
         public void CollectStar()
         {
             if (!IsEndless || Paused || Finished || ChangingScene) return;

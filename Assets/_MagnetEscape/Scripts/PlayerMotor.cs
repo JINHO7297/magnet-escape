@@ -39,7 +39,11 @@ namespace MagnetEscape
         private readonly RaycastHit2D[] sweepHits = new RaycastHit2D[16];
         private ContactFilter2D groundFilter;
         private ContactFilter2D hazardFilter;
+        [SerializeField, Min(.15f)] private float railDashDuration = .32f;
+        [SerializeField, Min(1f)] private float railDashSpeed = 24f;
+        private float currentDashSpeed;
         private Vector2 dashDirection;
+        public bool RailDashAvailable => IsGrinding && DashEnabled && cooldown <= 0f && Session != null && Session.IsEndless && GameSession.HardEndless;
         private bool jumpQueued;
         private bool dashQueued;
         private bool cutJump;
@@ -142,10 +146,13 @@ namespace MagnetEscape
             jumpQueued = false;
             if (dashQueued && DashEnabled && cooldown <= 0f)
             {
+                bool boosted = RailDashAvailable;
+                float slope = boosted ? (grindRail.Overhead ? -.28f : Mathf.Clamp(grindRail.Slope, .28f, .48f)) : 0f;
+                dashDirection = new Vector2(1f, slope).normalized;
+                currentDashSpeed = Mathf.Max(RunSpeed, boosted ? railDashSpeed : dashSpeed);
+                dashRemaining = boosted ? railDashDuration : dashDuration;
                 ReleaseRail();
                 ceilingLanding = null;
-                dashDirection = Vector2.right;
-                dashRemaining = dashDuration;
                 cooldown = dashCooldown;
                 Session?.Feedback(transform.position, Color.cyan, GameAudio.Cue.Dash);
             }
@@ -158,7 +165,7 @@ namespace MagnetEscape
                 audibleMagnetMode = 0;
                 dashRemaining = Mathf.Max(0f, dashRemaining - dt);
                 body.gravityScale = 0f;
-                Vector2 dashVelocity = dashDirection * Mathf.Max(RunSpeed, dashSpeed);
+                Vector2 dashVelocity = dashDirection * currentDashSpeed;
                 if (SweepHazard(dashVelocity)) return;
                 body.velocity = dashVelocity;
                 previousVerticalSpeed = body.velocity.y;

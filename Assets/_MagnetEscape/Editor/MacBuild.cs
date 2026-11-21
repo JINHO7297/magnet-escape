@@ -105,6 +105,7 @@ namespace MagnetEscape.Editor
                 + "첫 실행은 전체 화면입니다. 선택·정지 화면에서 창 모드로 전환할 수 있습니다.\n"
                 + "도움말·기록·제작 정보·음량은 선택·일시정지 화면에 있습니다.\n"
                 + "1 쉬움 / 2 어려움. 지형이 계속 생성됩니다. 별이 있는 가장자리에서 점프하고 긴 틈에서는 공중 대시를 이어 쓰세요.\n"
+                + "어려움에서는 Q로 레일이나 케이블을 탄 뒤 Shift로 장거리 발사할 수 있습니다. 초록 링을 통과한 뒤 다음 링을 지나면 +400점입니다.\n"
                 + "보라색 천장 입구에서 점프 + Q로 반전, E로 복귀합니다. 충돌하거나 떨어지면 거리·별·시설 점수로 난이도별 기기 상위 5개 기록에 도전합니다.\n";
             guide += "\nmacOS Universal: Intel 64비트 + Apple Silicon.\nUnity " + Application.unityVersion + "\n";
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(path), "PLAYING.txt"), guide);

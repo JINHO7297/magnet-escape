@@ -5,7 +5,7 @@ namespace MagnetEscape
 {
     public sealed class EndlessCourse : MonoBehaviour
     {
-        private enum Template { Warmup, Double, Gap, Switch, Billboard, Ceiling, Convoy, Chain }
+        private enum Template { Warmup, Double, Gap, Switch, Billboard, Ceiling, Convoy, Chain, Launch, Dive, Switchback, Viaduct }
 
         private const float ChunkLength = 32f;
         private readonly Queue<GameObject> chunks = new Queue<GameObject>();
@@ -13,6 +13,9 @@ namespace MagnetEscape
         private System.Random random;
         private int nextChunk;
         private float nextFloorY, nextStart;
+        private int nextSpecial;
+        private readonly List<Template> specialBag = new List<Template>();
+        private Template lastSpecial;
         private int nextInversion = 2;
         private readonly List<StageDefinition.RectPlacement> ceilings = new List<StageDefinition.RectPlacement>();
         private bool hard;
@@ -46,6 +49,18 @@ namespace MagnetEscape
 
         private Template DrawTemplate(int index)
         {
+            if (hard && index >= nextSpecial)
+            {
+                if (specialBag.Count == 0)
+                    specialBag.AddRange(new[] { Template.Launch, Template.Dive, Template.Switchback, Template.Viaduct });
+                int choice = random.Next(specialBag.Count);
+                if (specialBag.Count > 1 && specialBag[choice] == lastSpecial)
+                    choice = (choice + 1) % specialBag.Count;
+                lastSpecial = specialBag[choice];
+                specialBag.RemoveAt(choice);
+                nextSpecial = index + random.Next(2, 4);
+                return lastSpecial;
+            }
             // Open with an empty stretch and two different techniques. The full
             // bag begins only after the first three chunks are behind the player.
             if (index == 0) return Template.Warmup;
@@ -84,6 +99,11 @@ namespace MagnetEscape
             Attach(StageBootstrap.Platform((start + edge) * .5f, y - .5f, edge - start), root);
             Star(root, edge - .85f, y + .8f);
             Star(root, edge + gap * .5f, y + 2.2f);
+            if ((int)template >= (int)Template.Launch)
+            {
+                BuildRelaySection(root, template, x, y);
+                return;
+            }
             if (index >= nextInversion)
             {
                 var ceiling = Deck(x + 26f, y + Between(5.2f, 6.1f), 22f);
@@ -142,6 +162,80 @@ namespace MagnetEscape
                     Stars(root, x, y, 11f, 1.7f, 18f, 2.05f, 25f, 2.3f);
                     break;
             }
+        }
+
+        private void BuildRelaySection(GameObject root, Template template, float x, float y)
+        {
+            // The first ring marks the transfer point. The second shows the target lane.
+            x += Between(-.7f, .7f);
+            float rise = Between(-.35f, .55f);
+            float landingShift = Between(-.7f, .9f);
+            Vector2 first, second;
+            string hint;
+            switch (template)
+            {
+                case Template.Launch:
+                    Rail(root, x, y, 5.5f, .7f, 18f, 3.6f + rise);
+                    Ledge(root, x + 28f + landingShift, y + 4.25f + rise, 8f);
+                    first = new Vector2(15.5f, 3.5f + rise * .8f);
+                    second = new Vector2(23f + landingShift, 5.45f + rise);
+                    hint = "점프 + Q로 오르막을 타고 초록 링에서 Shift로 발사!";
+                    break;
+                case Template.Dive:
+                    Rail(root, x, y, 5f, 3.2f, 18.5f, 4.9f + rise, true);
+                    Ledge(root, x + 25f + landingShift, y + 1.1f + rise, 6.5f);
+                    first = new Vector2(16f, 4.1f + rise * .8f);
+                    second = new Vector2(23.5f + landingShift, 2.05f + rise);
+                    hint = "점프 + Q로 천장을 잡고 초록 링에서 Shift로 내려꽂으세요.";
+                    break;
+                case Template.Switchback:
+                    Rail(root, x, y, 5f, .8f, 17f, 3.4f);
+                    Rail(root, x, y, 14f, 4.5f, 26f + landingShift, 5.35f + rise, true);
+                    Ledge(root, x + 28f, y + 1.55f, 6f);
+                    first = new Vector2(14f, 3.15f);
+                    second = new Vector2(25f + landingShift, 4.7f + rise);
+                    hint = "오르막 끝에서 Q를 유지하고 Space로 위 케이블에 환승하세요.";
+                    break;
+                default:
+                    Facility(root, x - 3f, y, 23f, 2.3f, RouteShaper.Kind.Convoy, "고가도로 차량");
+                    Rail(root, x, y, 12f, 3.5f, 23f, 4.45f, true);
+                    Ledge(root, x + 27f + landingShift, y + 1.4f + rise, 8f);
+                    first = new Vector2(19f, 3.7f);
+                    second = new Vector2(27f + landingShift, 2.3f + rise);
+                    hint = "차량 지붕에서 위 케이블을 잡고 E로 내려와 두 번째 링을 통과하세요.";
+                    break;
+            }
+            var sign = new GameObject("환승 안내");
+            sign.transform.position = new Vector2(x + 6f, y + 1.5f);
+            Attach(sign, root);
+            var tutorial = sign.AddComponent<TutorialSign>();
+            tutorial.Message = hint;
+            tutorial.Range = 6f;
+            var origin = new Vector2(x, y);
+            var target = Gate(root, origin + second);
+            target.Configure(null, false);
+            Gate(root, origin + first).Configure(target, true);
+        }
+
+        private static RelayGate Gate(GameObject root, Vector2 position)
+        {
+            var obj = new GameObject("환승 링");
+            obj.transform.position = position;
+            Attach(obj, root);
+            return obj.AddComponent<RelayGate>();
+        }
+
+        private static void Ledge(GameObject root, float x, float y, float width)
+        {
+            Attach(StageBootstrap.ElevatedDeck(Deck(x, y, width), false), root);
+        }
+
+        private static void Rail(GameObject root, float x, float y, float start, float height, float end, float endHeight, bool overhead = false)
+        {
+            var rail = new GameObject(overhead ? "환승 케이블" : "발사 레일");
+            Attach(rail, root);
+            rail.AddComponent<MagneticRail>().Configure(new Vector2(x + start, y + height),
+                new Vector2(x + end, y + endHeight), 1.15f, overhead);
         }
 
         private static StageDefinition.RectPlacement Deck(float x, float y, float width) =>

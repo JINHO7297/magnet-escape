@@ -1303,6 +1303,81 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator HardRelaySectionsConnectBothRingsThroughPhysics()
+        {
+            GameSession.Active.StartEndless(true);
+            yield return null;
+            yield return null;
+            session = GameSession.Active;
+            session.SetPaused(false);
+            var player = session.Player;
+            player.enabled = false;
+            var body = player.GetComponent<Rigidbody2D>();
+            var course = session.GetComponent<EndlessCourse>();
+            var seen = new System.Collections.Generic.HashSet<string>();
+            Time.captureDeltaTime = Time.fixedDeltaTime;
+            for (int section = 0; section < 16 && seen.Count < 4; section++)
+            {
+                course.Advance(section * 32f);
+                // Only exercise each generated challenge once per test.
+                foreach (var root in Object.FindObjectsOfType<RelayGate>())
+                {
+                    var chunk = root.transform.parent;
+                    if (Mathf.Abs(chunk.position.x - section * 32f) > .1f) continue;
+                    string family = chunk.name.Split('/')[1].Trim();
+                    if (!seen.Add(family)) continue;
+                    var rings = chunk.GetComponentsInChildren<RelayGate>();
+                    System.Array.Sort(rings, (a,b) => a.transform.position.x.CompareTo(b.transform.position.x));
+                    var rails = chunk.GetComponentsInChildren<MagneticRail>();
+                    System.Array.Sort(rails, (a,b) => a.StartPoint.x.CompareTo(b.StartPoint.x));
+                    var entryRail = rails[0];
+                    float startX = entryRail.StartPoint.x - (family == "Viaduct" ? 9f : .8f);
+                    var street = chunk.Find("Rooftop platform").GetComponent<BoxCollider2D>();
+                    player.ResetAt(new Vector2(startX, street.bounds.max.y + .455f));
+                    SetMotorField(player, "magnetMode", 1);
+                    SetMotorField(player, "jumpHeld", true);
+                    SetMotorField(player, "jumpQueued", true);
+                    for (int tick = 0; tick < 110 && !player.IsGrinding; tick++)
+                    {
+                        if (family == "Viaduct" && player.Grounded && body.position.x >= entryRail.StartPoint.x - 2f)
+                            SetMotorField(player, "jumpQueued", true);
+                        player.SendMessage("FixedUpdate");
+                        yield return new WaitForFixedUpdate();
+                    }
+                    Assert.That(player.IsGrinding, Is.True, family + " could not enter from street level");
+                    bool acted = false;
+                    bool wasDashing = false;
+                    float dashStart = 0f;
+                    float dashEnd = 0f;
+                    for (int tick = 0; tick < 150 && body.position.x < rings[1].transform.position.x + 2f; tick++)
+                    {
+                        if (!acted && body.position.x >= rings[0].transform.position.x + (family == "Viaduct" ? 3.5f : 0f))
+                        {
+                            acted = true;
+                            dashStart = body.position.x;
+                            if (family == "Switchback") SetMotorField(player, "jumpQueued", true);
+                            else if (family == "Viaduct") SetMotorField(player, "magnetMode", -1);
+                            else SetMotorField(player, "dashQueued", true);
+                        }
+                        player.SendMessage("FixedUpdate");
+                        if (wasDashing && !player.IsDashing) dashEnd = body.position.x;
+                        wasDashing = player.IsDashing;
+                        yield return new WaitForFixedUpdate();
+                        if (wasDashing) dashEnd = body.position.x;
+                    }
+                    Assert.That(acted, Is.True, family);
+                    Assert.That(rings[1].gameObject.activeSelf, Is.False, family + " missed the destination ring");
+                    Assert.That(session.FacilityFeedback, Is.EqualTo("환승 링 연결 +400"));
+                    if (family == "Launch" || family == "Dive")
+                        Assert.That(dashEnd - dashStart, Is.GreaterThan(6f), family + " at " + dashStart + " to " + dashEnd);
+                }
+            }
+            Assert.That(seen.Count, Is.EqualTo(4));
+            session.StartEndless(false);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator EndlessDifficultiesCrossGeneratedGapsWithJumpAndDash()
         {
             foreach (bool hard in new[] { true, false })
