@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Stage12
   m_EditorClassIdentifier: ''
   Number: 12
-  DisplayName: 도전 · 축제 개막
-  Lesson: 긴 틈과 드론 사이에서 상층 지름길을 연결하세요.
+  DisplayName: 어려움 · 옥상 축제
+  Lesson: 464m · 드론과 긴 틈 사이에서 착지할 곳을 고르세요.
   ParTime: 75
   StartPosition:
     x: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
   Saws:
   - Position:
       x: 97.0
-      y: 2.3
+      y: 6.0
     Travel:
       x: 0.0
       y: 0.45
@@ -136,7 +136,7 @@ MonoBehaviour:
     Phase: 0
   - Position:
       x: 217.0
-      y: 2.8
+      y: 6.0
     Travel:
       x: 0.0
       y: 0.45
@@ -144,7 +144,7 @@ MonoBehaviour:
     Phase: 0
   - Position:
       x: 337.0
-      y: 2.3
+      y: 6.0
     Travel:
       x: 0.0
       y: 0.45
@@ -297,6 +297,17 @@ MonoBehaviour:
     Label: 연쇄 전광판
     Facility: 4
   - Start:
+      x: 19
+      y: 0.85
+    UpperEnd:
+      x: 35
+      y: 4.45
+    LowerEnd:
+      x: 37
+      y: 1.35
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 40.0
       y: 1.35
     UpperEnd:
@@ -307,6 +318,17 @@ MonoBehaviour:
       y: 0.8500000000000001
     Label: 회전 광고판
     Facility: 1
+  - Start:
+      x: 51
+      y: 1.35
+    UpperEnd:
+      x: 75
+      y: 6.3
+    LowerEnd:
+      x: 77
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
   - Start:
       x: 80.0
       y: 0.8500000000000001
@@ -319,6 +341,17 @@ MonoBehaviour:
     Label: 축제 차량
     Facility: 3
   - Start:
+      x: 89
+      y: 0.85
+    UpperEnd:
+      x: 120
+      y: 4.3
+    LowerEnd:
+      x: 122
+      y: 1.85
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 125.0
       y: 1.85
     UpperEnd:
@@ -329,6 +362,17 @@ MonoBehaviour:
       y: 0.8500000000000001
     Label: 천장 케이블
     Facility: 2
+  - Start:
+      x: 133
+      y: 2.25
+    UpperEnd:
+      x: 149
+      y: 3.85
+    LowerEnd:
+      x: 157
+      y: 0.85
+    Label: 케이블 아래 축제 차량
+    Facility: 3
   - Start:
       x: 160.0
       y: 0.8500000000000001
@@ -341,6 +385,17 @@ MonoBehaviour:
     Label: 연쇄 전광판
     Facility: 4
   - Start:
+      x: 174
+      y: 0.85
+    UpperEnd:
+      x: 195
+      y: 4.45
+    LowerEnd:
+      x: 197
+      y: 1.35
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 200.0
       y: 1.35
     UpperEnd:
@@ -350,6 +405,17 @@ MonoBehaviour:
       x: 242.0
       y: 0.8500000000000001
     Label: 회전 레일
+  - Start:
+      x: 214
+      y: 1.35
+    UpperEnd:
+      x: 240
+      y: 4.95
+    LowerEnd:
+      x: 242
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
   - Start:
       x: 245.0
       y: 0.8500000000000001
@@ -362,6 +428,17 @@ MonoBehaviour:
     Label: 연쇄 전광판
     Facility: 4
   - Start:
+      x: 259
+      y: 0.85
+    UpperEnd:
+      x: 275
+      y: 4.45
+    LowerEnd:
+      x: 277
+      y: 1.85
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 280.0
       y: 1.85
     UpperEnd:
@@ -372,6 +449,17 @@ MonoBehaviour:
       y: 0.8500000000000001
     Label: 회전 광고판
     Facility: 1
+  - Start:
+      x: 291
+      y: 1.85
+    UpperEnd:
+      x: 315
+      y: 6.8
+    LowerEnd:
+      x: 317
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
   - Start:
       x: 320.0
       y: 0.8500000000000001
@@ -384,6 +472,17 @@ MonoBehaviour:
     Label: 축제 차량
     Facility: 3
   - Start:
+      x: 329
+      y: 0.85
+    UpperEnd:
+      x: 360
+      y: 4.3
+    LowerEnd:
+      x: 362
+      y: 1.35
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 365.0
       y: 1.35
     UpperEnd:
@@ -395,6 +494,17 @@ MonoBehaviour:
     Label: 천장 케이블
     Facility: 2
   - Start:
+      x: 373
+      y: 1.75
+    UpperEnd:
+      x: 389
+      y: 3.35
+    LowerEnd:
+      x: 397
+      y: 0.85
+    Label: 케이블 아래 축제 차량
+    Facility: 3
+  - Start:
       x: 400.0
       y: 0.8500000000000001
     UpperEnd:
@@ -405,5 +515,16 @@ MonoBehaviour:
       y: 1.85
     Label: 연쇄 전광판
     Facility: 4
-  OpeningMessage: '민: 개막 지점이 저 위야! 네가 연결한 길을 따라 모두 올라오고 있어.'
+  - Start:
+      x: 414
+      y: 0.85
+    UpperEnd:
+      x: 435
+      y: 4.45
+    LowerEnd:
+      x: 437
+      y: 1.85
+    Label: 환승 케이블
+    Facility: 2
+  OpeningMessage: '민: 옥상에서 만나! 위쪽 케이블은 점프하고 Q로 잡아. 손을 놓으면 아래 길로 내려와.'
   EndingMessage: '민: 해냈어! 도시의 길이 연결됐어. 지금부터 우리들의 축제야!'

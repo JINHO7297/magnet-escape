@@ -52,9 +52,13 @@ namespace MagnetEscape.Tests
                 if (i > 4) Assert.That(layout.Routes.Length, Is.GreaterThanOrEqualTo(4));
                 Assert.That(StageRecords.BuildScenePath(i), Does.EndWith("/Stage" + i + ".unity"));
             }
-            Assert.That(StageInfo.StageForSlot(0, 1), Is.EqualTo(5));
-            Assert.That(StageInfo.StageForSlot(1, 1), Is.EqualTo(1));
-            Assert.That(StageInfo.StageForSlot(2, 4), Is.EqualTo(12));
+            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
+            {
+                int stage = StageInfo.FestivalForSlot(slot);
+                Assert.That(StageInfo.NextStage(stage), Is.Zero);
+                Assert.That(StageInfo.Definition(stage).MagnetEnabled, Is.True);
+            }
+            Assert.That(StageInfo.FestivalForSlot(1), Is.Not.EqualTo(StageInfo.FestivalForSlot(2)));
         }
 
         [Test]

@@ -24,6 +24,7 @@ namespace MagnetEscape
         [Header("Magnetic rail")]
         [SerializeField] private bool railEnabled;
         [SerializeField, Min(1f)] private float railSpeedMultiplier = 1.35f;
+        [SerializeField, Min(0f)] private float ceilingTransferReach = 1.65f;
         private MagneticRail grindRail;
         private float railLockout, railEntryX, ceilingDropX, ceilingDropLock;
         private RouteShaper ceilingLanding;
@@ -219,6 +220,17 @@ namespace MagnetEscape
             Vector2 board = new Vector2(bounds.center.x, bounds.min.y);
             if (grindRail != null)
             {
+                if (RailEnabled && magnetMode == 1 && jumpBuffer > 0f && !grindRail.Overhead)
+                {
+                    MagneticRail cable = TransferCable(bounds);
+                    if (cable != null)
+                    {
+                        grindRail = cable;
+                        railEntryX = board.x;
+                        jumpBuffer = 0f;
+                        Session?.Feedback(body.position, Color.cyan, GameAudio.Cue.MagnetAttract);
+                    }
+                }
                 launch = jumpBuffer > 0f || magnetMode < 0;
                 if (!RailEnabled || !grindRail.Covers(board.x) || magnetMode != 1 || launch)
                 {
@@ -274,6 +286,21 @@ namespace MagnetEscape
             coyote = 0f;
             cutJump = false;
             return true;
+        }
+
+        private MagneticRail TransferCable(Bounds bounds)
+        {
+            MagneticRail nearest = null;
+            float best = ceilingTransferReach;
+            foreach (MagneticRail rail in MagneticRail.All)
+            {
+                if (!rail.Overhead || !rail.Covers(bounds.center.x)) continue;
+                float above = rail.HeightAt(bounds.center.x) - bounds.max.y;
+                if (above < -.15f || above > best) continue;
+                best = above;
+                nearest = rail;
+            }
+            return nearest;
         }
 
         private bool RailEntryClear(Vector2 motion)

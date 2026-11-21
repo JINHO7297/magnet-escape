@@ -104,10 +104,13 @@ namespace MagnetEscape.Editor
                 + "R: 코스 처음부터\nEsc: 일시정지 / 계속하기\nM: 음소거\nH: 도움말 / T: 기록 / C: 제작 정보 / F11: 화면 전환\n정지 중 Enter: 계속 / Tab: 코스 선택 / R: 처음부터 / Backspace: 재도전\n\n"
                 + "첫 실행은 전체 화면입니다. 선택·정지 화면에서 창 모드로 전환할 수 있습니다.\n"
                 + "도움말·기록·제작 정보·음량은 선택·일시정지 화면에 있습니다.\n"
-                + "입문/일반/도전 각4코스. 선택 화면 좌우로 난이도, 1~4로 시작, N은 별도 무한 점수 질주. 광고판 Q 유지/E 다리, 천장 Space+Q/E 낙하, 차량 지붕 두 곳, 전광판 E 열기/Space+Q. 무한: 거리·별·실제 시설 기술 점수. 로컬 상위5개 저장.\n"
+                + "1 쉬움 / 2 어려움. 옥상 축제까지 한 번에 질주합니다. 레일 위에서는 Q를 유지하고 Space로 머리 위 케이블에 환승하세요, N은 별도 무한 점수 질주. 광고판 Q 유지/E 다리, 천장 Space+Q/E 낙하, 차량 지붕 두 곳, 전광판 E 열기/Space+Q. 무한: 거리·별·실제 시설 기술 점수. 로컬 상위5개 저장.\n"
                 + "최고 시간과 최고 등급은 따로 저장됩니다. S는 무사망으로 기준 시간 이내 완주해야 합니다.\n\n";
-            for (int stage = 1; stage <= StageInfo.Count; stage++)
-                guide += stage + "코스 - " + StageInfo.Title(stage) + ": S 기준 " + StageInfo.ParTime(stage) + "초\n";
+            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
+            {
+                int stage = StageInfo.FestivalForSlot(slot);
+                guide += StageInfo.Title(stage) + " / S 기준 " + StageInfo.ParTime(stage) + "초\n";
+            }
             guide += "\nmacOS Universal: Intel 64비트 + Apple Silicon.\nUnity " + Application.unityVersion + "\n";
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(path), "PLAYING.txt"), guide);
             Debug.Log(details);

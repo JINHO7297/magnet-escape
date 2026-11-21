@@ -6,8 +6,13 @@ namespace MagnetEscape
     {
         public const int Count = 12;
         public const int EndlessStage = 13;
-        public static int StageForSlot(int difficulty, int slot) => (difficulty == 0 ? 4 : difficulty == 1 ? 0 : 8) + Mathf.Clamp(slot, 1, 4);
-        public static string Difficulty(int stage) => stage <= 4 ? "일반" : stage <= 8 ? "입문" : "도전";
+        // Retain scene IDs for existing builds and editor revisions.
+        public const int EasyFestival = 8;
+        public const int HardFestival = 12;
+        public const int FestivalCount = 2;
+        public static int FestivalForSlot(int slot) => slot == 1 ? EasyFestival : HardFestival;
+        public static string RecordPrefix(int stage) => stage == EasyFestival || stage == HardFestival
+            ? "MagnetSkater.v4.Stage" : "MagnetSkater.v3.Stage";
         public static int Chapter(int stage) => (stage - 1) % 4 + 1;
         public static int NextStage(int stage) => stage >= 1 && stage <= Count && Chapter(stage) < 4 ? stage + 1 : 0;
         private static readonly StageDefinition[] Definitions = new StageDefinition[EndlessStage + 1];

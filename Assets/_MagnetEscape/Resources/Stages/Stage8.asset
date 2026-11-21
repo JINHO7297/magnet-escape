@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Stage8
   m_EditorClassIdentifier: ''
   Number: 8
-  DisplayName: 입문 · 축제 개막
-  Lesson: E로 전광판을 열고 Space와 Q로 연결된 조각을 타세요.
+  DisplayName: 쉬움 · 옥상 축제
+  Lesson: 309m · 넓은 착지 구간에서 케이블 환승을 익히세요.
   ParTime: 53
   StartPosition:
     x: 0
@@ -208,6 +208,17 @@ MonoBehaviour:
     Label: 연쇄 전광판
     Facility: 4
   - Start:
+      x: 19
+      y: 0.85
+    UpperEnd:
+      x: 33
+      y: 4.1
+    LowerEnd:
+      x: 35
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 38.0
       y: 0.8500000000000001
     UpperEnd:
@@ -219,6 +230,17 @@ MonoBehaviour:
     Label: 회전 광고판
     Facility: 1
   - Start:
+      x: 49
+      y: 0.85
+    UpperEnd:
+      x: 69
+      y: 5.15
+    LowerEnd:
+      x: 71
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 74.0
       y: 0.8500000000000001
     UpperEnd:
@@ -228,6 +250,17 @@ MonoBehaviour:
       x: 108.0
       y: 0.8500000000000001
     Label: 자성 광고판
+  - Start:
+      x: 88
+      y: 0.85
+    UpperEnd:
+      x: 106
+      y: 4.1
+    LowerEnd:
+      x: 108
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
   - Start:
       x: 111.0
       y: 0.8500000000000001
@@ -240,6 +273,17 @@ MonoBehaviour:
     Label: 축제 차량
     Facility: 3
   - Start:
+      x: 120
+      y: 0.85
+    UpperEnd:
+      x: 140
+      y: 3.95
+    LowerEnd:
+      x: 142
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 145.0
       y: 0.8500000000000001
     UpperEnd:
@@ -251,6 +295,17 @@ MonoBehaviour:
     Label: 천장 케이블
     Facility: 2
   - Start:
+      x: 153
+      y: 1.25
+    UpperEnd:
+      x: 169
+      y: 2.85
+    LowerEnd:
+      x: 177
+      y: 0.85
+    Label: 케이블 아래 축제 차량
+    Facility: 3
+  - Start:
       x: 180.0
       y: 0.8500000000000001
     UpperEnd:
@@ -260,6 +315,17 @@ MonoBehaviour:
       x: 215.0
       y: 0.8500000000000001
     Label: 회전 레일
+  - Start:
+      x: 194
+      y: 0.85
+    UpperEnd:
+      x: 213
+      y: 4.1
+    LowerEnd:
+      x: 215
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
   - Start:
       x: 218.0
       y: 0.8500000000000001
@@ -272,6 +338,17 @@ MonoBehaviour:
     Label: 연쇄 전광판
     Facility: 4
   - Start:
+      x: 232
+      y: 0.85
+    UpperEnd:
+      x: 246
+      y: 4.1
+    LowerEnd:
+      x: 248
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
+  - Start:
       x: 251.0
       y: 0.8500000000000001
     UpperEnd:
@@ -282,5 +359,16 @@ MonoBehaviour:
       y: 0.8500000000000001
     Label: 연쇄 전광판
     Facility: 4
-  OpeningMessage: '민: 개막 전광판이 세 조각으로 접혀 있어. 전부 열면 그 위로 개막 지점까지 갈 수 있어!'
+  - Start:
+      x: 265
+      y: 0.85
+    UpperEnd:
+      x: 282
+      y: 4.1
+    LowerEnd:
+      x: 284
+      y: 0.85
+    Label: 환승 케이블
+    Facility: 2
+  OpeningMessage: '민: 옥상에서 만나! 위쪽 케이블은 점프하고 Q로 잡아. 손을 놓으면 아래 길로 내려와.'
   EndingMessage: '민: 해냈어! 도시의 길이 연결됐어. 지금부터 우리들의 축제야!'

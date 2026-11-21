@@ -28,7 +28,7 @@ namespace MagnetEscape.Tests
             savedInts.Clear();
             for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
-                string key = "MagnetSkater.v3.Stage" + stage;
+                string key = StageInfo.RecordPrefix(stage) + stage;
                 if (PlayerPrefs.HasKey(key + ".Time")) savedTimes[key + ".Time"] = PlayerPrefs.GetFloat(key + ".Time");
                 foreach (string suffix in new[] { ".TimeDeaths", ".Rank" })
                     if (PlayerPrefs.HasKey(key + suffix)) savedInts[key + suffix] = PlayerPrefs.GetInt(key + suffix);
@@ -53,7 +53,7 @@ namespace MagnetEscape.Tests
             yield return null;
             for (int stage = 1; stage <= StageInfo.Count; stage++)
             {
-                string key = "MagnetSkater.v3.Stage" + stage;
+                string key = StageInfo.RecordPrefix(stage) + stage;
                 foreach (string suffix in new[] { ".Time", ".TimeDeaths", ".Rank" }) PlayerPrefs.DeleteKey(key + suffix);
             }
             foreach (var pair in savedTimes) PlayerPrefs.SetFloat(pair.Key, pair.Value);
@@ -484,8 +484,9 @@ namespace MagnetEscape.Tests
             // Test-only driver supplies the same queued commands as Update. The
             // real motor, colliders, drones, checkpoints and exit run in Unity.
             // This proves a route exists; it does not replace human keyboard QA.
-            for (int stage = 1; stage <= StageInfo.Count; stage++)
+            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
             {
+                int stage = StageInfo.FestivalForSlot(slot);
                 SceneManager.LoadScene("Stage" + stage);
                 yield return null;
                 session = GameSession.Active;
@@ -580,7 +581,7 @@ namespace MagnetEscape.Tests
                 }
                 Assert.That(session.Finished, Is.True, "Stage " + stage + " did not reach the real ExitGate at x=" + body.position.x);
                 Assert.That(session.Deaths, Is.Zero);
-                if (stage <= 4 && stage >= 2) Assert.That(grindSteps, Is.GreaterThan(0), "The route must exercise authored rails too.");
+                Assert.That(grindSteps, Is.GreaterThan(0), "Both festival routes must exercise magnetic rails.");
                 Debug.Log("Forward route Stage " + stage + ": " + session.Elapsed.ToString("F2") + "s, no deaths, rail steps=" + grindSteps);
                 Time.captureDeltaTime = 0f;
                 Time.timeScale = 1f;
@@ -1067,6 +1068,36 @@ namespace MagnetEscape.Tests
             Assert.That(route.Bridge.enabled, Is.True);
             Object.Destroy(root);
             yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator SpaceWhileGrindingTransfersToOverlappingCable()
+        {
+            SceneManager.LoadScene("Stage8");
+            yield return null;
+            session = GameSession.Active;
+            session.SetPaused(false);
+            PlayerMotor player = session.Player;
+            player.enabled = false;
+            RouteShaper board = null;
+            foreach (RouteShaper route in RouteShaper.All)
+                if (route.Facility == RouteShaper.Kind.Billboard && route.StartPoint.x == 38f) board = route;
+            Assert.That(board, Is.Not.Null);
+            player.ResetAt(board.StartPoint + Vector2.left * 4f);
+            Assert.That(board.TryShape(player, 1, 1f), Is.True);
+            float x = board.UpperEnd.x - 1f;
+            float halfHeight = player.GetComponent<BoxCollider2D>().bounds.extents.y;
+            player.ResetAt(new Vector2(x, board.Rail.HeightAt(x) + halfHeight));
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding && !player.IsCeilingRiding, Is.True);
+            SetMotorField(player, "jumpQueued", true);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsCeilingRiding, Is.True);
+            Assert.That(player.GetComponent<Rigidbody2D>().velocity.x, Is.GreaterThan(player.RunSpeed));
+            SetMotorField(player, "magnetMode", -1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsGrinding, Is.False);
         }
 
         [UnityTest]

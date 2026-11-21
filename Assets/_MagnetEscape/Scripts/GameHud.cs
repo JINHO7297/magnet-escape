@@ -7,15 +7,6 @@ namespace MagnetEscape
         private enum Overlay { None, Controls, Credits, Records, ResetRecord, EndlessRecords }
         private Overlay overlay;
         private int resetStage;
-        private int difficulty;
-        public int SelectedStage(int slot) => StageInfo.StageForSlot(difficulty, slot);
-        public void CycleDifficulty(int direction) => difficulty = (difficulty + direction + 3) % 3;
-        private void DifficultyTabs(float x, float y)
-        {
-            string[] labels = { "입문", "일반", "도전" };
-            for (int i = 0; i < 3; i++)
-                if (GUI.Button(new Rect(x + i * 108, y, 100, 24), (difficulty == i ? "● " : "") + labels[i], button)) difficulty = i;
-        }
         private string resetScenePath;
         private string resetTitle;
         private string recordWarning;
@@ -157,20 +148,20 @@ namespace MagnetEscape
             Fill(new Rect(0, 0, 960, 540), new Color(0.02f, 0.04f, 0.06f, 0.72f));
             Label(new Rect(48, 24, 870, 55), "마그넷 스케이터", title, Mint);
             Label(new Rect(51, 82, 860, 30), "끊긴 도시의 길을 연결하고 친구들과 옥상 스케이트 축제를 열어 주세요.", text);
-            DifficultyTabs(48, 105);
-            if (GUI.Button(new Rect(384, 105, 192, 24), "무한 순위 / B", button)) overlay = Overlay.EndlessRecords;
-            if (GUI.Button(new Rect(600, 105, 312, 24), "무한 기록 질주 / N", button)) session.LoadEndless();
+
+            if (GUI.Button(new Rect(494, 365, 418, 38), "무한 순위 / B", button)) overlay = Overlay.EndlessRecords;
+            if (GUI.Button(new Rect(48, 365, 418, 38), "무한 기록 질주 / N", button)) session.LoadEndless();
             int completed = 0;
-            for (int stage = 1; stage <= StageInfo.Count; stage++)
-                if (StageRecords.ForBuildStage(stage).HasTime) completed++;
-            Label(new Rect(740, 45, 180, 30), "완주  " + completed + " / " + StageInfo.Count, text, Gold);
-            for (int slot = 1; slot <= 4; slot++)
+            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
+                if (StageRecords.ForBuildStage(StageInfo.FestivalForSlot(slot)).HasTime) completed++;
+            Label(new Rect(740, 45, 180, 30), "완주  " + completed + " / " + StageInfo.FestivalCount, text, Gold);
+            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
             {
-                int stage = SelectedStage(slot);
-                float x = slot % 2 == 1 ? 48 : 494;
-                float y = slot <= 2 ? 132 : 296;
+                int stage = StageInfo.FestivalForSlot(slot);
+                float x = slot == 1 ? 48 : 494;
+                const float y = 165;
                 Panel(new Rect(x, y, 418, 146));
-                Label(new Rect(x + 18, y + 14, 380, 30), stage.ToString("D2") + "  /  " + StageInfo.Title(stage), heading);
+                Label(new Rect(x + 18, y + 14, 380, 30), StageInfo.Title(stage), heading);
                 Label(new Rect(x + 18, y + 49, 380, 22), StageInfo.Lesson(stage), small);
                 StageRecords.Record record = StageRecords.ForBuildStage(stage);
                 bool available = session.CanOpenStage(stage);
@@ -194,13 +185,13 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(710, 474, 90, 32), "제작 정보", button)) overlay = Overlay.Credits;
             if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "게임 종료", button)) session.QuitGame();
             DisplayModeButton(new Rect(52, 510, 230, 26));
-            Label(new Rect(530, 516, 380, 20), "←/→ 난이도 · 1~4 선택 · N 무한 · T 기록", small);
+            Label(new Rect(530, 516, 380, 20), "1 쉬움 · 2 어려움 · N 무한 · T 기록", small);
         }
 
         private void Hud()
         {
             Panel(new Rect(20, 16, 920, 66));
-            Label(new Rect(36, 24, 420, 28), session.IsEndless ? "무한 기록 질주" : session.Stage.ToString("D2") + "  /  " + StageInfo.Title(session.Stage), heading);
+            Label(new Rect(36, 24, 420, 28), session.IsEndless ? "무한 기록 질주" : StageInfo.Title(session.Stage), heading);
             Label(new Rect(600, 24, 330, 28), session.Elapsed.ToString("F2") + "초     충돌 " + session.Deaths, heading);
             if (GUI.Button(new Rect(480, 26, 90, 28), "도움말", button))
             {
@@ -209,12 +200,12 @@ namespace MagnetEscape
             }
             PlayerMotor player = session.Player;
             if (player == null) return;
-            Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "대시" : "대시 / 2코스부터", small);
+            Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "대시" : "대시 / 잠김", small);
             if (player.DashEnabled) Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
             string magnet = player.IsCeilingRiding ? "천장 주행 / Q 유지 · E 낙하"
-                : player.IsGrinding ? "레일 그라인드 / Space·E 도약"
-                : player.RailEnabled && !player.MagnetEnabled ? "레일 / Q 잡기 · Space 도약" : !player.MagnetEnabled ? "자력 / 3코스부터" : player.MagnetTarget == null ? "자력 / 범위 밖"
+                : player.IsGrinding ? "레일 주행 / Q+Space 위 케이블 환승 · E 도약"
+                : player.RailEnabled && !player.MagnetEnabled ? "레일 / Q 잡기 · Space 도약" : !player.MagnetEnabled ? "자력 / 잠김" : player.MagnetTarget == null ? "자력 / 범위 밖"
                 : player.Grounded ? "자력 / 공중에서 사용" : player.IsDashing ? "자력 / 대시 중" : player.MagnetMode > 0 ? "Q / 끌어당기는 중"
                 : player.MagnetMode < 0 ? "E / 밀어내는 중" : "자력 / Q 인력 · E 척력";
             Label(new Rect(240, 54, 530, 24), magnet, small, player.MagnetMode < 0 ? Gold : Mint);
@@ -404,19 +395,18 @@ namespace MagnetEscape
                     Label(new Rect(132, 160 + i * 37, 210, 30), keys[i], text, Gold);
                     Label(new Rect(350, 160 + i * 37, 475, 34), actions[i], small);
                 }
-                Label(new Rect(132, 423, 690, 22), "시설 앞 안내에 따라 조작하세요. 광고판 Q 유지 · 천장 Space+Q · 차량 Space · 전광판 E", small);
+                Label(new Rect(132, 423, 690, 22), "레일에서 Q를 잡고 Space를 누르면 머리 위 케이블로 환승합니다. E로 내려오세요.", small);
             }
             else if (overlay == Overlay.Records)
             {
-                DifficultyTabs(132, 125);
-                for (int slot = 1; slot <= 4; slot++)
+                for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
                 {
-                    int stage = SelectedStage(slot);
+                    int stage = StageInfo.FestivalForSlot(slot);
                     float y = 158 + (slot - 1) * 66;
                     string scenePath = StageRecords.BuildScenePath(stage);
                     StageRecords.Record record = StageRecords.ForScene(stage, scenePath);
                     bool available = !string.IsNullOrEmpty(scenePath) && session.CanOpenStage(stage);
-                    Label(new Rect(132, y, 555, 28), stage.ToString("D2") + "  /  " + StageInfo.Title(stage), heading);
+                    Label(new Rect(132, y, 555, 28), StageInfo.Title(stage), heading);
                     string value = !available ? "이 코스는 실행본에 없습니다" : record.HasTime ? record.BestTime.ToString("F2") + "초 / " + record.Deaths + "회 충돌"
                         + " / 최고 등급 " + " CBAS"[Mathf.Clamp(record.BestRank, 1, 4)] : "아직 기록 없음";
                     Label(new Rect(132, y + 30, 555, 24), value, small, Gold);

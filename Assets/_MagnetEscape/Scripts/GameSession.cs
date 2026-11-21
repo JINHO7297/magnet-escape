@@ -230,12 +230,10 @@ namespace MagnetEscape
             }
             if (Stage == 0)
             {
-                if (Input.GetKeyDown(KeyCode.LeftArrow)) hud.CycleDifficulty(-1);
-                if (Input.GetKeyDown(KeyCode.RightArrow)) hud.CycleDifficulty(1);
                 if (Input.GetKeyDown(KeyCode.N)) { LoadEndless(); return; }
                 if (Input.GetKeyDown(KeyCode.B)) { hud.OpenEndlessRecords(); return; }
-                for (int i = 1; i <= 4; i++)
-                    if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) { LoadStage(hud.SelectedStage(i)); return; }
+                for (int i = 1; i <= StageInfo.FestivalCount; i++)
+                    if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) { LoadStage(StageInfo.FestivalForSlot(i)); return; }
                 return;
             }
             if (Input.GetKeyDown(KeyCode.Escape))
