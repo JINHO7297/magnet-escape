@@ -1071,6 +1071,86 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator EasyMiddleDeckCanBeReachedFromTheStreet()
+        {
+            SceneManager.LoadScene("Stage8");
+            yield return null;
+            session = GameSession.Active;
+            session.SetPaused(false);
+            var player = session.Player;
+            player.enabled = false;
+            var body = player.GetComponent<Rigidbody2D>();
+            var deck = StageInfo.Definition(8).MidDecks[0];
+            player.ResetAt(new Vector2(deck.Position.x - deck.Width * .5f, .25f));
+            Time.captureDeltaTime = Time.fixedDeltaTime;
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.Grounded, Is.True);
+            SetMotorField(player, "jumpQueued", true);
+            SetMotorField(player, "jumpHeld", true);
+            bool landed = false;
+            for (int step = 0; step < 60 && !landed; step++)
+            {
+                player.SendMessage("FixedUpdate");
+                yield return null;
+                landed = player.Grounded && Mathf.Abs(body.position.y - deck.Position.y - .75f) < .12f;
+            }
+            Assert.That(landed, Is.True, "Jump through the underside and land on the middle deck.");
+            Assert.That(session.Deaths, Is.Zero);
+        }
+
+        [UnityTest]
+        public IEnumerator FestivalCeilingSupportsInvertedRunningJumpAndRelease()
+        {
+            SceneManager.LoadScene("Stage8");
+            yield return null;
+            session = GameSession.Active;
+            session.SetPaused(false);
+            var player = session.Player;
+            player.enabled = false;
+            var body = player.GetComponent<Rigidbody2D>();
+            var ceiling = StageInfo.Definition(8).InversionCeilings[0];
+            float entry = ceiling.Position.x - ceiling.Width * .5f;
+            player.ResetAt(new Vector2(entry + 1f, ceiling.Position.y - 2.8f));
+            Time.captureDeltaTime = Time.fixedDeltaTime;
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsInverted, Is.True);
+            SetMotorField(player, "magnetMode", 0);
+            for (int step = 0; step < 50 && !player.Grounded; step++)
+            {
+                yield return null;
+                player.SendMessage("FixedUpdate");
+            }
+            Assert.That(player.Grounded && player.IsInverted, Is.True);
+            Assert.That(body.position.y, Is.EqualTo(ceiling.Position.y - .75f).Within(.15f));
+            Assert.That(body.velocity.x, Is.GreaterThan(0f));
+            SetMotorField(player, "jumpQueued", true);
+            SetMotorField(player, "jumpHeld", true);
+            player.SendMessage("FixedUpdate");
+            Assert.That(body.velocity.y, Is.LessThan(-5f));
+            Assert.That(body.gravityScale, Is.LessThan(0f));
+            SetMotorField(player, "magnetMode", -1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsInverted, Is.False);
+            Assert.That(body.gravityScale, Is.GreaterThan(0f));
+
+            player.ResetAt(new Vector2(entry + 1f, ceiling.Position.y - 2.8f));
+            SetMotorField(player, "magnetMode", 1);
+            player.SendMessage("FixedUpdate");
+            Assert.That(player.IsInverted, Is.True);
+            SetMotorField(player, "magnetMode", 0);
+            for (int step = 0; step < 240 && player.IsInverted; step++)
+            {
+                yield return null;
+                player.SendMessage("FixedUpdate");
+            }
+            Assert.That(session.Deaths, Is.Zero);
+            Assert.That(body.position.x, Is.GreaterThanOrEqualTo(entry + ceiling.Width));
+            Assert.That(player.IsInverted, Is.False);
+            Assert.That(body.gravityScale, Is.GreaterThan(0f));
+        }
+
+        [UnityTest]
         public IEnumerator SpaceWhileGrindingTransfersToOverlappingCable()
         {
             SceneManager.LoadScene("Stage8");

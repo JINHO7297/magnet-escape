@@ -86,20 +86,12 @@ MonoBehaviour:
       y: 0.65
     Width: 1.6
   - Position:
-      x: 88.0
-      y: 0.15000000000000002
-    Width: 1.6
-  - Position:
       x: 133.0
       y: 1.15
     Width: 1.6
   - Position:
       x: 168.0
       y: 0.15000000000000002
-    Width: 1.6
-  - Position:
-      x: 208.0
-      y: 0.65
     Width: 1.6
   - Position:
       x: 253.0
@@ -127,16 +119,16 @@ MonoBehaviour:
     Width: 1.6
   Saws:
   - Position:
-      x: 97.0
-      y: 6.0
+      x: 90.0
+      y: 4.65
     Travel:
       x: 0.0
       y: 0.45
     Period: 4
     Phase: 0
   - Position:
-      x: 217.0
-      y: 6.0
+      x: 206.0
+      y: 4.7
     Travel:
       x: 0.0
       y: 0.45
@@ -282,8 +274,73 @@ MonoBehaviour:
       x: 0.0
       y: 0.6
   MovingPlatforms: []
+  MidDecks:
+  - Position:
+      x: 62
+      y: 1.85
+    Width: 9
+  - Position:
+      x: 74
+      y: 2.8
+    Width: 12
+  - Position:
+      x: 101
+      y: 2.15
+    Width: 10
+  - Position:
+      x: 177
+      y: 1.8
+    Width: 10
+  - Position:
+      x: 189
+      y: 3.2
+    Width: 11
+  - Position:
+      x: 215
+      y: 2.75
+    Width: 12
+  - Position:
+      x: 349
+      y: 1.85
+    Width: 9
+  - Position:
+      x: 359
+      y: 3.1
+    Width: 10
+  - Position:
+      x: 387
+      y: 2.6
+    Width: 13
+  InversionCeilings:
+  - Position:
+      x: 88
+      y: 7
+    Width: 30
+  - Position:
+      x: 202
+      y: 7.15
+    Width: 30
+  - Position:
+      x: 374
+      y: 7.25
+    Width: 32
   Rails: []
-  Hints: []
+  Hints:
+  - Position:
+      x: 69
+      y: 2
+    Message: 보라색 천장 아래에서 점프 + Q로 중력 반전
+    Range: 7
+  - Position:
+      x: 183
+      y: 2
+    Message: 보라색 천장 아래에서 점프 + Q로 중력 반전
+    Range: 7
+  - Position:
+      x: 354
+      y: 2
+    Message: 보라색 천장 아래에서 점프 + Q로 중력 반전
+    Range: 7
   Routes:
   - Start:
       x: 5.0

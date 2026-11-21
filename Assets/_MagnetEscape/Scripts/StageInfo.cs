@@ -12,7 +12,7 @@ namespace MagnetEscape
         public const int FestivalCount = 2;
         public static int FestivalForSlot(int slot) => slot == 1 ? EasyFestival : HardFestival;
         public static string RecordPrefix(int stage) => stage == EasyFestival || stage == HardFestival
-            ? "MagnetSkater.v4.Stage" : "MagnetSkater.v3.Stage";
+            ? "MagnetSkater.v5.Stage" : "MagnetSkater.v3.Stage";
         public static int Chapter(int stage) => (stage - 1) % 4 + 1;
         public static int NextStage(int stage) => stage >= 1 && stage <= Count && Chapter(stage) < 4 ? stage + 1 : 0;
         private static readonly StageDefinition[] Definitions = new StageDefinition[EndlessStage + 1];

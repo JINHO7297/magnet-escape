@@ -203,7 +203,8 @@ namespace MagnetEscape
             Label(new Rect(36, 55, 200, 22), player.DashEnabled ? "대시" : "대시 / 잠김", small);
             if (player.DashEnabled) Fill(new Rect(92, 61, 105, 5), new Color(0.2f, 0.27f, 0.3f));
             if (player.DashEnabled) Fill(new Rect(92, 61, 105 * player.DashReadyFraction, 5), Mint);
-            string magnet = player.IsCeilingRiding ? "천장 주행 / Q 유지 · E 낙하"
+            string magnet = player.IsInverted ? "천장 반전 / Space 아래로 점프 · E 복귀"
+                : player.IsCeilingRiding ? "천장 주행 / Q 유지 · E 낙하"
                 : player.IsGrinding ? "레일 주행 / Q+Space 위 케이블 환승 · E 도약"
                 : player.RailEnabled && !player.MagnetEnabled ? "레일 / Q 잡기 · Space 도약" : !player.MagnetEnabled ? "자력 / 잠김" : player.MagnetTarget == null ? "자력 / 범위 밖"
                 : player.Grounded ? "자력 / 공중에서 사용" : player.IsDashing ? "자력 / 대시 중" : player.MagnetMode > 0 ? "Q / 끌어당기는 중"

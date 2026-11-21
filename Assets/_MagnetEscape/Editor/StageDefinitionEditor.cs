@@ -9,11 +9,11 @@ namespace MagnetEscape.Editor
         private static readonly string[] Fields =
         {
             "StartPosition", "ExitPosition", "Platforms", "MovingPlatforms", "Spikes",
-            "Saws", "Magnets", "Checkpoints", "Hints", "Rails"
+            "Saws", "Magnets", "Checkpoints", "Hints", "Rails", "MidDecks", "InversionCeilings"
         };
         private static readonly string[] Labels =
         {
-            "Start", "Exit", "Platforms", "Moving platforms", "Spikes", "Saws", "Magnets", "Checkpoints", "Hints", "자석 레일"
+            "Start", "Exit", "Platforms", "Moving platforms", "Spikes", "Saws", "Magnets", "Checkpoints", "Hints", "자석 레일", "중층 발판", "반전 천장"
         };
         private bool preview = true;
         private bool hintRanges;
@@ -166,6 +166,8 @@ namespace MagnetEscape.Editor
             IncludeBox(ref bounds, layout.ExitPosition, 1f, 2f);
             foreach (StageDefinition.RectPlacement item in layout.Platforms)
                 if (item != null) IncludeBox(ref bounds, item.Position, item.Width, 0.6f);
+            foreach (var deck in layout.MidDecks) IncludeBox(ref bounds, deck.Position, deck.Width, .6f);
+            foreach (var ceiling in layout.InversionCeilings) IncludeBox(ref bounds, ceiling.Position, ceiling.Width, .6f);
             foreach (StageDefinition.RectPlacement item in layout.Spikes)
                 if (item != null) IncludeBox(ref bounds, item.Position, item.Width, 0.7f);
             foreach (StageDefinition.MovingPlacement item in layout.MovingPlatforms)
@@ -218,6 +220,8 @@ namespace MagnetEscape.Editor
                 if (item == null) continue;
                 Box(item.Position, item.Width, 0.6f, new Color(0.6f, 0.7f, 0.8f), "P" + (i + 1));
             }
+            foreach (var deck in layout.MidDecks) Box(deck.Position, deck.Width, .6f, Color.cyan, "중층");
+            foreach (var ceiling in layout.InversionCeilings) Box(ceiling.Position, ceiling.Width, .6f, Color.magenta, "반전");
             for (int i = 0; i < layout.MovingPlatforms.Length; i++)
             {
                 StageDefinition.MovingPlacement item = layout.MovingPlatforms[i];

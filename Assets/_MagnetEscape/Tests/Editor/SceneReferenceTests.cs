@@ -46,7 +46,7 @@ namespace MagnetEscape.Tests
                 StageDefinition layout = StageInfo.Definition(i);
                 Assert.That(layout, Is.Not.Null);
                 Assert.That(layout.Number, Is.EqualTo(i));
-                Assert.That(layout.OpeningMessage, Is.Not.Empty);
+                Assert.That(string.IsNullOrEmpty(layout.OpeningMessage), Is.False, "Missing opening for stage " + i);
                 Assert.That(layout.EndingMessage, Is.Not.Empty);
                 Assert.That(StageInfo.NextStage(i), Is.EqualTo(i % 4 == 0 ? 0 : i + 1));
                 if (i > 4) Assert.That(layout.Routes.Length, Is.GreaterThanOrEqualTo(4));

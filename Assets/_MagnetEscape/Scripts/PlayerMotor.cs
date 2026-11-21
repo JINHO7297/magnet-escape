@@ -25,6 +25,11 @@ namespace MagnetEscape
         [SerializeField] private bool railEnabled;
         [SerializeField, Min(1f)] private float railSpeedMultiplier = 1.35f;
         [SerializeField, Min(0f)] private float ceilingTransferReach = 1.65f;
+        [SerializeField] private StageDefinition.RectPlacement[] ceilings = System.Array.Empty<StageDefinition.RectPlacement>();
+        private StageDefinition.RectPlacement activeCeiling;
+        public bool IsInverted => activeCeiling != null;
+        private float UpSign => IsInverted ? -1f : 1f;
+        public void ConfigureCeilings(StageDefinition.RectPlacement[] surfaces) => ceilings = surfaces;
         private MagneticRail grindRail;
         private float railLockout, railEntryX, ceilingDropX, ceilingDropLock;
         private RouteShaper ceilingLanding;
@@ -79,7 +84,7 @@ namespace MagnetEscape
         {
             body = GetComponent<Rigidbody2D>();
             shape = GetComponent<BoxCollider2D>();
-            body.gravityScale = gravityScale;
+            body.gravityScale = UpSign * gravityScale;
             body.freezeRotation = true;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -116,13 +121,14 @@ namespace MagnetEscape
             {
                 ReleaseRail();
                 body.velocity = Vector2.zero;
-                body.gravityScale = gravityScale;
+                body.gravityScale = UpSign * gravityScale;
                 dashRemaining = 0f;
                 dashStepActive = false;
                 return;
             }
+            UpdatePolarity();
             bool grounded = IsGrounded();
-            if (grounded && !Grounded && previousVerticalSpeed - supportVelocity.y < -2f)
+            if (grounded && !Grounded && (previousVerticalSpeed - supportVelocity.y) * UpSign < -2f)
                 Session?.Feedback((Vector2)transform.position + Vector2.down * 0.45f,
                     new Color(0.7f, 0.8f, 0.85f), GameAudio.Cue.Land);
             if (ceilingLanding != null && (grounded || body.position.x > ceilingDropX + 10f))
@@ -159,21 +165,21 @@ namespace MagnetEscape
                 cutJump = false;
                 return;
             }
-            bool railLaunch;
-            if (StepRail(out railLaunch)) return;
-            body.gravityScale = gravityScale;
+            bool railLaunch = false;
+            if (!IsInverted && StepRail(out railLaunch)) return;
+            body.gravityScale = UpSign * gravityScale;
             Vector2 velocity = body.velocity;
             velocity.x = RunSpeed;
-            if (grounded && velocity.y <= supportVelocity.y + 0.1f) velocity.y = supportVelocity.y;
+            if (grounded && (velocity.y - supportVelocity.y) * UpSign <= 0.1f) velocity.y = supportVelocity.y;
             if (railLaunch || (jumpBuffer > 0f && coyote > 0f))
             {
-                velocity.y = (railLaunch || jumpHeld ? jumpSpeed : jumpSpeed * shortJumpMultiplier) + supportVelocity.y;
+                velocity.y = UpSign * (railLaunch || jumpHeld ? jumpSpeed : jumpSpeed * shortJumpMultiplier) + supportVelocity.y;
                 jumpBuffer = 0f;
                 coyote = 0f;
                 if (!jumpHeld) cutJump = false;
                 Session?.Feedback(transform.position, Color.white, GameAudio.Cue.Jump);
             }
-            if (cutJump && velocity.y > 0f) velocity.y *= jumpReleaseMultiplier;
+            if (cutJump && velocity.y * UpSign > 0f) velocity.y *= jumpReleaseMultiplier;
             cutJump = false;
             bool keepTarget = MagnetEnabled && magnetMode != 0 && targetAnchor != null
                 && targetAnchor.isActiveAndEnabled && targetAnchor.Contains(body.position, magnetRange);
@@ -194,7 +200,7 @@ namespace MagnetEscape
                     }
                 }
             }
-            if (targetAnchor != null && magnetMode != 0 && !grounded && ceilingDropLock <= 0f)
+            if (!IsInverted && targetAnchor != null && magnetMode != 0 && !grounded && ceilingDropLock <= 0f)
             {
                 if (audibleMagnetMode != magnetMode)
                     Session?.PlayCue(magnetMode > 0 ? GameAudio.Cue.MagnetAttract : GameAudio.Cue.MagnetRepel);
@@ -211,6 +217,33 @@ namespace MagnetEscape
             if (SweepHazard(velocity)) return;
             body.velocity = velocity;
             previousVerticalSpeed = velocity.y;
+        }
+
+        private void UpdatePolarity()
+        {
+            Vector2 position = body.position;
+            if (IsInverted)
+            {
+                if (magnetMode >= 0 && position.x < activeCeiling.Position.x + activeCeiling.Width * .5f) return;
+                activeCeiling = null;
+                body.velocity = new Vector2(body.velocity.x, Mathf.Min(-1.5f, body.velocity.y));
+                ceilingDropLock = railLockout = .2f;
+                coyote = 0f;
+                return;
+            }
+            if (magnetMode != 1 || !MagnetEnabled || ceilingDropLock > 0f) return;
+            foreach (var surface in ceilings)
+            {
+                float entry = surface.Position.x - surface.Width * .5f;
+                float below = surface.Position.y - position.y;
+                if (position.x < entry || position.x > entry + 5f || below < .6f || below > 4.2f) continue;
+                ReleaseRail();
+                activeCeiling = surface;
+                ceilingLanding = null;
+                coyote = 0f;
+                Session?.Feedback(position, new Color(.82f, .62f, 1f), GameAudio.Cue.MagnetAttract);
+                break;
+            }
         }
 
         private bool StepRail(out bool launch)
@@ -332,19 +365,25 @@ namespace MagnetEscape
         {
             if (grindRail != null) railLockout = 0.2f;
             grindRail = null;
-            body.gravityScale = gravityScale;
+            body.gravityScale = UpSign * gravityScale;
         }
 
         private bool IsGrounded()
         {
             supportVelocity = Vector2.zero;
-            int count = shape.Cast(Vector2.down, groundFilter, hits, groundProbeDistance);
+            int count = shape.Cast(Vector2.down * UpSign, groundFilter, hits, groundProbeDistance);
             for (int i = 0; i < count; i++)
-                if (hits[i].normal.y > 0.6f)
+                if (hits[i].normal.y * UpSign > 0.6f)
                 {
                     Collider2D support = hits[i].collider;
-                    if (support.usedByEffector && (shape.bounds.min.y < support.bounds.max.y - .06f
-                        || body.velocity.y > 1f)) continue;
+                    if (support.usedByEffector)
+                    {
+                        var effector = support.GetComponent<PlatformEffector2D>();
+                        bool underside = effector != null && Mathf.Cos(effector.rotationalOffset * Mathf.Deg2Rad) < 0f;
+                        if (underside != IsInverted || body.velocity.y * UpSign > 1f) continue;
+                        if (IsInverted ? shape.bounds.max.y > support.bounds.min.y + .06f
+                            : shape.bounds.min.y < support.bounds.max.y - .06f) continue;
+                    }
                     if (hits[i].rigidbody != null)
                     {
                         MovingPlatform platform = hits[i].rigidbody.GetComponent<MovingPlatform>();
@@ -390,6 +429,7 @@ namespace MagnetEscape
 
         public void ResetAt(Vector2 position)
         {
+            activeCeiling = null;
             ReleaseRail();
             railLockout = ceilingDropLock = 0f;
             ceilingLanding = null;
@@ -400,7 +440,7 @@ namespace MagnetEscape
             body.position = position;
             body.velocity = Vector2.zero;
             body.angularVelocity = 0f;
-            body.gravityScale = gravityScale;
+            body.gravityScale = UpSign * gravityScale;
             ClearInput();
             jumpBuffer = coyote = dashRemaining = cooldown = 0f;
             dashStepActive = false;
@@ -431,12 +471,13 @@ namespace MagnetEscape
             body.simulated = !frozen;
             if (frozen)
             {
+                activeCeiling = null;
                 ceilingLanding = null;
                 ceilingDropLock = 0f;
                 ReleaseRail();
                 dashRemaining = 0f;
                 dashStepActive = false;
-                body.gravityScale = gravityScale;
+                body.gravityScale = UpSign * gravityScale;
                 ClearInput();
             }
         }
@@ -461,7 +502,7 @@ namespace MagnetEscape
                 if (Vector2.Dot(collision.GetContact(i).normal, dashDirection) > -0.6f) continue;
                 dashRemaining = 0f;
                 dashStepActive = false;
-                body.gravityScale = gravityScale;
+                body.gravityScale = UpSign * gravityScale;
                 // Collision response resolves velocity. Keep the existing cooldown.
                 break;
             }

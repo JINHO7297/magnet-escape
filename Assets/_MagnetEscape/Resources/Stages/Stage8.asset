@@ -38,7 +38,7 @@ MonoBehaviour:
     Width: 32.0
   - Position:
       x: 83.0
-      y: -0.5
+      y: 0.15
     Width: 34.0
   - Position:
       x: 118.0
@@ -46,7 +46,7 @@ MonoBehaviour:
     Width: 30.0
   - Position:
       x: 153.0
-      y: -0.5
+      y: -1.1
     Width: 32.0
   - Position:
       x: 189.0
@@ -54,7 +54,7 @@ MonoBehaviour:
     Width: 34.0
   - Position:
       x: 225.0
-      y: -0.5
+      y: 0.3
     Width: 30.0
   - Position:
       x: 259.0
@@ -74,24 +74,16 @@ MonoBehaviour:
       y: 0.15000000000000002
     Width: 1.0
   - Position:
-      x: 82.0
-      y: 0.15000000000000002
-    Width: 1.0
-  - Position:
       x: 119.0
       y: 0.15000000000000002
     Width: 1.0
   - Position:
       x: 153.0
-      y: 0.15000000000000002
-    Width: 1.0
-  - Position:
-      x: 188.0
-      y: 0.15000000000000002
+      y: -0.45
     Width: 1.0
   - Position:
       x: 226.0
-      y: 0.15000000000000002
+      y: 0.95
     Width: 1.0
   - Position:
       x: 259.0
@@ -115,7 +107,7 @@ MonoBehaviour:
     Strength: 1.25
   - Position:
       x: 101.5
-      y: 4.8
+      y: 5.45
     Range: 7
     Strength: 1.25
   - Position:
@@ -125,7 +117,7 @@ MonoBehaviour:
     Strength: 1.25
   - Position:
       x: 170.5
-      y: 4.8
+      y: 4.2
     Range: 7
     Strength: 1.25
   - Position:
@@ -152,7 +144,7 @@ MonoBehaviour:
       y: 0.6
   - Position:
       x: 70.0
-      y: 0.4
+      y: 1.05
     SpawnOffset:
       x: 0.0
       y: 0.6
@@ -164,7 +156,7 @@ MonoBehaviour:
       y: 0.6
   - Position:
       x: 141.0
-      y: 0.4
+      y: -0.2
     SpawnOffset:
       x: 0.0
       y: 0.6
@@ -176,7 +168,7 @@ MonoBehaviour:
       y: 0.6
   - Position:
       x: 214.0
-      y: 0.4
+      y: 1.2
     SpawnOffset:
       x: 0.0
       y: 0.6
@@ -193,8 +185,56 @@ MonoBehaviour:
       x: 0.0
       y: 0.6
   MovingPlatforms: []
+  MidDecks:
+  - Position:
+      x: 60
+      y: 1.5
+    Width: 9
+  - Position:
+      x: 71
+      y: 2.25
+    Width: 12
+  - Position:
+      x: 97
+      y: 2.2
+    Width: 13
+  - Position:
+      x: 173
+      y: 1.4
+    Width: 11
+  - Position:
+      x: 185
+      y: 2.55
+    Width: 12
+  - Position:
+      x: 209
+      y: 2.6
+    Width: 13
+  - Position:
+      x: 261
+      y: 1.7
+    Width: 12
+  InversionCeilings:
+  - Position:
+      x: 85
+      y: 6.15
+    Width: 26
+  - Position:
+      x: 197
+      y: 6.25
+    Width: 26
   Rails: []
-  Hints: []
+  Hints:
+  - Position:
+      x: 68
+      y: 2
+    Message: 보라색 천장 아래에서 점프 + Q로 중력 반전
+    Range: 7
+  - Position:
+      x: 180
+      y: 2
+    Message: 보라색 천장 아래에서 점프 + Q로 중력 반전
+    Range: 7
   Routes:
   - Start:
       x: 5.0
@@ -226,7 +266,7 @@ MonoBehaviour:
       y: 3.6
     LowerEnd:
       x: 71.0
-      y: 0.8500000000000001
+      y: 1.5
     Label: 회전 광고판
     Facility: 1
   - Start:
@@ -234,15 +274,15 @@ MonoBehaviour:
       y: 0.85
     UpperEnd:
       x: 69
-      y: 5.15
+      y: 5.8
     LowerEnd:
       x: 71
-      y: 0.85
+      y: 1.5
     Label: 환승 케이블
     Facility: 2
   - Start:
       x: 74.0
-      y: 0.8500000000000001
+      y: 1.5
     UpperEnd:
       x: 108.0
       y: 2.5
@@ -252,7 +292,7 @@ MonoBehaviour:
     Label: 자성 광고판
   - Start:
       x: 88
-      y: 0.85
+      y: 1.5
     UpperEnd:
       x: 106
       y: 4.1
@@ -269,7 +309,7 @@ MonoBehaviour:
       y: 1.85
     LowerEnd:
       x: 142.0
-      y: 0.8500000000000001
+      y: 0.25
     Label: 축제 차량
     Facility: 3
   - Start:
@@ -277,18 +317,18 @@ MonoBehaviour:
       y: 0.85
     UpperEnd:
       x: 140
-      y: 3.95
+      y: 3.35
     LowerEnd:
       x: 142
-      y: 0.85
+      y: 0.25
     Label: 환승 케이블
     Facility: 2
   - Start:
       x: 145.0
-      y: 0.8500000000000001
+      y: 0.25
     UpperEnd:
       x: 164
-      y: 3.03
+      y: 2.43
     LowerEnd:
       x: 177.0
       y: 0.8500000000000001
@@ -296,10 +336,10 @@ MonoBehaviour:
     Facility: 2
   - Start:
       x: 153
-      y: 1.25
+      y: 0.65
     UpperEnd:
       x: 169
-      y: 2.85
+      y: 2.25
     LowerEnd:
       x: 177
       y: 0.85
@@ -310,25 +350,25 @@ MonoBehaviour:
       y: 0.8500000000000001
     UpperEnd:
       x: 214.0
-      y: 2.5
+      y: 3.3
     LowerEnd:
       x: 215.0
-      y: 0.8500000000000001
+      y: 1.65
     Label: 회전 레일
   - Start:
       x: 194
       y: 0.85
     UpperEnd:
       x: 213
-      y: 4.1
+      y: 4.9
     LowerEnd:
       x: 215
-      y: 0.85
+      y: 1.65
     Label: 환승 케이블
     Facility: 2
   - Start:
       x: 218.0
-      y: 0.8500000000000001
+      y: 1.65
     UpperEnd:
       x: 242
       y: 1.85
@@ -339,7 +379,7 @@ MonoBehaviour:
     Facility: 4
   - Start:
       x: 232
-      y: 0.85
+      y: 1.65
     UpperEnd:
       x: 246
       y: 4.1

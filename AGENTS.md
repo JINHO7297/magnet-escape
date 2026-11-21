@@ -76,3 +76,8 @@
 
 - 플레이어가 선택하는 축제 난이도는 쉬움(Stage8)과 어려움(Stage12) 두 개다. 메뉴·기록·실행 안내에는 StageInfo.FestivalCount와 FestivalForSlot을 사용한다. StageInfo.Count는 편집 및 호환을 위한 고정 씬 개수다.
 - 두 코스는 각각 단일 결승을 사용한다. Stage8/12의 Routes는 같은 구간에 상하 시설을 겹쳐 놓는다. 레일에서 Q 유지 중 Space로 가까운 천장 케이블에 환승하고 E로 하차한다. 축제 기록은 v4, 무한 순위는 Endless.v2다.
+
+## 2026-11-22 입체 경로와 반전 중력
+
+- 고정 코스의 MidDecks는 단방향 착지 발판, InversionCeilings는 아래쪽 면을 타는 반전 구간이다. 구간 입구에서 Q로 반전하고 Space로 아래로 점프한다. E·구간 끝·부활 때 정상 중력으로 복귀한다. 현 코스 기록 prefix는 MagnetSkater.v5.Stage다.
+- 배경은 플레이 화면을 채우는 단일 도시 파노라마다. 기존 이미지 GUID를 유지한다.

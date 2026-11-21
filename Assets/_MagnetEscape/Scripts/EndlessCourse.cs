@@ -29,7 +29,6 @@ namespace MagnetEscape
         {
             if (session == null || session.Player == null || session.Paused || session.Finished || session.ChangingScene) return;
             Advance(session.Player.GetComponent<Rigidbody2D>().position.x);
-            if (session.FactoryWall != null) session.FactoryWall.transform.position = new Vector3(session.Player.transform.position.x, session.FactoryWall.transform.position.y, session.FactoryWall.transform.position.z);
         }
 
         public void Advance(float x)

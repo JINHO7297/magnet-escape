@@ -42,7 +42,7 @@ namespace MagnetEscape
             GameObject backdrop = new GameObject(BackdropName);
             SpriteRenderer renderer = backdrop.AddComponent<SpriteRenderer>();
             renderer.sprite = Get("factory_backdrop");
-            renderer.drawMode = SpriteDrawMode.Tiled;
+            renderer.drawMode = SpriteDrawMode.Sliced;
             renderer.sortingOrder = -30;
             Bounds bounds = new Bounds(start, Vector3.zero);
             bounds.Encapsulate(end);
@@ -52,8 +52,22 @@ namespace MagnetEscape
 
         public static void FitBackdrop(SpriteRenderer renderer, Bounds course)
         {
-            renderer.transform.position = new Vector3(course.center.x, course.center.y, 0f);
-            renderer.size = new Vector2(Mathf.Max(30f, course.size.x + 30f), Mathf.Max(24f, course.size.y + 24f));
+            renderer.transform.position = course.center;
+            renderer.size = new Vector2(36f, 18f);
+        }
+
+        public static void FrameSky(SpriteRenderer sky, Camera camera, float progress)
+        {
+            float height = camera.orthographicSize * 2f;
+            float width = height * camera.aspect;
+            float panoramaWidth = Mathf.Max(width * 1.25f, height * 2.5f);
+            var center = camera.transform.position;
+            center.x += (.5f - Mathf.Clamp01(progress)) * (panoramaWidth - width);
+            center.y -= Mathf.Clamp(center.y * .12f, -1f, 1f);
+            center.z = 0f;
+            if (sky.drawMode != SpriteDrawMode.Sliced) sky.drawMode = SpriteDrawMode.Sliced;
+            sky.transform.position = center;
+            sky.size = new Vector2(panoramaWidth, Mathf.Max(height + 2f, panoramaWidth * .5f));
         }
     }
 }

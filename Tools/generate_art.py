@@ -122,15 +122,19 @@ for y in range(4, 45, 8):
 d.rectangle((0, 123, 30, 127), fill=INK)
 save(image, 'exit')
 
-image, d = canvas((512, 256))
-d.rectangle((0, 0, 511, 255), fill='#14283e')
-# Repeating city facades: decorative and non-colliding.
-for x, top, width in [(0, 20, 80), (86, 65, 66), (158, 5, 100), (264, 48, 76), (346, 12, 94), (446, 82, 65)]:
-    d.rectangle((x, top, x + width, 255), fill='#20394f')
-    d.rectangle((x, top, x + width, top + 3), fill='#31576c')
-    for wy in range(top + 16, 250, 28):
-        for wx in range(x + 10, x + width - 5, 20):
-            d.rectangle((wx, wy, wx + 7, wy + 10), fill='#427579' if (wx + wy) % 3 else '#bd9e64')
-d.line((0, 253, 511, 253), fill='#28485f', width=3)
+# One quiet panorama. Keep the playable skyline clear of lit window grids.
+image, d = canvas((768, 384))
+for y in range(384):
+    t = y / 383
+    d.line((0, y, 767, y), fill=tuple(round(a + (b-a)*t) for a,b in
+        zip((18, 32, 53), (81, 92, 112))))
+d.ellipse((531, 90, 554, 113), fill='#788291')
+d.polygon([(0,260),(90,222),(162,244),(260,209),(348,245),(445,215),
+           (550,244),(658,213),(767,238),(767,383),(0,383)], fill='#39485d')
+for left, top, right in [(0,280,85),(85,253,151),(151,286,258),(258,237,294),
+                          (294,262,389),(389,288,491),(491,254,564),(564,281,690),(690,248,767)]:
+    d.rectangle((left, top, right, 383), fill='#303e51')
+d.rectangle((271, 227, 281, 237), fill='#303e51')
+d.line((277, 216, 277, 230), fill='#303e51')
 save(image, 'factory_backdrop')
 print('Generated', len(list(OUT.glob('*.png'))), 'original skater/city sprites; legacy GUIDs retained.')

@@ -91,6 +91,11 @@ namespace MagnetEscape
             }
             foreach (StageDefinition.RectPlacement item in layout.Platforms)
                 Platform(item.Position.x, item.Position.y, item.Width);
+            foreach (var deck in layout.MidDecks)
+                ElevatedDeck(deck, false);
+            foreach (var ceiling in layout.InversionCeilings)
+                ElevatedDeck(ceiling, true);
+            session.Player.ConfigureCeilings(layout.InversionCeilings);
             if (layout.Rails != null)
                 foreach (StageDefinition.RailPlacement item in layout.Rails)
                 {
@@ -151,6 +156,27 @@ namespace MagnetEscape
             platform.layer = LayerMask.NameToLayer("Ground");
             GameArt.Apply(platform, "platform", 0, true);
             return platform;
+        }
+
+        private static void ElevatedDeck(StageDefinition.RectPlacement item, bool ceiling)
+        {
+            var deck = Box(ceiling ? "반전 천장" : "중층 발판", item.Position, new Vector2(item.Width, .6f),
+                ceiling ? new Color(.24f, .18f, .32f) : new Color(.16f, .28f, .32f), false);
+            deck.layer = LayerMask.NameToLayer("Ground");
+            var edge = new GameObject("주행면");
+            edge.transform.SetParent(deck.transform, false);
+            edge.transform.localPosition = new Vector2(0f, ceiling ? -.25f : .25f);
+            var stripe = edge.AddComponent<SpriteRenderer>();
+            stripe.sprite = square;
+            stripe.drawMode = SpriteDrawMode.Sliced;
+            stripe.size = new Vector2(item.Width, .1f);
+            stripe.color = ceiling ? new Color(.84f, .66f, 1f) : new Color(.53f, .84f, .87f);
+            stripe.sortingOrder = 1;
+            var collider = deck.GetComponent<BoxCollider2D>();
+            collider.usedByEffector = true;
+            var effector = deck.AddComponent<PlatformEffector2D>();
+            effector.rotationalOffset = ceiling ? 180f : 0f;
+            effector.surfaceArc = 150f;
         }
 
         private static void Moving(float x, float y, Vector2 travel, float period, float width)

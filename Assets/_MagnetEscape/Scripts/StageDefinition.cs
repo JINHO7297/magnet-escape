@@ -21,6 +21,8 @@ namespace MagnetEscape
         public float FallDeathHeight = -7f;
         [Range(0f, 1f)] public float RespawnDelay = 0.2f;
         public RectPlacement[] Platforms = Array.Empty<RectPlacement>();
+        public RectPlacement[] MidDecks = Array.Empty<RectPlacement>();
+        public RectPlacement[] InversionCeilings = Array.Empty<RectPlacement>();
         public RailPlacement[] Rails = Array.Empty<RailPlacement>();
         public MovingPlacement[] MovingPlatforms = Array.Empty<MovingPlacement>();
         public RectPlacement[] Spikes = Array.Empty<RectPlacement>();

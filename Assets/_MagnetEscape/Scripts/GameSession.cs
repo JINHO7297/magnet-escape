@@ -268,8 +268,10 @@ namespace MagnetEscape
 
         private void LateUpdate()
         {
-            if (view == null || Player == null || Paused || ChangingScene) return;
-            view.transform.position = Vector3.Lerp(view.transform.position, CameraTarget(), 1f - Mathf.Exp(-7f * Time.deltaTime));
+            if (view == null) return;
+            if (Player != null && !Paused && !ChangingScene)
+                view.transform.position = Vector3.Lerp(view.transform.position, CameraTarget(), 1f - Mathf.Exp(-7f * Time.deltaTime));
+            if (FactoryWall != null) GameArt.FrameSky(FactoryWall, view, Stage == 0 || IsEndless ? .5f : Progress);
         }
 
         private Vector3 CameraTarget()
@@ -282,7 +284,8 @@ namespace MagnetEscape
                 : Mathf.Clamp(Player.transform.position.x + direction * 3.5f, Mathf.Min(first, last), Mathf.Max(first, last));
             float minY = geometryReady ? cameraFloor : Mathf.Min(startY, ExitPosition.y) + 1.6f;
             float maxY = geometryReady ? cameraCeiling : Mathf.Max(startY, ExitPosition.y) + 5.8f;
-            float y = Mathf.Clamp(Player.transform.position.y + 1.5f, minY, maxY);
+            float lookY = Player.IsInverted ? -1.5f : 1.5f;
+            float y = Mathf.Clamp(Player.transform.position.y + lookY, minY, maxY);
             return new Vector3(x, y, -10f);
         }
 
