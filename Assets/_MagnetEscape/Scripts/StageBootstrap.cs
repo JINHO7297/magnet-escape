@@ -158,7 +158,7 @@ namespace MagnetEscape
             return platform;
         }
 
-        private static void ElevatedDeck(StageDefinition.RectPlacement item, bool ceiling)
+        internal static GameObject ElevatedDeck(StageDefinition.RectPlacement item, bool ceiling)
         {
             var deck = Box(ceiling ? "반전 천장" : "중층 발판", item.Position, new Vector2(item.Width, .6f),
                 ceiling ? new Color(.24f, .18f, .32f) : new Color(.16f, .28f, .32f), false);
@@ -177,6 +177,7 @@ namespace MagnetEscape
             var effector = deck.AddComponent<PlatformEffector2D>();
             effector.rotationalOffset = ceiling ? 180f : 0f;
             effector.surfaceArc = 150f;
+            return deck;
         }
 
         private static void Moving(float x, float y, Vector2 travel, float period, float width)
@@ -249,11 +250,12 @@ namespace MagnetEscape
             saw.AddComponent<RotatingSaw>().Configure(travel, period, phase);
         }
 
-        private static void Anchor(float x, float y, float range = 7f, float strength = 1f)
+        internal static GameObject Anchor(float x, float y, float range = 7f, float strength = 1f)
         {
             GameObject anchor = Box("Magnet anchor (range 7)", new Vector2(x, y), Vector2.one, Color.magenta, true);
             GameArt.Apply(anchor, "anchor", 4);
             anchor.AddComponent<MagnetAnchor>().Configure(range, strength);
+            return anchor;
         }
     }
 }

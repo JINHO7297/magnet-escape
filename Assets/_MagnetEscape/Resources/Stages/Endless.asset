@@ -23,7 +23,7 @@ MonoBehaviour:
     x: 1000000
     y: 0
   DashEnabled: 1
-  MagnetEnabled: 0
+  MagnetEnabled: 1
   FallDeathHeight: -7
   RespawnDelay: 0
   Platforms: []
@@ -35,5 +35,5 @@ MonoBehaviour:
   Magnets: []
   Checkpoints: []
   Hints: []
-  OpeningMessage: '민: 축제가 열렸어! 별도 모으고, 서로 다른 시설을 연달아 타서 기록에 도전해 봐.'
+  OpeningMessage: '민: 가장자리의 별을 보고 뛰어! 긴 틈은 공중 대시로, 보라색 천장은 점프와 Q로 건너.'
   EndingMessage: ''

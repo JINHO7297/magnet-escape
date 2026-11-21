@@ -42,6 +42,16 @@ namespace MagnetEscape
             combo = Time.time - lastStar <= 2.5f ? Mathf.Min(10, combo + 1) : 1;
             lastStar = Time.time; Stars++; BonusPoints += 50 + (Combo - 1) * 10;
         }
+        public static bool HardEndless { get; private set; }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDifficulty() => HardEndless = false;
+
+        public void StartEndless(bool hard)
+        {
+            HardEndless = hard;
+            LoadEndless();
+        }
+
         public void LoadEndless() => OpenScene("Endless");
         public PlayerMotor Player;
         public SpriteRenderer FactoryWall;
@@ -230,10 +240,10 @@ namespace MagnetEscape
             }
             if (Stage == 0)
             {
-                if (Input.GetKeyDown(KeyCode.N)) { LoadEndless(); return; }
-                if (Input.GetKeyDown(KeyCode.B)) { hud.OpenEndlessRecords(); return; }
+                if (Input.GetKeyDown(KeyCode.N)) { StartEndless(false); return; }
+                if (Input.GetKeyDown(KeyCode.B)) { hud.OpenRecords(); return; }
                 for (int i = 1; i <= StageInfo.FestivalCount; i++)
-                    if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) { LoadStage(StageInfo.FestivalForSlot(i)); return; }
+                    if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) { StartEndless(i == 2); return; }
                 return;
             }
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -277,7 +287,7 @@ namespace MagnetEscape
         private Vector3 CameraTarget()
         {
             float direction = courseEnd >= startX ? 1f : -1f;
-            if (IsEndless) return new Vector3(Player.transform.position.x + 3.5f, 3f, -10f);
+            if (IsEndless) return new Vector3(Player.transform.position.x + 4.5f, Mathf.Clamp(Player.transform.position.y + (Player.IsInverted ? -1f : 1.6f), 2f, 8f), -10f);
             float first = startX + direction * 3.5f;
             float last = courseEnd - direction * 3f;
             float x = Mathf.Abs(courseEnd - startX) < 6.5f ? (startX + courseEnd) * 0.5f
@@ -304,6 +314,7 @@ namespace MagnetEscape
 
         public void LoadStage(int stage)
         {
+            if (stage == StageInfo.EndlessStage) { LoadEndless(); return; }
             OpenScene("Stage" + Mathf.Clamp(stage, 1, StageInfo.Count));
         }
 
@@ -371,7 +382,7 @@ namespace MagnetEscape
                 Feedback(Player.transform.position, Color.red, GameAudio.Cue.Death);
                 try
                 {
-                    EndlessRecords.Save(EndlessScore, Distance, Stars, GetComponent<EndlessCourse>().Seed);
+                    EndlessRecords.Save(EndlessScore, Distance, Stars, GetComponent<EndlessCourse>().Seed, HardEndless);
                     RecordSaved = true;
                 }
                 catch (PlayerPrefsException exception) { Debug.LogException(exception); RecordSaved = false; }

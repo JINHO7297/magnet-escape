@@ -1303,6 +1303,53 @@ namespace MagnetEscape.Tests
         }
 
         [UnityTest]
+        public IEnumerator EndlessDifficultiesCrossGeneratedGapsWithJumpAndDash()
+        {
+            foreach (bool hard in new[] { true, false })
+            {
+                GameSession.Active.StartEndless(hard);
+                yield return null;
+                yield return null;
+                session = GameSession.Active;
+                session.SetPaused(false);
+                Assert.That(session.IsEndless && GameSession.HardEndless == hard, Is.True);
+                Assert.That(Object.FindObjectsOfType<ExitGate>(), Is.Empty);
+                var player = session.Player;
+                var course = session.GetComponent<EndlessCourse>();
+                var body = player.GetComponent<Rigidbody2D>();
+                player.enabled = false;
+                Time.captureDeltaTime = Time.fixedDeltaTime;
+                // Use the generated colliders at both introductory and full difficulty.
+                foreach (int chunk in new[] { 0, 2, 12, 20 })
+                {
+                    float x = chunk * 32f;
+                    course.Advance(x);
+                    Physics2D.SyncTransforms();
+                    var hits = Physics2D.RaycastAll(new Vector2(x + 4f, 12f), Vector2.down, 24f, LayerMask.GetMask("Ground"));
+                    var takeoff = System.Array.Find(hits, hit => hit.collider.name == "Rooftop platform");
+                    Assert.That(takeoff.collider, Is.Not.Null);
+                    Bounds floor = takeoff.collider.bounds;
+                    float edge = floor.max.x;
+                    player.ResetAt(new Vector2(edge - .45f, floor.max.y + .455f));
+                    player.SendMessage("FixedUpdate");
+                    Assert.That(player.Grounded, Is.True);
+                    SetMotorField(player, "jumpQueued", true);
+                    SetMotorField(player, "jumpHeld", true);
+                    bool landed = false;
+                    for (int tick = 0; tick < 85 && !landed; tick++)
+                    {
+                        if (tick == 18) SetMotorField(player, "dashQueued", true);
+                        player.SendMessage("FixedUpdate");
+                        yield return null;
+                        Assert.That(session.Deaths, Is.Zero, "Jump failed at chunk " + chunk);
+                        landed = player.Grounded && body.position.x >= x + 34f;
+                    }
+                    Assert.That(landed, Is.True, "No landing beyond chunk " + chunk);
+                }
+            }
+        }
+
+        [UnityTest]
         public IEnumerator EndlessStreamsChunksScoresStarsAndEndsOnceWithoutRespawning()
         {
             string key = EndlessRecords.Key;

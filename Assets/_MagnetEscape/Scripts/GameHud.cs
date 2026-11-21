@@ -6,6 +6,7 @@ namespace MagnetEscape
     {
         private enum Overlay { None, Controls, Credits, Records, ResetRecord, EndlessRecords }
         private Overlay overlay;
+        private bool rankingHard;
         private int resetStage;
         private string resetScenePath;
         private string resetTitle;
@@ -27,13 +28,13 @@ namespace MagnetEscape
         private void Awake() => session = GetComponent<GameSession>();
 
         public void OpenHelp() => overlay = Overlay.Controls;
-        public void OpenEndlessRecords() => overlay = Overlay.EndlessRecords;
         public void OpenCredits() => overlay = Overlay.Credits;
 
         public void OpenRecords()
         {
             recordWarning = null;
-            overlay = Overlay.Records;
+            rankingHard = GameSession.HardEndless;
+            overlay = session.Stage == 0 || session.IsEndless ? Overlay.EndlessRecords : Overlay.Records;
         }
 
         public bool CloseOverlay()
@@ -147,36 +148,18 @@ namespace MagnetEscape
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0.02f, 0.04f, 0.06f, 0.72f));
             Label(new Rect(48, 24, 870, 55), "마그넷 스케이터", title, Mint);
-            Label(new Rect(51, 82, 860, 30), "끊긴 도시의 길을 연결하고 친구들과 옥상 스케이트 축제를 열어 주세요.", text);
-
-            if (GUI.Button(new Rect(494, 365, 418, 38), "무한 순위 / B", button)) overlay = Overlay.EndlessRecords;
-            if (GUI.Button(new Rect(48, 365, 418, 38), "무한 기록 질주 / N", button)) session.LoadEndless();
-            int completed = 0;
-            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
-                if (StageRecords.ForBuildStage(StageInfo.FestivalForSlot(slot)).HasTime) completed++;
-            Label(new Rect(740, 45, 180, 30), "완주  " + completed + " / " + StageInfo.FestivalCount, text, Gold);
-            for (int slot = 1; slot <= StageInfo.FestivalCount; slot++)
+            Label(new Rect(51, 82, 860, 30), "매번 달라지는 옥상과 반전 천장을 건너 어디까지 달릴 수 있을까요?", text);
+            for (int slot = 1; slot <= 2; slot++)
             {
-                int stage = StageInfo.FestivalForSlot(slot);
-                float x = slot == 1 ? 48 : 494;
+                bool hard = slot == 2;
+                float x = hard ? 494 : 48;
                 const float y = 165;
                 Panel(new Rect(x, y, 418, 146));
-                Label(new Rect(x + 18, y + 14, 380, 30), StageInfo.Title(stage), heading);
-                Label(new Rect(x + 18, y + 49, 380, 22), StageInfo.Lesson(stage), small);
-                StageRecords.Record record = StageRecords.ForBuildStage(stage);
-                bool available = session.CanOpenStage(stage);
-                string best = available ? "아직 기록 없음" : "이 코스는 실행본에 없습니다";
-                if (available && record.HasTime)
-                {
-                    int score = Mathf.Clamp(record.BestRank, 1, 4);
-                    best = "최고 시간 " + record.BestTime.ToString("F2") + "초 / "
-                        + record.Deaths + "회 충돌 | 최고 등급 " + " CBAS"[score];
-                }
-                Label(new Rect(x + 18, y + 77, 380, 22), best, small, Gold);
-                bool enabled = GUI.enabled;
-                GUI.enabled = enabled && available;
-                if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), available ? "시작  /  " + slot : "실행 불가", button)) session.LoadStage(stage);
-                GUI.enabled = enabled;
+                Label(new Rect(x + 18, y + 14, 380, 30), hard ? "어려움 · 무한 질주" : "쉬움 · 무한 질주", heading);
+                Label(new Rect(x + 18, y + 49, 380, 22), hard ? "긴 틈에서는 점프와 공중 대시를 이어 쓰세요." : "별을 따라 높이가 다른 옥상으로 건너세요.", small);
+                var runs = EndlessRecords.Load(hard);
+                Label(new Rect(x + 18, y + 77, 380, 22), runs.Count == 0 ? "아직 기록 없음" : "최고 " + runs[0].Score + "점", small, Gold);
+                if (GUI.Button(new Rect(x + 18, y + 105, 382, 30), "달리기 / " + slot, button)) session.StartEndless(hard);
             }
             if (!string.IsNullOrEmpty(session.Notice)) Label(new Rect(52, 449, 860, 22), session.Notice, small, Gold);
             Volume(52, 474);
@@ -185,13 +168,13 @@ namespace MagnetEscape
             if (GUI.Button(new Rect(710, 474, 90, 32), "제작 정보", button)) overlay = Overlay.Credits;
             if (!Application.isEditor && GUI.Button(new Rect(810, 474, 100, 32), "게임 종료", button)) session.QuitGame();
             DisplayModeButton(new Rect(52, 510, 230, 26));
-            Label(new Rect(530, 516, 380, 20), "1 쉬움 · 2 어려움 · N 무한 · T 기록", small);
+            Label(new Rect(530, 516, 380, 20), "1 쉬움 · 2 어려움 · T 기록", small);
         }
 
         private void Hud()
         {
             Panel(new Rect(20, 16, 920, 66));
-            Label(new Rect(36, 24, 420, 28), session.IsEndless ? "무한 기록 질주" : StageInfo.Title(session.Stage), heading);
+            Label(new Rect(36, 24, 420, 28), session.IsEndless ? (GameSession.HardEndless ? "어려움 · 무한 질주" : "쉬움 · 무한 질주") : StageInfo.Title(session.Stage), heading);
             Label(new Rect(600, 24, 330, 28), session.Elapsed.ToString("F2") + "초     충돌 " + session.Deaths, heading);
             if (GUI.Button(new Rect(480, 26, 90, 28), "도움말", button))
             {
@@ -353,11 +336,11 @@ namespace MagnetEscape
         {
             Fill(new Rect(0, 0, 960, 540), new Color(0f,0f,0f,.7f));
             Panel(new Rect(190, 92, 580, 390));
-            Label(new Rect(220, 110, 520, 42), "무한 질주 기록", heading, Mint);
+            Label(new Rect(220, 110, 520, 42), GameSession.HardEndless ? "어려움 · 질주 기록" : "쉬움 · 질주 기록", heading, Mint);
             Label(new Rect(220, 152, 520, 50), session.EndlessScore + "점", title, Gold);
             Label(new Rect(220, 207, 520, 30), session.Distance.ToString("F0") + "m · 별 " + session.Stars + " · 시설 성공 " + session.FacilitiesCompleted, text);
             Label(new Rect(220, 240, 520, 24), session.RecordSaved ? "이 기기의 상위 5개 기록" : "기록 저장 실패 / 이번 점수는 위에서 확인하세요", small, Gold);
-            var runs = EndlessRecords.Load();
+            var runs = EndlessRecords.Load(GameSession.HardEndless);
             for (int i = 0; i < runs.Count; i++)
                 Label(new Rect(220, 270 + i * 25, 520, 24), (i + 1) + "위   " + runs[i].Score + "점 / " + runs[i].Distance.ToString("F0") + "m / 별 " + runs[i].Stars, small);
             if (GUI.Button(new Rect(220, 414, 245, 40), "다시 달리기 / R", button)) session.LoadEndless();
@@ -388,8 +371,8 @@ namespace MagnetEscape
                     "항상 오른쪽으로 이동합니다. 좌우 입력·후진은 없습니다.", "길게 누르면 높이, 짧게 누르면 낮게 점프합니다.",
                     "앞으로 짧게 대시합니다. 장애물 무적은 없습니다.",
                     "공중 자력 조절. 레일은 Q로 잡고 Space/E로 도약합니다.",
-                    "코스: 체크포인트 재도전 · 무한: 현재 기록 확정",
-                    "시간·충돌·체크포인트를 초기화하고 처음부터 시작합니다.", "정지 / 재개. H 도움말 · T 기록 · C 제작 정보."
+                    "현재 질주를 끝내고 점수를 확정합니다.",
+                    "같은 난이도에서 새 지형으로 다시 달립니다.", "정지 / 재개. H 도움말 · T 기록 · C 제작 정보."
                 };
                 for (int i = 0; i < keys.Length; i++)
                 {
@@ -426,9 +409,10 @@ namespace MagnetEscape
             }
             else if (overlay == Overlay.EndlessRecords)
             {
-                Label(new Rect(132, 125, 690, 26), "이 기기의 상위 5개 기록 / 거리·별 연속 수집·시설 기술 점수", small);
-                var runs = EndlessRecords.Load();
-                if (runs.Count == 0) Label(new Rect(132, 190, 690, 30), "아직 기록이 없습니다. 선택 화면에서 N으로 도전하세요.", text);
+                if (GUI.Button(new Rect(132, 125, 150, 30), rankingHard ? "쉬움" : "● 쉬움", button)) rankingHard = false;
+                if (GUI.Button(new Rect(292, 125, 150, 30), rankingHard ? "● 어려움" : "어려움", button)) rankingHard = true;
+                var runs = EndlessRecords.Load(rankingHard);
+                if (runs.Count == 0) Label(new Rect(132, 190, 690, 30), "아직 기록이 없습니다. 질주를 마치면 점수가 등록됩니다.", text);
                 for (int i = 0; i < runs.Count; i++)
                     Label(new Rect(132, 175 + i * 45, 690, 32), (i + 1) + "위  " + runs[i].Score + "점 / " + runs[i].Distance.ToString("F0") + "m / 별 " + runs[i].Stars, text, Gold);
             }
@@ -454,12 +438,12 @@ namespace MagnetEscape
             }
             else
             {
-                Label(new Rect(132, 130, 680, 55), "자석 보드를 타고 도심의 4코스를 달리는 플랫폼 액션입니다.", text);
+                Label(new Rect(132, 130, 680, 55), "자석 보드로 매번 달라지는 도심을 달리는 무한 플랫폼 액션입니다.", text);
                 Label(new Rect(132, 213, 680, 30), "제작  /  JINHO7297", heading, Gold);
                 Label(new Rect(132, 263, 680, 30), "그래픽  /  오리지널 스케이터·도심 픽셀 아트", text);
                 Label(new Rect(132, 306, 680, 30), "소리  /  오리지널 합성 효과음", text);
                 Label(new Rect(132, 349, 680, 30), "개발 도구  /  Unity", text);
-                Label(new Rect(132, 401, 680, 30), "플레이해 주셔서 감사합니다. 모든 코스에 다시 도전해 보세요.", text, Mint);
+                Label(new Rect(132, 401, 680, 30), "플레이해 주셔서 감사합니다. 새로운 옥상에서 최고 기록에 도전하세요.", text, Mint);
             }
             if (overlay != Overlay.ResetRecord && GUI.Button(new Rect(330, 454, 300, 32), "돌아가기  /  Esc", button)) overlay = Overlay.None;
         }
